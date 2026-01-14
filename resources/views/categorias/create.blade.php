@@ -1,78 +1,30 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">Nueva categoría</h2>
+        <div>
+            <h2 class="text-2xl font-semibold text-slate-900">Nueva categoría</h2>
+            <p class="text-sm text-slate-500">Definí nombre, orden y estado.</p>
+        </div>
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow-sm sm:rounded-lg p-6">
+    <x-card>
+        <form method="POST" action="{{ route('categorias.store') }}" class="space-y-4">
+            @csrf
 
-                @if ($errors->any())
-                    <div class="mb-4 p-3 rounded bg-red-100 text-red-800">
-                        <ul class="list-disc pl-5">
-                            @foreach ($errors->all() as $e)
-                                <li>{{ $e }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+            <x-input name="nombre" label="Nombre" :value="old('nombre')" required />
+            <x-input name="slug" label="Slug (opcional)" :value="old('slug')" placeholder="se-genera-solo-si-lo-dejas-vacio" />
+            <x-textarea name="descripcion" label="Descripción">{{ old('descripcion') }}</x-textarea>
 
-                <form method="POST" action="{{ route('categorias.store') }}" class="space-y-4">
-                    @csrf
-
-                    <div>
-                        <label class="block text-sm font-medium">Nombre</label>
-                        <input name="nombre" value="{{ old('nombre') }}"
-                               class="mt-1 w-full rounded border-gray-300" required>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium">Slug (opcional)</label>
-                        <input name="slug" value="{{ old('slug') }}"
-                               class="mt-1 w-full rounded border-gray-300"
-                               placeholder="se-genera-solo-si-lo-dejas-vacio">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium">Descripción</label>
-                        <textarea name="descripcion" class="mt-1 w-full rounded border-gray-300"
-                                  rows="3">{{ old('descripcion') }}</textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium">Imagen (URL o path)</label>
-                            <input name="imagen" value="{{ old('imagen') }}"
-                                   class="mt-1 w-full rounded border-gray-300">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium">Orden</label>
-                            <input type="number" name="orden" value="{{ old('orden', 0) }}"
-                                   class="mt-1 w-full rounded border-gray-300" min="0">
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" name="activo" value="1"
-                               class="rounded border-gray-300"
-                               {{ old('activo', true) ? 'checked' : '' }}>
-                        <span>Activa</span>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <a href="{{ route('categorias.index') }}"
-                           class="px-4 py-2 rounded border">
-                            Volver
-                        </a>
-                        <button class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
-                            Guardar
-                        </button>
-                    </div>
-                </form>
-
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <x-input name="imagen" label="Imagen (URL o path)" :value="old('imagen')" />
+                <x-input name="orden" type="number" label="Orden" :value="old('orden', 0)" min="0" />
             </div>
-        </div>
-    </div>
-</x-app-layout>
 
+            <x-checkbox name="activo" label="Activa" value="1" :checked="old('activo', true)" />
+
+            <div class="flex justify-end gap-2">
+                <x-button variant="outline" as="a" href="{{ route('categorias.index') }}">Volver</x-button>
+                <x-button type="submit">Guardar</x-button>
+            </div>
+        </form>
+    </x-card>
+</x-app-layout>

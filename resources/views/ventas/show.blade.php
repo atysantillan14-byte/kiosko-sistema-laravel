@@ -1,105 +1,92 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Venta #{{ $venta->id }}
-            </h2>
-
-            <a href="{{ route('ventas.index') }}"
-               class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200">
-                Volver
-            </a>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="text-2xl font-semibold text-slate-900">Venta #{{ $venta->id }}</h2>
+                <p class="text-sm text-slate-500">Detalle completo de la transacción.</p>
+            </div>
+            <x-button variant="outline" as="a" href="{{ route('ventas.index') }}">Volver</x-button>
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="space-y-6">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <x-card>
+                <p class="text-xs font-semibold text-slate-500">Usuario</p>
+                <p class="mt-2 text-sm font-semibold text-slate-900">{{ $venta->usuario?->name ?? '-' }}</p>
+            </x-card>
+            <x-card>
+                <p class="text-xs font-semibold text-slate-500">Método</p>
+                <p class="mt-2 text-sm font-semibold text-slate-900">
+                    @if($venta->metodo_pago === 'mixto')
+                        Pago mixto
+                    @else
+                        {{ $venta->metodo_pago }}
+                    @endif
+                </p>
+            </x-card>
+            <x-card>
+                <p class="text-xs font-semibold text-slate-500">Estado</p>
+                <p class="mt-2 text-sm font-semibold text-slate-900">{{ $venta->estado }}</p>
+            </x-card>
+            <x-card>
+                <p class="text-xs font-semibold text-slate-500">Total</p>
+                <p class="mt-2 text-2xl font-extrabold text-slate-900">
+                    $ {{ number_format((float)$venta->total, 2, ',', '.') }}
+                </p>
+            </x-card>
+        </div>
 
-            <div class="bg-white rounded-xl shadow-sm p-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <div class="text-xs font-semibold text-gray-500">Usuario</div>
-                    <div class="font-bold">{{ $venta->usuario?->name ?? '-' }}</div>
-                </div>
-                <div>
-                    <div class="text-xs font-semibold text-gray-500">Método</div>
-                    <div class="font-bold">
-                        @if($venta->metodo_pago === 'mixto')
-                            Pago mixto
-                        @else
-                            {{ $venta->metodo_pago }}
+        @if($venta->metodo_pago === 'mixto' || $venta->metodo_pago_primario)
+            <x-card title="Detalle de pago">
+                <div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500">Método 1</p>
+                        <p class="mt-2 font-semibold text-slate-900">{{ $venta->metodo_pago_primario ?? $venta->metodo_pago }}</p>
+                        @if($venta->monto_primario)
+                            <p class="text-slate-600">$ {{ number_format((float)$venta->monto_primario, 2, ',', '.') }}</p>
                         @endif
                     </div>
-                </div>
-                <div>
-                    <div class="text-xs font-semibold text-gray-500">Estado</div>
-                    <div class="font-bold">{{ $venta->estado }}</div>
-                </div>
-                <div>
-                    <div class="text-xs font-semibold text-gray-500">Total</div>
-                    <div class="text-2xl font-extrabold">
-                        $ {{ number_format((float)$venta->total, 2, ',', '.') }}
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500">Método 2</p>
+                        <p class="mt-2 font-semibold text-slate-900">{{ $venta->metodo_pago_secundario ?? '—' }}</p>
+                        @if($venta->monto_secundario)
+                            <p class="text-slate-600">$ {{ number_format((float)$venta->monto_secundario, 2, ',', '.') }}</p>
+                        @endif
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500">Efectivo recibido</p>
+                        <p class="mt-2 font-semibold text-slate-900">
+                            {{ $venta->efectivo_recibido ? '$ ' . number_format((float)$venta->efectivo_recibido, 2, ',', '.') : '—' }}
+                        </p>
+                        <p class="mt-2 text-xs text-slate-500">Vuelto</p>
+                        <p class="font-semibold text-slate-900">
+                            {{ $venta->efectivo_cambio ? '$ ' . number_format((float)$venta->efectivo_cambio, 2, ',', '.') : '—' }}
+                        </p>
                     </div>
                 </div>
-            </div>
+            </x-card>
+        @endif
 
-            @if($venta->metodo_pago === 'mixto' || $venta->metodo_pago_primario)
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <h3 class="text-sm font-semibold text-gray-900 mb-4">Detalle de pago</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                        <div>
-                            <div class="text-xs font-semibold text-gray-500">Método 1</div>
-                            <div class="font-semibold">{{ $venta->metodo_pago_primario ?? $venta->metodo_pago }}</div>
-                            @if($venta->monto_primario)
-                                <div class="text-gray-600">$ {{ number_format((float)$venta->monto_primario, 2, ',', '.') }}</div>
-                            @endif
-                        </div>
-                        <div>
-                            <div class="text-xs font-semibold text-gray-500">Método 2</div>
-                            <div class="font-semibold">{{ $venta->metodo_pago_secundario ?? '—' }}</div>
-                            @if($venta->monto_secundario)
-                                <div class="text-gray-600">$ {{ number_format((float)$venta->monto_secundario, 2, ',', '.') }}</div>
-                            @endif
-                        </div>
-                        <div>
-                            <div class="text-xs font-semibold text-gray-500">Efectivo recibido</div>
-                            <div class="font-semibold">
-                                {{ $venta->efectivo_recibido ? '$ ' . number_format((float)$venta->efectivo_recibido, 2, ',', '.') : '—' }}
-                            </div>
-                            <div class="text-xs text-gray-500">Vuelto</div>
-                            <div class="font-semibold">
-                                {{ $venta->efectivo_cambio ? '$ ' . number_format((float)$venta->efectivo_cambio, 2, ',', '.') : '—' }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                        <tr class="text-left text-sm font-semibold text-gray-600">
-                            <th class="px-6 py-4">Producto</th>
-                            <th class="px-6 py-4">Cantidad</th>
-                            <th class="px-6 py-4">Precio</th>
-                            <th class="px-6 py-4">Subtotal</th>
-                        </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                        @foreach($venta->detalles as $d)
-                            <tr>
-                                <td class="px-6 py-4 font-semibold">{{ $d->producto?->nombre ?? 'Producto eliminado' }}</td>
-                                <td class="px-6 py-4">{{ (int)$d->cantidad }}</td>
-                                <td class="px-6 py-4">$ {{ number_format((float)$d->precio_unitario, 2, ',', '.') }}</td>
-                                <td class="px-6 py-4 font-bold">$ {{ number_format((float)$d->subtotal, 2, ',', '.') }}</td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
+        <x-table>
+            <x-slot name="head">
+                <tr>
+                    <th class="px-6 py-4">Producto</th>
+                    <th class="px-6 py-4">Cantidad</th>
+                    <th class="px-6 py-4">Precio</th>
+                    <th class="px-6 py-4">Subtotal</th>
+                </tr>
+            </x-slot>
+            <x-slot name="body">
+                @foreach($venta->detalles as $d)
+                    <tr>
+                        <td class="px-6 py-4 font-semibold text-slate-900">{{ $d->producto?->nombre ?? 'Producto eliminado' }}</td>
+                        <td class="px-6 py-4 text-slate-600">{{ (int)$d->cantidad }}</td>
+                        <td class="px-6 py-4 text-slate-600">$ {{ number_format((float)$d->precio_unitario, 2, ',', '.') }}</td>
+                        <td class="px-6 py-4 font-semibold text-slate-900">$ {{ number_format((float)$d->subtotal, 2, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+            </x-slot>
+        </x-table>
     </div>
 </x-app-layout>
-

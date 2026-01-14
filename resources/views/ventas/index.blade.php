@@ -1,139 +1,102 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Ventas
-            </h2>
-
-            <a href="{{ route('ventas.create') }}"
-               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
-                Nueva Venta
-            </a>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="text-2xl font-semibold text-slate-900">Ventas</h2>
+                <p class="text-sm text-slate-500">Seguimiento de ventas y estados de cobro.</p>
+            </div>
+            <x-button as="a" href="{{ route('ventas.create') }}">
+                <i class="fa-solid fa-plus"></i>
+                Nueva venta
+            </x-button>
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="space-y-6">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <x-card>
+                <p class="text-sm font-semibold text-slate-600">Cantidad de ventas</p>
+                <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ (int)$cantidadVentas }}</p>
+                <p class="text-xs text-slate-500 mt-1">Según filtros aplicados</p>
+            </x-card>
+            <x-card>
+                <p class="text-sm font-semibold text-slate-600">Total en dinero</p>
+                <p class="mt-2 text-3xl font-extrabold text-slate-900">
+                    $ {{ number_format((float)$totalDinero, 2, ',', '.') }}
+                </p>
+                <p class="text-xs text-slate-500 mt-1">Según filtros aplicados</p>
+            </x-card>
+        </div>
 
-            {{-- Totales (más visibles) --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <div class="text-sm font-semibold text-gray-600">Cantidad de ventas</div>
-                    <div class="mt-2 text-4xl font-extrabold text-gray-900">{{ (int)$cantidadVentas }}</div>
-                    <div class="text-xs text-gray-500 mt-1">Según filtros aplicados</div>
+        <x-card title="Filtros" description="Ajustá rangos por fecha o búsqueda rápida.">
+            <form method="GET" action="{{ route('ventas.index') }}" class="grid grid-cols-1 gap-4 md:grid-cols-12">
+                <div class="md:col-span-3">
+                    <x-input name="desde" type="date" label="Desde" :value="$desde" />
                 </div>
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <div class="text-sm font-semibold text-gray-600">Total en dinero</div>
-                    <div class="mt-2 text-4xl font-extrabold text-gray-900">
-                        $ {{ number_format((float)$totalDinero, 2, ',', '.') }}
-                    </div>
-                    <div class="text-xs text-gray-500 mt-1">Según filtros aplicados</div>
+                <div class="md:col-span-3">
+                    <x-input name="hasta" type="date" label="Hasta" :value="$hasta" />
                 </div>
-            </div>
-
-            {{-- Filtros (compactos) --}}
-            <div class="bg-white rounded-xl shadow-sm p-5">
-                <form method="GET" action="{{ route('ventas.index') }}"
-                      class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                    <div class="md:col-span-3">
-                        <label class="text-sm font-semibold text-gray-700">Desde</label>
-                        <input type="date" name="desde" value="{{ $desde }}"
-                               class="mt-1 w-full rounded-lg border-gray-300" />
-                    </div>
-
-                    <div class="md:col-span-3">
-                        <label class="text-sm font-semibold text-gray-700">Hasta</label>
-                        <input type="date" name="hasta" value="{{ $hasta }}"
-                               class="mt-1 w-full rounded-lg border-gray-300" />
-                    </div>
-
-                    <div class="md:col-span-4">
-                        <label class="text-sm font-semibold text-gray-700">Buscar</label>
-                        <input name="q" value="{{ $buscar }}"
-                               placeholder="ID / método / estado / usuario..."
-                               class="mt-1 w-full rounded-lg border-gray-300" />
-                    </div>
-
-                    <div class="md:col-span-2 flex gap-2">
-                        <button class="w-full px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-black">
-                            Aplicar
-                        </button>
-                        <a href="{{ route('ventas.index') }}"
-                           class="w-full px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-center">
-                            Limpiar
-                        </a>
-                    </div>
-                </form>
-            </div>
-
-            {{-- Tabla (ancho completo) --}}
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                        <tr class="text-left text-sm font-semibold text-gray-600">
-                            <th class="px-6 py-4">ID</th>
-                            <th class="px-6 py-4">Fecha</th>
-                            <th class="px-6 py-4">Usuario</th>
-                            <th class="px-6 py-4">Método</th>
-                            <th class="px-6 py-4">Estado</th>
-                            <th class="px-6 py-4">Total</th>
-                            <th class="px-6 py-4 text-right">Acciones</th>
-                        </tr>
-                        </thead>
-
-                        <tbody class="divide-y divide-gray-100">
-                        @forelse($ventas as $v)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 font-semibold text-gray-900">#{{ $v->id }}</td>
-                                <td class="px-6 py-4 text-gray-700">{{ $v->created_at?->format('d/m/Y H:i') }}</td>
-                                <td class="px-6 py-4 text-gray-700">{{ $v->usuario?->name ?? '-' }}</td>
-                                <td class="px-6 py-4 text-gray-700">{{ $v->metodo_pago }}</td>
-                                <td class="px-6 py-4">
-                                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700">
-                                        {{ $v->estado }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 font-semibold text-gray-900">
-                                    $ {{ number_format((float)$v->total, 2, ',', '.') }}
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex justify-end gap-2">
-                                        <a href="{{ route('ventas.show', $v) }}"
-                                           class="px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200">
-                                            Ver
-                                        </a>
-                                        <a href="{{ route('ventas.edit', $v) }}"
-                                           class="px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200">
-                                            Editar
-                                        </a>
-                                        <form method="POST" action="{{ route('ventas.destroy', $v) }}"
-                                              onsubmit="return confirm('¿Eliminar esta venta?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">
-                                                Eliminar
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td class="px-6 py-8 text-gray-600" colspan="7">
-                                    No hay ventas para mostrar.
-                                </td>
-                            </tr>
-                        @endforelse
-                        </tbody>
-                    </table>
+                <div class="md:col-span-4">
+                    <x-input name="q" label="Buscar" :value="$buscar" placeholder="ID / método / estado / usuario..." />
                 </div>
-
-                <div class="p-4">
-                    {{ $ventas->links() }}
+                <div class="md:col-span-2 flex items-end gap-2">
+                    <x-button type="submit" class="w-full">Aplicar</x-button>
+                    <x-button variant="outline" as="a" href="{{ route('ventas.index') }}" class="w-full">Limpiar</x-button>
                 </div>
-            </div>
+            </form>
+        </x-card>
 
+        <x-table>
+            <x-slot name="head">
+                <tr>
+                    <th class="px-6 py-4">ID</th>
+                    <th class="px-6 py-4">Fecha</th>
+                    <th class="px-6 py-4">Usuario</th>
+                    <th class="px-6 py-4">Método</th>
+                    <th class="px-6 py-4">Estado</th>
+                    <th class="px-6 py-4">Total</th>
+                    <th class="px-6 py-4 text-right">Acciones</th>
+                </tr>
+            </x-slot>
+            <x-slot name="body">
+                @forelse($ventas as $v)
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-6 py-4 font-semibold text-slate-900">#{{ $v->id }}</td>
+                        <td class="px-6 py-4 text-slate-600">{{ $v->created_at?->format('d/m/Y H:i') }}</td>
+                        <td class="px-6 py-4 text-slate-600">{{ $v->usuario?->name ?? '-' }}</td>
+                        <td class="px-6 py-4 text-slate-600">{{ $v->metodo_pago }}</td>
+                        <td class="px-6 py-4">
+                            <x-badge variant="success">{{ $v->estado }}</x-badge>
+                        </td>
+                        <td class="px-6 py-4 font-semibold text-slate-900">
+                            $ {{ number_format((float)$v->total, 2, ',', '.') }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex justify-end gap-2">
+                                <x-button variant="ghost" as="a" href="{{ route('ventas.show', $v) }}">Ver</x-button>
+                                <x-button variant="ghost" as="a" href="{{ route('ventas.edit', $v) }}">Editar</x-button>
+                                <form method="POST" action="{{ route('ventas.destroy', $v) }}" onsubmit="return confirm('¿Eliminar esta venta?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <x-button variant="danger" type="submit">Eliminar</x-button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td class="px-6 py-10" colspan="7">
+                            <x-empty-state title="Sin ventas" description="Generá una venta para visualizarla aquí.">
+                                <x-button as="a" href="{{ route('ventas.create') }}">Registrar venta</x-button>
+                            </x-empty-state>
+                        </td>
+                    </tr>
+                @endforelse
+            </x-slot>
+        </x-table>
+
+        <div>
+            {{ $ventas->links() }}
         </div>
     </div>
 </x-app-layout>
