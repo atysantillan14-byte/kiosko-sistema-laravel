@@ -28,7 +28,7 @@
                         </div>
                         <span class="text-xs font-semibold text-blue-600">Inventario</span>
                     </div>
-                    <div class="mt-6 w-full text-[110px] font-black leading-none tracking-tight text-slate-900/90 sm:text-[140px] lg:text-[170px]">
+                    <div class="mt-6 w-full text-[150px] font-black leading-none tracking-tight text-slate-900/90 sm:text-[190px] lg:text-[230px]">
                         {{ (int) $totalProductos }}
                     </div>
                     <div class="mt-2 text-sm text-slate-500">Productos registrados según los filtros activos.</div>
