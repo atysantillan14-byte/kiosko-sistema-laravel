@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false }" class="bg-white/90 backdrop-blur border-b border-slate-200/70 shadow-sm">
     @php
         $kioskoNombre = env('KIOSKO_NOMBRE', config('app.name'));
         $kioskoLogo = env('KIOSKO_LOGO', null);
@@ -7,25 +7,25 @@
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-            <div class="flex">
+            <div class="flex items-center gap-6">
                 <!-- Brand (Logo + Nombre) -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
                         @if($kioskoLogo)
-                            <img src="{{ $kioskoLogo }}" alt="Logo" class="h-9 w-9 rounded-xl object-cover shadow-sm ring-1 ring-gray-200">
+                            <img src="{{ $kioskoLogo }}" alt="Logo" class="h-9 w-9 rounded-xl object-cover shadow-sm ring-1 ring-slate-200/80">
                         @else
-                            <div class="h-9 w-9 rounded-xl bg-gray-900/90 shadow-sm"></div>
+                            <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 shadow-sm ring-1 ring-slate-200/80"></div>
                         @endif
 
                         <div class="leading-tight">
-                            <div class="text-sm font-semibold text-gray-900">{{ $kioskoNombre }}</div>
-                            <div class="text-xs text-gray-500">Sistema de gestión</div>
+                            <div class="text-sm font-semibold text-slate-900 group-hover:text-slate-950">{{ $kioskoNombre }}</div>
+                            <div class="text-xs text-slate-500">Sistema de gestión</div>
                         </div>
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-2 sm:-my-px sm:ms-10 sm:flex items-center">
+                <div class="hidden sm:flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 ring-1 ring-slate-200/70 shadow-sm">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         Dashboard
                     </x-nav-link>
@@ -48,8 +48,8 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:text-gray-900 focus:outline-none transition ease-in-out duration-150">
-                            <div class="h-7 w-7 rounded-full bg-gray-900/10 flex items-center justify-center text-gray-700 font-semibold">
+                        <button class="inline-flex items-center gap-2 px-3 py-2 border border-slate-200 text-sm leading-4 font-medium rounded-full text-slate-700 bg-white hover:bg-slate-50 hover:text-slate-900 focus:outline-none transition ease-in-out duration-150 shadow-sm">
+                            <div class="h-7 w-7 rounded-full bg-slate-900/10 flex items-center justify-center text-slate-700 font-semibold">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                             </div>
                             <div class="hidden md:block">{{ Auth::user()->name }}</div>
@@ -81,7 +81,7 @@
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
                 <button @click="open = ! open"
-                    class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-600 transition duration-150 ease-in-out">
+                    class="inline-flex items-center justify-center p-2 rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-100 focus:outline-none focus:bg-slate-100 focus:text-slate-700 transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -134,4 +134,3 @@
         </div>
     </div>
 </nav>
-
