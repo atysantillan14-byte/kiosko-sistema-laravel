@@ -82,8 +82,23 @@ class DashboardController extends Controller
 
         // KPIs "Hoy" y "Mes" (en modo profesional: reflejan el filtro actual)
         // Si querés "Hoy" siempre hoy real, lo cambiamos luego.
-        $ventasHoy   = $ventasFiltradas;
-        $ingresosHoy = $totalFiltrado;
+        $hoyInicio = now($tz)->startOfDay();
+        $hoyFin = now($tz)->endOfDay();
+
+        $ventasHoyBase = Venta::query()
+            ->where('estado', '!=', 'anulada')
+            ->whereBetween('created_at', [$hoyInicio, $hoyFin]);
+
+        if ($userId) {
+            $ventasHoyBase->where('user_id', $userId);
+        }
+
+        if ($horaDesde && $horaHasta) {
+            $ventasHoyBase->whereRaw("TIME(created_at) BETWEEN ? AND ?", [$horaDesde . ':00', $horaHasta . ':59']);
+        }
+
+        $ventasHoy   = (clone $ventasHoyBase)->count();
+        $ingresosHoy = (clone $ventasHoyBase)->sum('total');
         $ventasMes   = $ventasFiltradas;
         $ingresosMes = $totalFiltrado;
 
@@ -145,6 +160,12 @@ class DashboardController extends Controller
         // Usuarios para el filtro
         $usuarios = User::orderBy('name')->get(['id', 'name']);
 
+        $primeraVentaAt = Venta::where('estado', '!=', 'anulada')->min('created_at');
+        $ultimaVentaAt = Venta::where('estado', '!=', 'anulada')->max('created_at');
+
+        $primeraVenta = $primeraVentaAt ? Carbon::parse($primeraVentaAt, $tz) : null;
+        $ultimaVenta = $ultimaVentaAt ? Carbon::parse($ultimaVentaAt, $tz) : null;
+
         return view('dashboard.index', compact(
             'usuarios',
             'esAdmin',
@@ -165,10 +186,11 @@ class DashboardController extends Controller
             'ventasPorMetodo',
             'stockBajo',
             'topProductos',
+            'primeraVenta',
+            'ultimaVenta',
         ));
     }
 }
-
 
 
 
