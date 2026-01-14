@@ -97,41 +97,41 @@
             </div>
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                    <div class="flex items-center justify-between text-sm text-gray-500">
-                        <span>Productos registrados</span>
+                <div class="rounded-2xl border border-slate-100 bg-white p-5 text-center shadow-sm">
+                    <div class="flex flex-col items-center gap-2 text-sm text-gray-500">
                         <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-amber-50 text-amber-600">
                             <i class="fas fa-boxes"></i>
                         </span>
+                        <span>Productos registrados</span>
                     </div>
                     <div class="mt-3 text-3xl font-extrabold text-gray-900">{{ $productosCount }}</div>
-                    <div class="text-xs text-gray-500 mt-1">Inventario total activo</div>
+                    <div class="mt-1 text-xs text-gray-500">Inventario total activo</div>
                 </div>
 
-                <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                    <div class="flex items-center justify-between text-sm text-gray-500">
-                        <span>Primera venta registrada</span>
+                <div class="rounded-2xl border border-slate-100 bg-white p-5 text-center shadow-sm">
+                    <div class="flex flex-col items-center gap-2 text-sm text-gray-500">
                         <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                             <i class="fas fa-flag-checkered"></i>
                         </span>
+                        <span>Primera venta registrada</span>
                     </div>
                     <div class="mt-3 text-lg font-semibold text-gray-900">
                         {{ $primeraVenta ? $primeraVenta->format('d/m/Y H:i') : 'Sin ventas' }}
                     </div>
-                    <div class="text-xs text-gray-500 mt-1">Fecha de inicio de actividad</div>
+                    <div class="mt-1 text-xs text-gray-500">Fecha de inicio de actividad</div>
                 </div>
 
-                <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                    <div class="flex items-center justify-between text-sm text-gray-500">
-                        <span>Última venta registrada</span>
+                <div class="rounded-2xl border border-slate-100 bg-white p-5 text-center shadow-sm">
+                    <div class="flex flex-col items-center gap-2 text-sm text-gray-500">
                         <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-sky-50 text-sky-600">
                             <i class="fas fa-clock"></i>
                         </span>
+                        <span>Última venta registrada</span>
                     </div>
                     <div class="mt-3 text-lg font-semibold text-gray-900">
                         {{ $ultimaVenta ? $ultimaVenta->format('d/m/Y H:i') : 'Sin ventas' }}
                     </div>
-                    <div class="text-xs text-gray-500 mt-1">Última actualización real</div>
+                    <div class="mt-1 text-xs text-gray-500">Última actualización real</div>
                 </div>
             </div>
 
@@ -288,95 +288,6 @@
                             <p class="text-xs text-gray-500 mt-1">Top ventas del período.</p>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            {{-- FILTROS PLEGABLES (no ocupan pantalla) --}}
-            <div x-data="{ open: false }" class="bg-white rounded-2xl shadow-sm border border-gray-100">
-                <div class="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <div class="font-semibold text-gray-900">Filtros inteligentes</div>
-                        <div class="text-xs text-gray-500">Ajustá período, turnos o usuario con un clic.</div>
-                    </div>
-
-                    <div class="flex flex-wrap gap-2">
-                        <a href="{{ route('dashboard', ['turno' => 'manana']) }}" class="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-blue-200 hover:text-blue-600">Mañana</a>
-                        <a href="{{ route('dashboard', ['turno' => 'tarde']) }}" class="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-blue-200 hover:text-blue-600">Tarde</a>
-                        <a href="{{ route('dashboard', ['turno' => 'noche']) }}" class="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-blue-200 hover:text-blue-600">Noche</a>
-                    </div>
-
-                    <button type="button"
-                            @click="open = !open"
-                            class="inline-flex items-center gap-2 rounded-md bg-gray-900 px-3 py-2 text-sm text-white hover:bg-gray-800">
-                        <i class="fas fa-sliders-h"></i>
-                        <span x-show="!open">Mostrar filtros</span>
-                        <span x-show="open" style="display:none;">Ocultar filtros</span>
-                    </button>
-                </div>
-
-                <div x-show="open" style="display:none;" class="border-t border-gray-100 p-4">
-                    <form method="GET" action="{{ route('dashboard') }}" class="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
-
-                        <div class="md:col-span-2">
-                            <label class="text-sm text-gray-600">Desde</label>
-                            <input type="date" name="desde" value="{{ request('desde') }}"
-                                   class="mt-1 w-full rounded-xl border-gray-200">
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="text-sm text-gray-600">Hasta</label>
-                            <input type="date" name="hasta" value="{{ request('hasta') }}"
-                                   class="mt-1 w-full rounded-xl border-gray-200">
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="text-sm text-gray-600">Mes</label>
-                            <input type="month" name="mes" value="{{ request('mes') }}"
-                                   class="mt-1 w-full rounded-xl border-gray-200">
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="text-sm text-gray-600">Turno</label>
-                            <select name="turno" class="mt-1 w-full rounded-xl border-gray-200">
-                                <option value="">Todos</option>
-                                <option value="manana" @selected(request('turno')==='manana')>Mañana (06-14)</option>
-                                <option value="tarde"  @selected(request('turno')==='tarde')>Tarde (14-22)</option>
-                                <option value="noche"  @selected(request('turno')==='noche')>Noche (22-24)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="text-sm text-gray-600">Hora desde</label>
-                            <input type="time" name="hora_desde" value="{{ request('hora_desde') }}"
-                                   class="mt-1 w-full rounded-xl border-gray-200">
-                        </div>
-
-                        <div>
-                            <label class="text-sm text-gray-600">Hora hasta</label>
-                            <input type="time" name="hora_hasta" value="{{ request('hora_hasta') }}"
-                                   class="mt-1 w-full rounded-xl border-gray-200">
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="text-sm text-gray-600">Usuario</label>
-                            <select name="user_id" class="mt-1 w-full rounded-xl border-gray-200">
-                                <option value="">Todos</option>
-                                @foreach($usuarios as $u)
-                                    <option value="{{ $u->id }}" @selected(request('user_id') == $u->id)>{{ $u->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="md:col-span-4 flex gap-2">
-                            <button class="px-4 py-2 rounded-xl bg-gray-900 text-white hover:bg-gray-800">
-                                Aplicar
-                            </button>
-                            <a href="{{ route('dashboard') }}" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200">
-                                Limpiar
-                            </a>
-                        </div>
-
-                    </form>
                 </div>
             </div>
 
