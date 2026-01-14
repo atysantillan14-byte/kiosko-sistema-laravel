@@ -45,6 +45,20 @@
                             <p class="text-sm text-slate-200">Resumen operativo</p>
                             <h3 class="text-2xl font-semibold">Todo listo para vender hoy</h3>
                             <p class="text-sm text-slate-200 mt-2">Controlá ventas, stock y usuarios desde un mismo lugar.</p>
+                            <div class="mt-4 grid grid-cols-1 gap-2 text-xs text-slate-200 sm:grid-cols-2">
+                                <div class="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                                    <p class="uppercase tracking-wide text-[10px] text-slate-300">Primera venta</p>
+                                    <p class="mt-1 text-sm font-semibold">
+                                        {{ $primeraVenta ? $primeraVenta->format('d/m/Y H:i') : 'Sin ventas' }}
+                                    </p>
+                                </div>
+                                <div class="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                                    <p class="uppercase tracking-wide text-[10px] text-slate-300">Última venta</p>
+                                    <p class="mt-1 text-sm font-semibold">
+                                        {{ $ultimaVenta ? $ultimaVenta->format('d/m/Y H:i') : 'Sin ventas' }}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                         <div class="flex flex-wrap gap-2">
                             <a href="{{ route('ventas.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20">
@@ -113,32 +127,66 @@
                         <h4 class="text-sm font-semibold text-gray-900">Branding del negocio</h4>
                         <span class="text-xs text-slate-400">Personalización</span>
                     </div>
-                    <div class="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                        <div class="flex items-center gap-4">
+                    <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <div class="flex items-center gap-4 rounded-xl border border-slate-100 p-4">
                             <div class="h-12 w-12 rounded-2xl bg-[rgb(var(--brand-600))] text-white flex items-center justify-center">
                                 <i class="fas fa-store"></i>
                             </div>
                             <div>
                                 <p class="text-sm font-semibold text-gray-900">Tu marca, tu estilo</p>
-                                <p class="text-xs text-gray-500">Personalizá logo, colores y tipografía en el perfil.</p>
+                                <p class="text-xs text-gray-500">Logo, colores y tipografía alineados.</p>
                             </div>
                         </div>
+                        <div class="rounded-xl border border-slate-100 p-4">
+                            <p class="text-xs text-gray-500">Paleta activa</p>
+                            <div class="mt-3 flex items-center gap-2">
+                                <span class="h-6 w-6 rounded-full bg-[rgb(var(--brand-600))]"></span>
+                                <span class="h-6 w-6 rounded-full bg-blue-200"></span>
+                                <span class="h-6 w-6 rounded-full bg-slate-200"></span>
+                            </div>
+                            <p class="mt-2 text-xs text-gray-400">Actualizá los tonos principales.</p>
+                        </div>
+                        <div class="rounded-xl border border-slate-100 p-4">
+                            <p class="text-xs text-gray-500">Identidad lista</p>
+                            <p class="mt-2 text-sm font-semibold text-gray-900">Plantilla social y etiquetas</p>
+                            <p class="mt-1 text-xs text-gray-400">Generá banners para campañas rápidas.</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex flex-wrap items-center gap-2">
                         <a href="{{ route('profile.edit') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:border-blue-200 hover:text-blue-600">
                             <i class="fas fa-paint-brush"></i>
                             Configurar branding
                         </a>
+                        <button class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-600" type="button">
+                            <i class="fas fa-magic"></i>
+                            Generar kit visual
+                        </button>
                     </div>
                 </div>
 
                 <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
                     <div class="flex items-center justify-between">
                         <h4 class="text-sm font-semibold text-gray-900">Automatización</h4>
-                        <span class="text-xs text-slate-400">Próximo</span>
+                        <span class="text-xs text-slate-400">Workflows</span>
                     </div>
                     <p class="mt-3 text-xs text-gray-500">Activá alertas por stock bajo y reportes automáticos por email/WhatsApp.</p>
-                    <button class="mt-4 inline-flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600" type="button" title="Próximamente">
+                    <div class="mt-4 space-y-2 text-xs text-slate-600">
+                        <div class="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2">
+                            <span>Alertas de stock</span>
+                            <span class="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700">Activo</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2">
+                            <span>Reporte diario</span>
+                            <span class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600">Pendiente</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2">
+                            <span>Mensajes a clientes</span>
+                            <span class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600">Pendiente</span>
+                        </div>
+                    </div>
+                    <button class="mt-4 inline-flex items-center gap-2 rounded-xl bg-gray-900 px-3 py-2 text-xs font-semibold text-white hover:bg-gray-800" type="button">
                         <i class="fas fa-bolt"></i>
-                        Próximamente
+                        Configurar flujos
                     </button>
                 </div>
             </div>
@@ -171,18 +219,18 @@
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                     <div class="flex items-center justify-between text-sm text-gray-500">
-                        <span>Ventas hoy (modo filtro)</span>
+                        <span>Ventas hoy</span>
                         <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
                             <i class="fas fa-calendar-day"></i>
                         </span>
                     </div>
                     <div class="mt-3 text-3xl font-extrabold text-gray-900">{{ $ventasHoy }}</div>
-                    <div class="text-xs text-gray-500 mt-1">Refleja el filtro actual</div>
+                    <div class="text-xs text-gray-500 mt-1">Solo ventas del día</div>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                     <div class="flex items-center justify-between text-sm text-gray-500">
-                        <span>Ingresos hoy (modo filtro)</span>
+                        <span>Ingresos hoy</span>
                         <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-sky-50 text-sky-600">
                             <i class="fas fa-wallet"></i>
                         </span>
@@ -190,7 +238,7 @@
                     <div class="mt-3 text-3xl font-extrabold text-gray-900">
                         $ {{ number_format($ingresosHoy, 2, ',', '.') }}
                     </div>
-                    <div class="text-xs text-gray-500 mt-1">Refleja el filtro actual</div>
+                    <div class="text-xs text-gray-500 mt-1">Solo ingresos del día</div>
                 </div>
             </div>
 
