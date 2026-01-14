@@ -16,9 +16,7 @@ class VentaController extends Controller
         $hasta = $request->query('hasta');
         $buscar = trim((string) $request->query('q', ''));
 
-        $ventasQuery = Venta::query()
-            ->with('usuario')
-            ->where('estado', '!=', 'anulada');
+        $ventasQuery = Venta::query()->with('usuario');
 
         if ($desde) {
             $ventasQuery->whereDate('created_at', '>=', $desde);
@@ -214,3 +212,4 @@ class VentaController extends Controller
         return redirect()->route('ventas.index')->with('success', 'Venta eliminada.');
     }
 }
+
