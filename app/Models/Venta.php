@@ -16,12 +16,22 @@ class Venta extends Model
     protected $fillable = [
         'user_id',
         'metodo_pago',
+        'metodo_pago_primario',
+        'metodo_pago_secundario',
+        'monto_primario',
+        'monto_secundario',
+        'efectivo_recibido',
+        'efectivo_cambio',
         'estado',
         'total',
     ];
 
     protected $casts = [
         'total' => 'decimal:2',
+        'monto_primario' => 'decimal:2',
+        'monto_secundario' => 'decimal:2',
+        'efectivo_recibido' => 'decimal:2',
+        'efectivo_cambio' => 'decimal:2',
     ];
 
     public function usuario(): BelongsTo
@@ -40,5 +50,4 @@ class Venta extends Model
         return $this->hasMany(\App\Models\DetalleVenta::class, 'venta_id');
     }
 }
-
 
