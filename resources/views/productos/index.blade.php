@@ -48,16 +48,10 @@
                         </span>
                         <button type="button"
                                 @click="open = !open"
-                                class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow hover:bg-black">
+                                class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">
+                            <i class="fas fa-sliders"></i>
                             <span x-text="open ? 'Ocultar filtros' : 'Mostrar filtros'">Mostrar filtros</span>
                         </button>
-                        <a href="{{ route('productos.index') }}"
-                           x-show="open"
-                           x-transition
-                           class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">
-                            <i class="fas fa-rotate-left"></i>
-                            Restablecer
-                        </a>
                     </div>
                 </div>
 
@@ -94,10 +88,11 @@
                     <div class="flex items-end gap-2">
                         <button class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800">
                             <i class="fas fa-magnifying-glass"></i>
-                            Buscar
+                            Aplicar
                         </button>
                         <a href="{{ route('productos.index') }}"
                            class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+                            <i class="fas fa-rotate-left"></i>
                             Limpiar
                         </a>
                     </div>

@@ -75,10 +75,6 @@
                             <i class="fas fa-filter mr-2"></i>
                             Filtros activos: {{ $desde || $hasta || $buscar ? 'Sí' : 'No' }}
                         </span>
-                        <a href="{{ route('ventas.index') }}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">
-                            <i class="fas fa-rotate-left"></i>
-                            Restablecer
-                        </a>
                         <button type="button"
                                 @click="open = !open"
                                 class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">
@@ -123,11 +119,16 @@
                         >
                     </label>
 
-                    <div class="flex items-end md:col-span-2 xl:col-span-1">
+                    <div class="flex items-end gap-2 md:col-span-2 xl:col-span-1">
                         <button class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800" type="submit">
                             <i class="fas fa-magnifying-glass-chart"></i>
                             Aplicar
                         </button>
+                        <a href="{{ route('ventas.index') }}"
+                           class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+                            <i class="fas fa-rotate-left"></i>
+                            Limpiar
+                        </a>
                     </div>
                 </form>
             </div>

@@ -10,40 +10,20 @@
     @endphp
 
     <x-slot name="header">
-        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-                <div class="flex items-center gap-3">
-                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[rgb(var(--brand-600))] text-white shadow-sm">
-                        <i class="fas fa-chart-line"></i>
-                    </span>
-                    <div>
-                        <h2 class="text-2xl font-semibold text-gray-900 leading-tight">
-                            Dashboard
-                        </h2>
-                        <p class="text-sm text-gray-500">Panel de control del kiosko con métricas clave.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                    <i class="fas fa-signal mr-2"></i>
-                    Estado: activo
-                </span>
-                <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                    Última actualización: {{ now()->format('H:i') }}
-                </span>
+                <h2 class="text-2xl font-bold text-slate-900">
+                    Dashboard
+                </h2>
+                <p class="text-sm text-slate-500">Panel de control del kiosko con métricas clave.</p>
             </div>
         </div>
     </x-slot>
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-codex/unify-products-and-sales-design
-            <div x-data="{ open: true }" class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-
             <div x-data="{ open: {{ request('mes') || $desde || $hasta || $turno || $horaDesde || $horaHasta || $userId ? 'true' : 'false' }} }"
                  class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
- main
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                         <h3 class="text-sm font-semibold text-gray-900">Filtros del dashboard</h3>
@@ -54,15 +34,6 @@ codex/unify-products-and-sales-design
                             <i class="fas fa-filter mr-2"></i>
                             Filtros activos: {{ $desde || $hasta || $turno || $horaDesde || $horaHasta || $userId ? 'Sí' : 'No' }}
                         </span>
-                        <button type="button"
-                                @click="open = !open"
-                                class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow hover:bg-black">
-                            <span x-text="open ? 'Ocultar filtros' : 'Mostrar filtros'">Ocultar filtros</span>
-                        </button>
-                        <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">
-                            <i class="fas fa-rotate-left"></i>
-                            Restablecer
-                        </a>
                         <button type="button"
                                 @click="open = !open"
                                 class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">
@@ -160,6 +131,11 @@ codex/unify-products-and-sales-design
                             <i class="fas fa-magnifying-glass-chart"></i>
                             Aplicar
                         </button>
+                        <a href="{{ route('dashboard') }}"
+                           class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+                            <i class="fas fa-rotate-left"></i>
+                            Limpiar
+                        </a>
                     </div>
                 </form>
             </div>
