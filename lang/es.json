@@ -1,0 +1,26 @@
+{
+  "Profile": "Perfil",
+  "Profile Information": "Información del perfil",
+  "Update your account's profile information and email address.": "Actualizá la información de tu perfil y tu correo.",
+  "Name": "Nombre",
+  "Email": "Correo",
+  "Save": "Guardar",
+  "Update Password": "Actualizar contraseña",
+  "Current Password": "Contraseña actual",
+  "New Password": "Nueva contraseña",
+  "Confirm Password": "Confirmar contraseña",
+  "Delete Account": "Eliminar cuenta",
+  "Log Out": "Cerrar sesión",
+  "Forgot your password?": "¿Olvidaste tu contraseña?",
+  "Remember me": "Recordarme",
+  "Password": "Contraseña",
+  "Email Password Reset Link": "Enviar enlace de recuperación",
+  "Log in": "Ingresar",
+  "Register": "Registrarse",
+
+  "Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.": "Una vez que tu cuenta sea eliminada, todos sus recursos y datos se borrarán de forma permanente. Antes de eliminarla, descargá cualquier dato o información que quieras conservar.",
+  "Are you sure you want to delete your account?": "¿Estás seguro de que querés eliminar tu cuenta?",
+  "This action is irreversible. All your data will be permanently deleted.": "Esta acción es irreversible. Todos tus datos se eliminarán de forma permanente.",
+  "Cancel": "Cancelar"
+}
+

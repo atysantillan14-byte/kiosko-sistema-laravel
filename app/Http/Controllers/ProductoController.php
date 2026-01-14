@@ -2,24 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Categoria;
 use App\Models\Producto;
+use App\Models\Categoria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ProductoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $productos = Producto::with('categoria')
-            ->orderBy('id', 'desc')
-            ->get();
+        $q = trim((string) $request->query('q', ''));
+        $categoriaId = $request->query('categoria_id');
 
-        return view('productos.index', compact('productos'));
+        $query = Producto::query()->with('categoria');
+
+        if ($categoriaId) {
+            $query->where('categoria_id', $categoriaId);
+        }
+
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nombre', 'like', "%{$q}%")
+                    ->orWhere('sku', 'like', "%{$q}%");
+            });
+        }
+
+        $productos = $query
+            ->orderByDesc('id')
+            ->paginate(12)
+            ->withQueryString();
+
+        $categorias = Categoria::query()->orderBy('nombre')->get();
+
+        return view('productos.index', compact('productos', 'categorias', 'q', 'categoriaId'));
     }
 
     public function create()
     {
-        $categorias = Categoria::orderBy('nombre')->get();
+        $categorias = Categoria::query()->orderBy('nombre')->get();
         return view('productos.create', compact('categorias'));
     }
 
@@ -27,32 +47,33 @@ class ProductoController extends Controller
     {
         $data = $request->validate([
             'categoria_id' => ['required', 'exists:categorias,id'],
-            'nombre' => ['required', 'string', 'max:150'],
-            'slug' => ['nullable', 'string', 'max:180', 'unique:productos,slug'],
-            'sku' => ['nullable', 'string', 'max:80', 'unique:productos,sku'],
+            'nombre' => ['required', 'string', 'max:255'],
             'descripcion' => ['nullable', 'string'],
             'precio' => ['required', 'numeric', 'min:0'],
             'precio_descuento' => ['nullable', 'numeric', 'min:0'],
-            'stock' => ['nullable', 'integer', 'min:0'],
+            'stock' => ['required', 'integer', 'min:0'],
+            'sku' => ['nullable', 'string', 'max:80'],
             'imagen' => ['nullable', 'string', 'max:255'],
-            'imagenes_adicionales' => ['nullable'], // array en el modelo
-            'disponible' => ['nullable', 'boolean'],
-            'destacado' => ['nullable', 'boolean'],
+            'disponible' => ['nullable'],
+            'destacado' => ['nullable'],
         ]);
 
+        $data['slug'] = Str::slug($data['nombre']);
         $data['disponible'] = $request->boolean('disponible');
         $data['destacado'] = $request->boolean('destacado');
-        $data['stock'] = $data['stock'] ?? 0;
-        $data['precio_descuento'] = $data['precio_descuento'] ?? null;
+
+        if (empty($data['sku'])) {
+            $data['sku'] = 'SKU-' . strtoupper(Str::random(8));
+        }
 
         Producto::create($data);
 
-        return redirect()->route('productos.index')->with('success', 'Producto creado correctamente.');
+        return redirect()->route('productos.index')->with('success', 'Producto creado.');
     }
 
     public function edit(Producto $producto)
     {
-        $categorias = Categoria::orderBy('nombre')->get();
+        $categorias = Categoria::query()->orderBy('nombre')->get();
         return view('productos.edit', compact('producto', 'categorias'));
     }
 
@@ -60,36 +81,35 @@ class ProductoController extends Controller
     {
         $data = $request->validate([
             'categoria_id' => ['required', 'exists:categorias,id'],
-            'nombre' => ['required', 'string', 'max:150'],
-            'slug' => ['nullable', 'string', 'max:180', 'unique:productos,slug,' . $producto->id],
-            'sku' => ['nullable', 'string', 'max:80', 'unique:productos,sku,' . $producto->id],
+            'nombre' => ['required', 'string', 'max:255'],
             'descripcion' => ['nullable', 'string'],
             'precio' => ['required', 'numeric', 'min:0'],
             'precio_descuento' => ['nullable', 'numeric', 'min:0'],
-            'stock' => ['nullable', 'integer', 'min:0'],
+            'stock' => ['required', 'integer', 'min:0'],
+            'sku' => ['nullable', 'string', 'max:80'],
             'imagen' => ['nullable', 'string', 'max:255'],
-            'imagenes_adicionales' => ['nullable'],
-            'disponible' => ['nullable', 'boolean'],
-            'destacado' => ['nullable', 'boolean'],
+            'disponible' => ['nullable'],
+            'destacado' => ['nullable'],
         ]);
 
+        $data['slug'] = Str::slug($data['nombre']);
         $data['disponible'] = $request->boolean('disponible');
         $data['destacado'] = $request->boolean('destacado');
-        $data['stock'] = $data['stock'] ?? 0;
 
         $producto->update($data);
 
-        return redirect()->route('productos.index')->with('success', 'Producto actualizado correctamente.');
+        return redirect()->route('productos.index')->with('success', 'Producto actualizado.');
     }
 
     public function destroy(Producto $producto)
     {
         $producto->delete();
-        return redirect()->route('productos.index')->with('success', 'Producto eliminado correctamente.');
-    }
-
-    public function show(Producto $producto)
-    {
-        return redirect()->route('productos.index');
+        return redirect()->route('productos.index')->with('success', 'Producto eliminado.');
     }
 }
+    
+
+
+
+
+

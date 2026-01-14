@@ -17,13 +17,20 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('categories.store') }}" class="space-y-4">
+                <form method="POST" action="{{ route('categorias.store') }}" class="space-y-4">
                     @csrf
 
                     <div>
                         <label class="block text-sm font-medium">Nombre</label>
                         <input name="nombre" value="{{ old('nombre') }}"
                                class="mt-1 w-full rounded border-gray-300" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium">Slug (opcional)</label>
+                        <input name="slug" value="{{ old('slug') }}"
+                               class="mt-1 w-full rounded border-gray-300"
+                               placeholder="se-genera-solo-si-lo-dejas-vacio">
                     </div>
 
                     <div>
@@ -47,13 +54,14 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <input type="checkbox" name="activo" value="1" checked
-                               class="rounded border-gray-300">
+                        <input type="checkbox" name="activo" value="1"
+                               class="rounded border-gray-300"
+                               {{ old('activo', true) ? 'checked' : '' }}>
                         <span>Activa</span>
                     </div>
 
                     <div class="flex gap-2">
-                        <a href="{{ route('categories.index') }}"
+                        <a href="{{ route('categorias.index') }}"
                            class="px-4 py-2 rounded border">
                             Volver
                         </a>
@@ -67,3 +75,4 @@
         </div>
     </div>
 </x-app-layout>
+

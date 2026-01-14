@@ -47,10 +47,10 @@ class Producto extends Model
         });
     }
 
-    public function categoria(): BelongsTo
-    {
-        return $this->belongsTo(Categoria::class, 'categoria_id');
-    }
+    public function categoria()
+{
+    return $this->belongsTo(\App\Models\Categoria::class);
+}
 
 
 public function detallesVentas(): HasMany

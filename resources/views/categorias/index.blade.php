@@ -1,73 +1,69 @@
 ﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800">Categorías</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Categorías
+            </h2>
 
             <a href="{{ route('categorias.create') }}"
-               class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
+               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
                 Nueva
             </a>
         </div>
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-            @if (session('success'))
-                <div class="mb-4 p-3 rounded bg-green-100 text-green-800">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="border-b">
-                                <th class="py-2">Nombre</th>
-                                <th class="py-2">Slug</th>
-                                <th class="py-2">Estado</th>
-                                <th class="py-2">Orden</th>
-                                <th class="py-2 text-right">Acciones</th>
-                            </tr>
+    <div class="py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                        <tr class="text-left text-sm font-semibold text-gray-600">
+                            <th class="px-6 py-4">Nombre</th>
+                            <th class="px-6 py-4">Slug</th>
+                            <th class="px-6 py-4">Estado</th>
+                            <th class="px-6 py-4">Orden</th>
+                            <th class="px-6 py-4 text-right">Acciones</th>
+                        </tr>
                         </thead>
-                        <tbody>
-                            @forelse($categorias as $c)
-                                <tr class="border-b">
-                                    <td class="py-2 font-medium">{{ $c->nombre }}</td>
-                                    <td class="py-2 text-gray-600">{{ $c->slug }}</td>
-                                    <td class="py-2">
-                                        <span class="px-2 py-1 rounded text-sm {{ $c->activo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700' }}">
-                                            {{ $c->activo ? 'Activa' : 'Inactiva' }}
-                                        </span>
-                                    </td>
-                                    <td class="py-2">{{ $c->orden }}</td>
-
-                                    <td class="py-2 text-right">
-                                        <a href="{{ route('categorias.edit', $c) }}"
-                                           class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200">
+                        <tbody class="divide-y divide-gray-100">
+                        @foreach($categorias as $cat)
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4">
+                                    <a class="font-semibold text-gray-900 hover:text-blue-600"
+                                       href="{{ route('productos.index', ['categoria_id' => $cat->id]) }}">
+                                        {{ $cat->nombre }}
+                                    </a>
+                                    <div class="text-xs text-gray-500 mt-1">
+                                        Ver productos de esta categoría
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-gray-700">{{ $cat->slug }}</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold
+                                        {{ ($cat->estado ?? 'activa') === 'activa' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }}">
+                                        {{ $cat->estado ?? 'activa' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-gray-700">{{ $cat->orden ?? 0 }}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex justify-end gap-2">
+                                        <a href="{{ route('categorias.edit', $cat) }}"
+                                           class="px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200">
                                             Editar
                                         </a>
-
-                                        <form action="{{ route('categorias.destroy', $c) }}"
-                                              method="POST" class="inline">
+                                        <form method="POST" action="{{ route('categorias.destroy', $cat) }}"
+                                              onsubmit="return confirm('¿Eliminar esta categoría?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit"
-                                                    onclick="return confirm('¿Eliminar esta categoría?')"
-                                                    class="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700">
+                                            <button class="px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">
                                                 Eliminar
                                             </button>
                                         </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="py-6 text-center text-gray-500">
-                                        No hay categorías todavía.
-                                    </td>
-                                </tr>
-                            @endforelse
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -76,5 +72,6 @@
         </div>
     </div>
 </x-app-layout>
+
 
 
