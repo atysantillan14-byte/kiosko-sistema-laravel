@@ -1,39 +1,64 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Ventas
-            </h2>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900">
+                    Ventas
+                </h2>
+                <p class="text-sm text-slate-500">Indicadores clave y control de filtros para el período seleccionado.</p>
+            </div>
 
             <a href="{{ route('ventas.create') }}"
-               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+               class="inline-flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-200/70 transition hover:-translate-y-0.5 hover:bg-blue-700">
                 Nueva Venta
             </a>
         </div>
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto space-y-6 px-4 sm:px-6 lg:px-8">
 
             {{-- Totales (más visibles) --}}
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div class="relative overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-white p-7 shadow-sm">
-                    <div class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-blue-200/40 blur-xl"></div>
-                    <div class="inline-flex items-center gap-2 rounded-full bg-blue-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-blue-700">
-                        Cantidad de ventas
+            @php
+                $ticketPromedio = $cantidadVentas > 0 ? $totalDinero / $cantidadVentas : 0;
+            @endphp
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div class="relative overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-white p-6 shadow-sm">
+                    <div class="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-blue-200/40 blur-xl"></div>
+                    <div class="flex items-center justify-between">
+                        <div class="inline-flex items-center gap-2 rounded-full bg-blue-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-blue-700">
+                            Cantidad de ventas
+                        </div>
+                        <span class="text-xs font-semibold text-blue-600">Total</span>
                     </div>
-                    <div class="mt-4 text-6xl font-black text-slate-900">{{ (int)$cantidadVentas }}</div>
+                    <div class="mt-4 text-4xl font-black text-slate-900">{{ (int)$cantidadVentas }}</div>
                     <div class="mt-2 text-sm text-slate-500">Conteo total según los filtros aplicados.</div>
                 </div>
-                <div class="relative overflow-hidden rounded-3xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-white p-7 shadow-sm">
-                    <div class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-200/40 blur-xl"></div>
-                    <div class="inline-flex items-center gap-2 rounded-full bg-emerald-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-700">
-                        Total en dinero
+                <div class="relative overflow-hidden rounded-3xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-white p-6 shadow-sm">
+                    <div class="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-emerald-200/40 blur-xl"></div>
+                    <div class="flex items-center justify-between">
+                        <div class="inline-flex items-center gap-2 rounded-full bg-emerald-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                            Total en dinero
+                        </div>
+                        <span class="text-xs font-semibold text-emerald-600">Acumulado</span>
                     </div>
-                    <div class="mt-4 text-6xl font-black text-slate-900">
+                    <div class="mt-4 text-4xl font-black text-slate-900">
                         $ {{ number_format((float)$totalDinero, 2, ',', '.') }}
                     </div>
                     <div class="mt-2 text-sm text-slate-500">Suma total del período filtrado.</div>
+                </div>
+                <div class="relative overflow-hidden rounded-3xl border border-violet-100 bg-gradient-to-br from-violet-50 via-white to-white p-6 shadow-sm">
+                    <div class="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-violet-200/40 blur-xl"></div>
+                    <div class="flex items-center justify-between">
+                        <div class="inline-flex items-center gap-2 rounded-full bg-violet-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-violet-700">
+                            Ticket promedio
+                        </div>
+                        <span class="text-xs font-semibold text-violet-600">Promedio</span>
+                    </div>
+                    <div class="mt-4 text-4xl font-black text-slate-900">
+                        $ {{ number_format((float)$ticketPromedio, 2, ',', '.') }}
+                    </div>
+                    <div class="mt-2 text-sm text-slate-500">Monto promedio por venta en el período.</div>
                 </div>
             </div>
 
@@ -63,32 +88,36 @@
                         <div class="md:col-span-3">
                             <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Desde</label>
                             <input type="date" name="desde" value="{{ $desde }}"
-                                   class="mt-2 w-full rounded-2xl border-slate-200 bg-white px-4 py-2 shadow-sm focus:border-slate-400 focus:ring-slate-200" />
+                                   class="mt-2 w-full rounded-2xl border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-slate-400 focus:ring-slate-200" />
                         </div>
 
                         <div class="md:col-span-3">
                             <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Hasta</label>
                             <input type="date" name="hasta" value="{{ $hasta }}"
-                                   class="mt-2 w-full rounded-2xl border-slate-200 bg-white px-4 py-2 shadow-sm focus:border-slate-400 focus:ring-slate-200" />
+                                   class="mt-2 w-full rounded-2xl border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-slate-400 focus:ring-slate-200" />
                         </div>
 
                         <div class="md:col-span-4">
                             <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Buscar</label>
                             <input name="q" value="{{ $buscar }}"
                                    placeholder="ID, método, estado o usuario..."
-                                   class="mt-2 w-full rounded-2xl border-slate-200 bg-white px-4 py-2 shadow-sm focus:border-slate-400 focus:ring-slate-200" />
+                                   class="mt-2 w-full rounded-2xl border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-slate-400 focus:ring-slate-200" />
                         </div>
 
-                        <div class="md:col-span-2 flex gap-3">
-                            <button class="w-full rounded-2xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-200/60 hover:bg-blue-700">
-                                Aplicar
+                        <div class="md:col-span-2 flex flex-col gap-2">
+                            <button class="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-200/70 transition hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-600">
+                                Aplicar filtros
                             </button>
                             <a href="{{ route('ventas.index') }}"
-                               class="w-full rounded-2xl bg-white px-4 py-2 text-center text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-100">
-                                Limpiar
+                               class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-center text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100">
+                                Restablecer
                             </a>
                         </div>
                     </form>
+                    <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                        <span class="rounded-full bg-slate-100 px-3 py-1">Filtros activos: {{ $desde || $hasta || $buscar ? 'Sí' : 'No' }}</span>
+                        <span>Aplicá filtros para refinar el total y el ticket promedio.</span>
+                    </div>
                 </div>
             </div>
 
