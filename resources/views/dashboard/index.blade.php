@@ -38,8 +38,12 @@
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+codex/unify-products-and-sales-design
+            <div x-data="{ open: true }" class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+
             <div x-data="{ open: {{ request('mes') || $desde || $hasta || $turno || $horaDesde || $horaHasta || $userId ? 'true' : 'false' }} }"
                  class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+ main
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                         <h3 class="text-sm font-semibold text-gray-900">Filtros del dashboard</h3>
@@ -50,6 +54,11 @@
                             <i class="fas fa-filter mr-2"></i>
                             Filtros activos: {{ $desde || $hasta || $turno || $horaDesde || $horaHasta || $userId ? 'Sí' : 'No' }}
                         </span>
+                        <button type="button"
+                                @click="open = !open"
+                                class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow hover:bg-black">
+                            <span x-text="open ? 'Ocultar filtros' : 'Mostrar filtros'">Ocultar filtros</span>
+                        </button>
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">
                             <i class="fas fa-rotate-left"></i>
                             Restablecer

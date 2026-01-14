@@ -27,6 +27,8 @@ class ProductoController extends Controller
             });
         }
 
+        $totalProductos = (clone $query)->count();
+
         $productos = $query
             ->orderByDesc('id')
             ->paginate(12)
@@ -34,7 +36,7 @@ class ProductoController extends Controller
 
         $categorias = Categoria::query()->orderBy('nombre')->get();
 
-        return view('productos.index', compact('productos', 'categorias', 'q', 'categoriaId'));
+        return view('productos.index', compact('productos', 'categorias', 'q', 'categoriaId', 'totalProductos'));
     }
 
     public function create()
@@ -108,7 +110,6 @@ class ProductoController extends Controller
     }
 }
     
-
 
 
 
