@@ -22,7 +22,13 @@
                 </div>
                 <div>
                     <div class="text-xs font-semibold text-gray-500">Método</div>
-                    <div class="font-bold">{{ $venta->metodo_pago }}</div>
+                    <div class="font-bold">
+                        @if($venta->metodo_pago === 'mixto')
+                            Pago mixto
+                        @else
+                            {{ $venta->metodo_pago }}
+                        @endif
+                    </div>
                 </div>
                 <div>
                     <div class="text-xs font-semibold text-gray-500">Estado</div>
@@ -35,6 +41,38 @@
                     </div>
                 </div>
             </div>
+
+            @if($venta->metodo_pago === 'mixto' || $venta->metodo_pago_primario)
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-4">Detalle de pago</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <div class="text-xs font-semibold text-gray-500">Método 1</div>
+                            <div class="font-semibold">{{ $venta->metodo_pago_primario ?? $venta->metodo_pago }}</div>
+                            @if($venta->monto_primario)
+                                <div class="text-gray-600">$ {{ number_format((float)$venta->monto_primario, 2, ',', '.') }}</div>
+                            @endif
+                        </div>
+                        <div>
+                            <div class="text-xs font-semibold text-gray-500">Método 2</div>
+                            <div class="font-semibold">{{ $venta->metodo_pago_secundario ?? '—' }}</div>
+                            @if($venta->monto_secundario)
+                                <div class="text-gray-600">$ {{ number_format((float)$venta->monto_secundario, 2, ',', '.') }}</div>
+                            @endif
+                        </div>
+                        <div>
+                            <div class="text-xs font-semibold text-gray-500">Efectivo recibido</div>
+                            <div class="font-semibold">
+                                {{ $venta->efectivo_recibido ? '$ ' . number_format((float)$venta->efectivo_recibido, 2, ',', '.') : '—' }}
+                            </div>
+                            <div class="text-xs text-gray-500">Vuelto</div>
+                            <div class="font-semibold">
+                                {{ $venta->efectivo_cambio ? '$ ' . number_format((float)$venta->efectivo_cambio, 2, ',', '.') : '—' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
@@ -64,5 +102,4 @@
         </div>
     </div>
 </x-app-layout>
-
 

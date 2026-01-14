@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        --brand-50: 239 246 255;
+        --brand-100: 219 234 254;
+        --brand-500: 59 130 246;
+        --brand-600: 37 99 235;
+        --brand-700: 29 78 216;
+        --brand-900: 30 58 138;
+    }
+
+    body {
+        font-family: 'Inter', 'Figtree', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    }
+}

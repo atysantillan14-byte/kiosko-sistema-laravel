@@ -24,7 +24,10 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium mb-1">Producto</label>
-                    <select id="productoSelect" class="w-full rounded border-gray-300">
+                    <div class="flex flex-col gap-2">
+                        <input id="productoSearch" type="search" placeholder="Buscar producto por nombre o categoría..."
+                               class="w-full rounded border-gray-300" autocomplete="off">
+                        <select id="productoSelect" class="w-full rounded border-gray-300">
                         <option value="">Seleccione...</option>
                         @foreach($productos as $p)
                             <option value="{{ $p->id }}"
@@ -35,7 +38,8 @@
                                 {{ $p->nombre }} ({{ $p->categoria?->nombre ?? 'Sin categoría' }})
                             </option>
                         @endforeach
-                    </select>
+                        </select>
+                    </div>
                     <p class="text-xs text-gray-500 mt-1" id="productoInfo"></p>
                 </div>
 
@@ -72,15 +76,57 @@
                     </table>
                 </div>
 
-                <div class="mt-4 flex items-center justify-between">
-                    <div class="w-64">
-                        <label class="block text-sm font-medium mb-1">Método de pago</label>
-                        <select name="metodo_pago" class="w-full rounded border-gray-300" required>
-                            <option value="efectivo">Efectivo</option>
-                            <option value="debito">Débito</option>
-                            <option value="credito">Crédito</option>
-                            <option value="transferencia">Transferencia</option>
-                        </select>
+                <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3 md:items-end">
+                    <div class="md:col-span-2 space-y-4">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="pagoMixto" name="pago_mixto" value="1" class="rounded border-gray-300">
+                            <label for="pagoMixto" class="text-sm font-medium">Pago con dos métodos</label>
+                        </div>
+
+                        <div id="pagoSimple">
+                            <label class="block text-sm font-medium mb-1">Método de pago</label>
+                            <select name="metodo_pago" id="metodoPagoSimple" class="w-full rounded border-gray-300" required>
+                                <option value="efectivo">Efectivo</option>
+                                <option value="debito">Débito</option>
+                                <option value="credito">Crédito</option>
+                                <option value="transferencia">Transferencia</option>
+                            </select>
+                        </div>
+
+                        <div id="pagoMixtoCampos" class="hidden grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Método 1</label>
+                                <select name="metodo_pago_primario" id="metodoPagoPrimario" class="w-full rounded border-gray-300">
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="debito">Débito</option>
+                                    <option value="credito">Crédito</option>
+                                    <option value="transferencia">Transferencia</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Monto 1</label>
+                                <input type="number" step="0.01" min="0" name="monto_primario" id="montoPrimario" class="w-full rounded border-gray-300" placeholder="0,00">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Método 2</label>
+                                <select name="metodo_pago_secundario" id="metodoPagoSecundario" class="w-full rounded border-gray-300">
+                                    <option value="transferencia">Transferencia</option>
+                                    <option value="debito">Débito</option>
+                                    <option value="credito">Crédito</option>
+                                    <option value="efectivo">Efectivo</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Monto 2</label>
+                                <input type="number" step="0.01" min="0" name="monto_secundario" id="montoSecundario" class="w-full rounded border-gray-300" placeholder="0,00">
+                            </div>
+                        </div>
+
+                        <div id="efectivoBox" class="hidden">
+                            <label class="block text-sm font-medium mb-1">Efectivo recibido</label>
+                            <input type="number" step="0.01" min="0" name="efectivo_recibido" id="efectivoRecibido" class="w-full rounded border-gray-300" placeholder="0,00">
+                            <p class="text-xs text-gray-500 mt-1">Vuelto: <span id="vueltoTxt">$ 0,00</span></p>
+                        </div>
                     </div>
 
                     <div class="text-right">
@@ -102,6 +148,7 @@
     </div>
 
     <script>
+        const productoSearch = document.getElementById('productoSearch');
         const productoSelect = document.getElementById('productoSelect');
         const cantidadInput = document.getElementById('cantidadInput');
         const agregarBtn = document.getElementById('agregarBtn');
@@ -111,8 +158,44 @@
         const inputsHidden = document.getElementById('inputsHidden');
         const productoInfo = document.getElementById('productoInfo');
         const ventaForm = document.getElementById('ventaForm');
+        const pagoMixto = document.getElementById('pagoMixto');
+        const pagoSimple = document.getElementById('pagoSimple');
+        const pagoMixtoCampos = document.getElementById('pagoMixtoCampos');
+        const metodoPagoSimple = document.getElementById('metodoPagoSimple');
+        const metodoPagoPrimario = document.getElementById('metodoPagoPrimario');
+        const metodoPagoSecundario = document.getElementById('metodoPagoSecundario');
+        const montoPrimario = document.getElementById('montoPrimario');
+        const montoSecundario = document.getElementById('montoSecundario');
+        const efectivoBox = document.getElementById('efectivoBox');
+        const efectivoRecibido = document.getElementById('efectivoRecibido');
+        const vueltoTxt = document.getElementById('vueltoTxt');
 
         let carrito = [];
+        let totalActual = 0;
+        const opcionesOriginales = Array.from(productoSelect.options);
+
+        function normalizar(texto){
+            return texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        productoSearch.addEventListener('input', () => {
+            const filtro = normalizar(productoSearch.value.trim());
+            productoSelect.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+
+            opcionesOriginales.forEach((opt) => {
+                if (!opt.value) {
+                    fragment.appendChild(opt.cloneNode(true));
+                    return;
+                }
+                const texto = normalizar(`${opt.dataset.nombre} ${opt.dataset.categoria}`);
+                if (filtro === '' || texto.includes(filtro)) {
+                    fragment.appendChild(opt.cloneNode(true));
+                }
+            });
+
+            productoSelect.appendChild(fragment);
+        });
 
         productoSelect.addEventListener('change', () => {
             const opt = productoSelect.selectedOptions[0];
@@ -126,11 +209,46 @@
             return '$ ' + n.toFixed(2).replace('.', ',');
         }
 
+        function updatePagoUI(){
+            const mixto = pagoMixto.checked;
+            pagoSimple.classList.toggle('hidden', mixto);
+            pagoMixtoCampos.classList.toggle('hidden', !mixto);
+
+            const metodoEfectivoSimple = !mixto && metodoPagoSimple.value === 'efectivo';
+            const metodoEfectivoPrimario = mixto && metodoPagoPrimario.value === 'efectivo';
+            const metodoEfectivoSecundario = mixto && metodoPagoSecundario.value === 'efectivo';
+            efectivoBox.classList.toggle('hidden', !(metodoEfectivoSimple || metodoEfectivoPrimario || metodoEfectivoSecundario));
+
+            updateVuelto();
+        }
+
+        function efectivoAPagar(){
+            if (pagoMixto.checked) {
+                let totalEfectivo = 0;
+                if (metodoPagoPrimario.value === 'efectivo') {
+                    totalEfectivo += Number(montoPrimario.value || 0);
+                }
+                if (metodoPagoSecundario.value === 'efectivo') {
+                    totalEfectivo += Number(montoSecundario.value || 0);
+                }
+                return totalEfectivo;
+            }
+            return metodoPagoSimple.value === 'efectivo' ? totalActual : 0;
+        }
+
+        function updateVuelto(){
+            const efectivo = efectivoAPagar();
+            const recibido = Number(efectivoRecibido.value || 0);
+            const vuelto = Math.max(0, recibido - efectivo);
+            vueltoTxt.textContent = money(vuelto);
+        }
+
         function render(){
             tbody.innerHTML = '';
             if (carrito.length === 0) {
                 tbody.appendChild(carritoVacio);
                 totalTxt.textContent = '$ 0,00';
+                totalActual = 0;
                 inputsHidden.innerHTML = '';
                 return;
             }
@@ -167,6 +285,8 @@
             });
 
             totalTxt.textContent = money(total);
+            totalActual = total;
+            updateVuelto();
         }
 
         function getStock(opt){
@@ -212,10 +332,46 @@
             if (carrito.length === 0) {
                 e.preventDefault();
                 alert('Agregue al menos un producto al carrito.');
+                return;
+            }
+
+            if (pagoMixto.checked) {
+                const monto1 = Number(montoPrimario.value || 0);
+                const monto2 = Number(montoSecundario.value || 0);
+                const suma = monto1 + monto2;
+                if (monto1 <= 0 || monto2 <= 0) {
+                    e.preventDefault();
+                    alert('Ingrese montos válidos para el pago mixto.');
+                    return;
+                }
+                if (Math.abs(suma - totalActual) > 0.01) {
+                    e.preventDefault();
+                    alert('La suma de los montos no coincide con el total.');
+                    return;
+                }
+                if (metodoPagoPrimario.value === metodoPagoSecundario.value) {
+                    e.preventDefault();
+                    alert('Seleccione métodos de pago diferentes.');
+                    return;
+                }
+            }
+
+            const efectivo = efectivoAPagar();
+            if (efectivo > 0) {
+                const recibido = Number(efectivoRecibido.value || 0);
+                if (recibido + 0.01 < efectivo) {
+                    e.preventDefault();
+                    alert('El efectivo recibido es menor al importe en efectivo.');
+                }
             }
         });
 
+        [pagoMixto, metodoPagoSimple, metodoPagoPrimario, metodoPagoSecundario, montoPrimario, montoSecundario, efectivoRecibido].forEach((el) => {
+            el.addEventListener('input', updatePagoUI);
+            el.addEventListener('change', updatePagoUI);
+        });
+
+        updatePagoUI();
         render();
     </script>
 </x-app-layout>
-
