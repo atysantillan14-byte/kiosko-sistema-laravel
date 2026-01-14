@@ -31,6 +31,50 @@
                     <div class="mt-4 text-5xl font-extrabold tracking-tight text-slate-900">{{ (int) $totalProductos }}</div>
                     <div class="mt-2 text-sm text-slate-500">Productos registrados según los filtros activos.</div>
                 </div>
+
+                <div class="relative overflow-hidden rounded-3xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-white p-6 shadow-sm">
+                    <div class="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-emerald-200/40 blur-xl"></div>
+                    <div class="flex items-center justify-between">
+                        <div class="inline-flex items-center gap-2 rounded-full bg-emerald-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                            Más vendidos
+                        </div>
+                        <span class="text-xs font-semibold text-emerald-600">Top 5</span>
+                    </div>
+                    <div class="mt-4 space-y-2 text-sm text-slate-600">
+                        @forelse($topProductosVendidos as $producto)
+                            <div class="flex items-center justify-between">
+                                <span class="truncate text-slate-800">{{ $producto->producto_nombre ?? 'Producto eliminado' }}</span>
+                                <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                                    {{ (int) $producto->total_vendido }}
+                                </span>
+                            </div>
+                        @empty
+                            <span class="text-slate-400">Todavía no hay ventas registradas.</span>
+                        @endforelse
+                    </div>
+                </div>
+
+                <div class="relative overflow-hidden rounded-3xl border border-amber-100 bg-gradient-to-br from-amber-50 via-white to-white p-6 shadow-sm">
+                    <div class="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-amber-200/40 blur-xl"></div>
+                    <div class="flex items-center justify-between">
+                        <div class="inline-flex items-center gap-2 rounded-full bg-amber-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-700">
+                            Stock bajo
+                        </div>
+                        <span class="text-xs font-semibold text-amber-600">Alertas</span>
+                    </div>
+                    <div class="mt-4 space-y-2 text-sm text-slate-600">
+                        @forelse($stockBajo as $producto)
+                            <div class="flex items-center justify-between">
+                                <span class="truncate text-slate-800">{{ $producto->nombre }}</span>
+                                <span class="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                                    {{ (int) $producto->stock }}
+                                </span>
+                            </div>
+                        @empty
+                            <span class="text-slate-400">Sin productos con stock crítico.</span>
+                        @endforelse
+                    </div>
+                </div>
             </div>
 
             {{-- Filtros estilo dashboard (plegables) --}}
