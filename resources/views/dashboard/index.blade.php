@@ -135,8 +135,8 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div class="lg:col-span-2 rounded-2xl border border-slate-100 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-6 text-white shadow-xl">
+            <div class="grid grid-cols-1 gap-4">
+                <div class="rounded-2xl border border-slate-100 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-6 text-white shadow-xl">
                     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div>
                             <p class="text-sm text-slate-200">Resumen operativo</p>
@@ -182,85 +182,9 @@
                             <p class="mt-2 text-2xl font-semibold">{{ $usuarios->count() }}</p>
                         </div>
                     </div>
-                </div>
-
-                <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                    <div class="flex items-center justify-between">
-                        <h4 class="text-sm font-semibold text-gray-900">Acciones rápidas</h4>
-                        <span class="text-xs text-gray-400">Administración</span>
-                    </div>
-                    <div class="mt-4 space-y-3">
-                        <a href="{{ route('ventas.index') }}" class="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-blue-200 hover:bg-blue-50">
-                            <span class="flex items-center gap-3">
-                                <i class="fas fa-receipt text-blue-600"></i>
-                                Revisar ventas
-                            </span>
-                            <i class="fas fa-arrow-right text-gray-400"></i>
-                        </a>
-                        <a href="{{ route('categorias.create') }}" class="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-indigo-200 hover:bg-indigo-50">
-                            <span class="flex items-center gap-3">
-                                <i class="fas fa-tags text-indigo-600"></i>
-                                Crear categoría
-                            </span>
-                            <i class="fas fa-arrow-right text-gray-400"></i>
-                        </a>
-                        <a href="{{ route('productos.index') }}" class="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-emerald-200 hover:bg-emerald-50">
-                            <span class="flex items-center gap-3">
-                                <i class="fas fa-boxes text-emerald-600"></i>
-                                Ver inventario
-                            </span>
-                            <i class="fas fa-arrow-right text-gray-400"></i>
-                        </a>
-                    </div>
-                    <div class="mt-6 rounded-xl bg-slate-50 px-4 py-3 text-xs text-slate-600">
-                        Tip: agregá recordatorios de stock mínimo para evitar quiebres de inventario.
-                    </div>
-                </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm lg:col-span-2">
-                    <div class="flex items-center justify-between">
-                        <h4 class="text-sm font-semibold text-gray-900">Branding del negocio</h4>
-                        <span class="text-xs text-slate-400">Personalización</span>
-                    </div>
-                    <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-                        <div class="flex items-center gap-4 rounded-xl border border-slate-100 p-4">
-                            <div class="h-12 w-12 rounded-2xl bg-[rgb(var(--brand-600))] text-white flex items-center justify-center">
-                                <i class="fas fa-store"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-semibold text-gray-900">Tu marca, tu estilo</p>
-                                <p class="text-xs text-gray-500">Logo, colores y tipografía alineados.</p>
-                            </div>
-                        </div>
-                        <div class="rounded-xl border border-slate-100 p-4">
-                            <p class="text-xs text-gray-500">Paleta activa</p>
-                            <div class="mt-3 flex items-center gap-2">
-                                <span class="h-6 w-6 rounded-full bg-[rgb(var(--brand-600))]"></span>
-                                <span class="h-6 w-6 rounded-full bg-blue-200"></span>
-                                <span class="h-6 w-6 rounded-full bg-slate-200"></span>
-                            </div>
-                            <p class="mt-2 text-xs text-gray-400">Actualizá los tonos principales.</p>
-                        </div>
-                        <div class="rounded-xl border border-slate-100 p-4">
-                            <p class="text-xs text-gray-500">Identidad lista</p>
-                            <p class="mt-2 text-sm font-semibold text-gray-900">Plantilla social y etiquetas</p>
-                            <p class="mt-1 text-xs text-gray-400">Generá banners para campañas rápidas.</p>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex flex-wrap items-center gap-2">
-                        <a href="{{ route('profile.edit') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:border-blue-200 hover:text-blue-600">
-                            <i class="fas fa-paint-brush"></i>
-                            Configurar branding
-                        </a>
-                        <button class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-600" type="button">
-                            <i class="fas fa-magic"></i>
-                            Generar kit visual
-                        </button>
-                    </div>
-                </div>
-
+            <div class="grid grid-cols-1 gap-4">
                 <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
                     <div class="flex items-center justify-between">
                         <h4 class="text-sm font-semibold text-gray-900">Automatización</h4>
@@ -335,8 +259,8 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm lg:col-span-2">
+            <div class="grid grid-cols-1 gap-4">
+                <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
                     <div class="flex items-center justify-between">
                         <h4 class="text-sm font-semibold text-gray-900">Insights avanzados</h4>
                         <span class="text-xs text-gray-400">Comparativas</span>
@@ -363,28 +287,6 @@
                             <p class="text-xs text-gray-500 mt-1">Top ventas del período.</p>
                         </div>
                     </div>
-                </div>
-
-                <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                    <div class="flex items-center justify-between">
-                        <h4 class="text-sm font-semibold text-gray-900">Seguridad y roles</h4>
-                        <span class="text-xs text-slate-400">Checklist</span>
-                    </div>
-                    <ul class="mt-4 space-y-2 text-xs text-slate-600">
-                        <li class="flex items-start gap-2">
-                            <i class="fas fa-shield-alt text-emerald-500 mt-0.5"></i>
-                            Definí permisos por rol y restricciones de descuentos.
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <i class="fas fa-clipboard-check text-emerald-500 mt-0.5"></i>
-                            Activá auditoría para bajas y anulaciones.
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <i class="fas fa-user-lock text-emerald-500 mt-0.5"></i>
-                            Revisión periódica de usuarios activos.
-                        </li>
-                    </ul>
-                </div>
             </div>
 
             {{-- FILTROS PLEGABLES (no ocupan pantalla) --}}
