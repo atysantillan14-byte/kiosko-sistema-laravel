@@ -14,7 +14,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('ventas.store') }}" class="bg-white shadow-sm sm:rounded-lg p-6" id="ventaForm">
+        <form method="POST" action="{{ route('ventas.store') }}" class="bg-white/90 border border-slate-100 shadow-xl rounded-2xl p-6 sm:p-8" id="ventaForm">
             @csrf
 
             {{-- Fix: tu store() requiere user_id y estado --}}
@@ -23,12 +23,12 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium mb-1">Producto</label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Producto</label>
                     <div class="flex flex-col gap-2">
                         <input id="productoSearch" type="search" placeholder="Buscar producto por nombre o categoría..."
-                               class="w-full rounded border-gray-300" autocomplete="off" list="productoSuggestions">
+                               class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" autocomplete="off" list="productoSuggestions">
                         <datalist id="productoSuggestions"></datalist>
-                        <select id="productoSelect" class="w-full rounded border-gray-300">
+                        <select id="productoSelect" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
                         <option value="">Seleccione...</option>
                         @foreach($productos as $p)
                             <option value="{{ $p->id }}"
@@ -41,27 +41,27 @@
                         @endforeach
                         </select>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1" id="productoInfo"></p>
+                    <p class="text-xs text-slate-500 mt-2" id="productoInfo"></p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-1">Cantidad</label>
-                    <input id="cantidadInput" type="number" min="1" value="1" class="w-full rounded border-gray-300">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Cantidad</label>
+                    <input id="cantidadInput" type="number" min="1" value="1" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
                 </div>
             </div>
 
             <button type="button" id="agregarBtn"
-                    class="px-4 py-2 bg-gray-900 text-white rounded hover:bg-black">
+                    class="px-4 py-2 rounded-xl bg-slate-900 text-white shadow-sm transition hover:bg-slate-800">
                 Agregar
             </button>
 
             <div class="mt-6">
-                <h3 class="font-semibold mb-2">Carrito</h3>
+                <h3 class="font-semibold text-slate-900 mb-3">Carrito</h3>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left" id="tablaCarrito">
+                    <table class="w-full text-left text-sm" id="tablaCarrito">
                         <thead>
-                        <tr class="border-b">
+                        <tr class="border-b border-slate-200 text-slate-600">
                             <th class="py-2">Producto</th>
                             <th class="py-2">Precio</th>
                             <th class="py-2">Cantidad</th>
@@ -71,22 +71,22 @@
                         </thead>
                         <tbody>
                         <tr id="carritoVacio">
-                            <td colspan="5" class="py-3 text-gray-500">No hay productos agregados.</td>
+                            <td colspan="5" class="py-3 text-slate-500">No hay productos agregados.</td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3 md:items-end">
+                <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3 md:items-end">
                     <div class="md:col-span-2 space-y-4">
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" id="pagoMixto" name="pago_mixto" value="1" class="rounded border-gray-300">
-                            <label for="pagoMixto" class="text-sm font-medium">Pago con dos métodos</label>
+                        <div class="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2">
+                            <input type="checkbox" id="pagoMixto" name="pago_mixto" value="1" class="rounded border-slate-300 text-blue-600 focus:ring-blue-200">
+                            <label for="pagoMixto" class="text-sm font-semibold text-slate-700">Pago con dos métodos</label>
                         </div>
 
                         <div id="pagoSimple">
-                            <label class="block text-sm font-medium mb-1">Método de pago</label>
-                            <select name="metodo_pago" id="metodoPagoSimple" class="w-full rounded border-gray-300" required>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Método de pago</label>
+                            <select name="metodo_pago" id="metodoPagoSimple" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" required>
                                 <option value="efectivo">Efectivo</option>
                                 <option value="debito">Débito</option>
                                 <option value="credito">Crédito</option>
@@ -96,8 +96,8 @@
 
                         <div id="pagoMixtoCampos" class="hidden grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label class="block text-sm font-medium mb-1">Método 1</label>
-                                <select name="metodo_pago_primario" id="metodoPagoPrimario" class="w-full rounded border-gray-300">
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">Método 1</label>
+                                <select name="metodo_pago_primario" id="metodoPagoPrimario" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
                                     <option value="efectivo">Efectivo</option>
                                     <option value="debito">Débito</option>
                                     <option value="credito">Crédito</option>
@@ -105,12 +105,12 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1">Monto 1</label>
-                                <input type="number" step="0.01" min="0" name="monto_primario" id="montoPrimario" class="w-full rounded border-gray-300" placeholder="0,00">
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">Monto 1</label>
+                                <input type="number" step="0.01" min="0" name="monto_primario" id="montoPrimario" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" placeholder="0,00">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1">Método 2</label>
-                                <select name="metodo_pago_secundario" id="metodoPagoSecundario" class="w-full rounded border-gray-300">
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">Método 2</label>
+                                <select name="metodo_pago_secundario" id="metodoPagoSecundario" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
                                     <option value="transferencia">Transferencia</option>
                                     <option value="debito">Débito</option>
                                     <option value="credito">Crédito</option>
@@ -118,27 +118,27 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1">Monto 2</label>
-                                <input type="number" step="0.01" min="0" name="monto_secundario" id="montoSecundario" class="w-full rounded border-gray-300" placeholder="0,00">
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">Monto 2</label>
+                                <input type="number" step="0.01" min="0" name="monto_secundario" id="montoSecundario" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" placeholder="0,00">
                             </div>
                         </div>
 
                         <div id="efectivoBox" class="hidden">
-                            <label class="block text-sm font-medium mb-1">Efectivo recibido</label>
-                            <input type="number" step="0.01" min="0" name="efectivo_recibido" id="efectivoRecibido" class="w-full rounded border-gray-300" placeholder="0,00">
-                            <p class="text-xs text-gray-500 mt-1">Vuelto: <span id="vueltoTxt">$ 0,00</span></p>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Efectivo recibido</label>
+                            <input type="number" step="0.01" min="0" name="efectivo_recibido" id="efectivoRecibido" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" placeholder="0,00">
+                            <p class="text-xs text-slate-500 mt-1">Vuelto: <span id="vueltoTxt">$ 0,00</span></p>
                         </div>
                     </div>
 
-                    <div class="text-right">
-                        <div class="text-sm text-gray-600">Total</div>
-                        <div class="text-2xl font-bold" id="totalTxt">$ 0,00</div>
+                    <div class="text-right rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+                        <div class="text-sm text-slate-500">Total</div>
+                        <div class="text-2xl font-bold text-slate-900" id="totalTxt">$ 0,00</div>
                     </div>
                 </div>
 
-                <div class="mt-6 flex gap-2">
-                    <a href="{{ route('ventas.index') }}" class="px-4 py-2 border rounded">Volver</a>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                <div class="mt-6 flex flex-wrap gap-2">
+                    <a href="{{ route('ventas.index') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50">Volver</a>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 text-white shadow-sm hover:bg-blue-700">
                         Guardar venta
                     </button>
                 </div>
