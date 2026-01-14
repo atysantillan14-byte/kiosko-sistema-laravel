@@ -38,6 +38,45 @@
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <span>Productos registrados</span>
+                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-amber-50 text-amber-600">
+                            <i class="fas fa-boxes"></i>
+                        </span>
+                    </div>
+                    <div class="mt-3 text-3xl font-extrabold text-gray-900">{{ $productosCount }}</div>
+                    <div class="text-xs text-gray-500 mt-1">Inventario total activo</div>
+                </div>
+
+                <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <span>Primera venta registrada</span>
+                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                            <i class="fas fa-flag-checkered"></i>
+                        </span>
+                    </div>
+                    <div class="mt-3 text-lg font-semibold text-gray-900">
+                        {{ $primeraVenta ? $primeraVenta->format('d/m/Y H:i') : 'Sin ventas' }}
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">Fecha de inicio de actividad</div>
+                </div>
+
+                <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <span>Última venta registrada</span>
+                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-sky-50 text-sky-600">
+                            <i class="fas fa-clock"></i>
+                        </span>
+                    </div>
+                    <div class="mt-3 text-lg font-semibold text-gray-900">
+                        {{ $ultimaVenta ? $ultimaVenta->format('d/m/Y H:i') : 'Sin ventas' }}
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">Última actualización real</div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div class="lg:col-span-2 rounded-2xl border border-slate-100 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-6 text-white shadow-xl">
                     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -169,24 +208,20 @@
                         <h4 class="text-sm font-semibold text-gray-900">Automatización</h4>
                         <span class="text-xs text-slate-400">Workflows</span>
                     </div>
-                    <p class="mt-3 text-xs text-gray-500">Activá alertas por stock bajo y reportes automáticos por email/WhatsApp.</p>
+                    <p class="mt-3 text-xs text-gray-500">Alertas y reportes diarios activos con envío por WhatsApp al administrador.</p>
                     <div class="mt-4 space-y-2 text-xs text-slate-600">
                         <div class="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2">
-                            <span>Alertas de stock</span>
+                            <span>Alertas de stock (WhatsApp admin)</span>
                             <span class="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700">Activo</span>
                         </div>
                         <div class="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2">
-                            <span>Reporte diario</span>
-                            <span class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600">Pendiente</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2">
-                            <span>Mensajes a clientes</span>
-                            <span class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600">Pendiente</span>
+                            <span>Reporte diario (WhatsApp admin)</span>
+                            <span class="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700">Activo</span>
                         </div>
                     </div>
                     <button class="mt-4 inline-flex items-center gap-2 rounded-xl bg-gray-900 px-3 py-2 text-xs font-semibold text-white hover:bg-gray-800" type="button">
                         <i class="fas fa-bolt"></i>
-                        Configurar flujos
+                        Configurar alertas
                     </button>
                 </div>
             </div>
