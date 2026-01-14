@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Producto;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ProductoController extends Controller
@@ -36,7 +37,31 @@ class ProductoController extends Controller
 
         $categorias = Categoria::query()->orderBy('nombre')->get();
 
-        return view('productos.index', compact('productos', 'categorias', 'q', 'categoriaId', 'totalProductos'));
+        $topProductosVendidos = DB::table('detalle_ventas as dv')
+            ->join('ventas as v', 'v.id', '=', 'dv.venta_id')
+            ->leftJoin('productos as p', 'p.id', '=', 'dv.producto_id')
+            ->where('v.estado', '!=', 'anulada')
+            ->selectRaw('p.nombre as producto_nombre, SUM(dv.cantidad) as total_vendido')
+            ->groupBy('p.nombre')
+            ->orderByDesc('total_vendido')
+            ->limit(5)
+            ->get();
+
+        $stockBajo = Producto::query()
+            ->where('stock', '<=', 5)
+            ->orderBy('stock')
+            ->limit(10)
+            ->get(['id', 'nombre', 'stock']);
+
+        return view('productos.index', compact(
+            'productos',
+            'categorias',
+            'q',
+            'categoriaId',
+            'totalProductos',
+            'topProductosVendidos',
+            'stockBajo',
+        ));
     }
 
     public function create()
@@ -110,7 +135,6 @@ class ProductoController extends Controller
     }
 }
     
-
 
 
 
