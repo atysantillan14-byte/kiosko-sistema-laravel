@@ -96,7 +96,7 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div class="rounded-2xl border border-slate-100 bg-white p-5 text-center shadow-sm">
                     <div class="flex flex-col items-center gap-2 text-sm text-gray-500">
                         <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-amber-50 text-amber-600">
@@ -104,7 +104,7 @@
                         </span>
                         <span>Productos registrados</span>
                     </div>
-                    <div class="mt-3 text-3xl font-extrabold text-gray-900">{{ $productosCount }}</div>
+                    <div class="mt-3 text-4xl font-black tracking-tight text-gray-900">{{ $productosCount }}</div>
                     <div class="mt-1 text-xs text-gray-500">Inventario total activo</div>
                 </div>
 
@@ -115,7 +115,7 @@
                         </span>
                         <span>Primera venta registrada</span>
                     </div>
-                    <div class="mt-3 text-lg font-semibold text-gray-900">
+                    <div class="mt-3 text-2xl font-extrabold tracking-tight text-gray-900">
                         {{ $primeraVenta ? $primeraVenta->format('d/m/Y H:i') : 'Sin ventas' }}
                     </div>
                     <div class="mt-1 text-xs text-gray-500">Fecha de inicio de actividad</div>
@@ -128,7 +128,7 @@
                         </span>
                         <span>Última venta registrada</span>
                     </div>
-                    <div class="mt-3 text-lg font-semibold text-gray-900">
+                    <div class="mt-3 text-2xl font-extrabold tracking-tight text-gray-900">
                         {{ $ultimaVenta ? $ultimaVenta->format('d/m/Y H:i') : 'Sin ventas' }}
                     </div>
                     <div class="mt-1 text-xs text-gray-500">Última actualización real</div>
