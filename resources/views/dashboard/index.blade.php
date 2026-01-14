@@ -38,7 +38,7 @@
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+            <div x-data="{ open: true }" class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                         <h3 class="text-sm font-semibold text-gray-900">Filtros del dashboard</h3>
@@ -49,6 +49,11 @@
                             <i class="fas fa-filter mr-2"></i>
                             Filtros activos
                         </span>
+                        <button type="button"
+                                @click="open = !open"
+                                class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow hover:bg-black">
+                            <span x-text="open ? 'Ocultar filtros' : 'Mostrar filtros'">Ocultar filtros</span>
+                        </button>
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">
                             <i class="fas fa-rotate-left"></i>
                             Restablecer
@@ -56,7 +61,11 @@
                     </div>
                 </div>
 
-                <form class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6" method="GET" action="{{ route('dashboard') }}">
+                <form x-show="open"
+                      x-transition
+                      class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+                      method="GET"
+                      action="{{ route('dashboard') }}">
                     <label class="flex flex-col gap-1 text-xs font-semibold text-gray-500">
                         Mes (prioridad)
                         <input
