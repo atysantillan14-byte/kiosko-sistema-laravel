@@ -1,31 +1,24 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
-
-    @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
+    <div class="space-y-6">
+        <div class="text-center">
+            <h2 class="text-xl font-semibold text-slate-900">Verificá tu email</h2>
+            <p class="mt-1 text-sm text-slate-500">Te enviamos un enlace para activar tu cuenta.</p>
         </div>
-    @endif
 
-    <div class="mt-4 flex items-center justify-between">
-        <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
-
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
+        @if (session('status') == 'verification-link-sent')
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                Se envió un nuevo enlace de verificación a tu correo.
             </div>
+        @endif
+
+        <form method="POST" action="{{ route('verification.send') }}" class="space-y-4">
+            @csrf
+            <x-button type="submit" class="w-full">Reenviar enlace</x-button>
         </form>
 
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ __('Log Out') }}
-            </button>
+            <x-button type="submit" variant="outline" class="w-full">Cerrar sesión</x-button>
         </form>
     </div>
 </x-guest-layout>
