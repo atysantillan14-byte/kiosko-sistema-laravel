@@ -38,6 +38,64 @@
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            {{-- GRÁFICOS PRINCIPALES (primera vista) --}}
+            <div class="rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-6 shadow-xl">
+                <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">Visualización general</h3>
+                        <p class="text-sm text-slate-300">Resumen moderno con métricas clave y comportamiento de ventas.</p>
+                    </div>
+                    <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-slate-100">
+                        <i class="fas fa-chart-pie"></i>
+                        Panel analítico
+                    </div>
+                </div>
+                <div class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <div class="rounded-2xl bg-white/95 p-4 text-slate-900 shadow-sm ring-1 ring-white/10">
+                        <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <span>Ventas por día</span>
+                            <i class="fas fa-wave-square text-slate-400"></i>
+                        </div>
+                        <div class="mt-3">
+                            <canvas id="chartVentasDia" height="140"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl bg-white/95 p-4 text-slate-900 shadow-sm ring-1 ring-white/10">
+                        <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <span>Ventas por método</span>
+                            <i class="fas fa-layer-group text-slate-400"></i>
+                        </div>
+                        <div class="mt-3">
+                            <canvas id="chartMetodo" height="140"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl bg-white/95 p-4 text-slate-900 shadow-sm ring-1 ring-white/10">
+                        <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <span>Participación por método</span>
+                            <i class="fas fa-chart-pie text-slate-400"></i>
+                        </div>
+                        <div class="mt-3">
+                            <canvas id="chartMetodoPie" height="140"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl bg-white/95 p-4 text-slate-900 shadow-sm ring-1 ring-white/10">
+                        <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <span>Stock por producto</span>
+                            <i class="fas fa-boxes-stacked text-slate-400"></i>
+                        </div>
+                        <div class="mt-3">
+                            <canvas id="chartStockProducto" height="140"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <p class="mt-4 text-xs text-slate-300">
+                    Visualización optimizada para detectar tendencias y posibles quiebres de inventario.
+                </p>
+            </div>
+
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
                     <div class="flex items-center justify-between text-sm text-gray-500">
@@ -226,7 +284,7 @@
                 </div>
             </div>
 
-            {{-- KPIs PRINCIPALES (lo primero que se ve) --}}
+            {{-- KPIs PRINCIPALES --}}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                     <div class="flex items-center justify-between text-sm text-gray-500">
@@ -418,19 +476,6 @@
                 </div>
             </div>
 
-            {{-- GRÁFICOS --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                    <div class="font-semibold mb-2 text-gray-900">Ventas por día (según filtro)</div>
-                    <canvas id="chartVentasDia" height="120"></canvas>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                    <div class="font-semibold mb-2 text-gray-900">Ventas por método (según filtro)</div>
-                    <canvas id="chartMetodo" height="120"></canvas>
-                </div>
-            </div>
-
             {{-- STOCK BAJO + TOP PRODUCTOS --}}
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
@@ -548,28 +593,145 @@
         const ventasDiaLabels = @json($ventasPorDia->pluck('fecha'));
         const ventasDiaCant   = @json($ventasPorDia->pluck('cantidad'));
         const ventasDiaTotal  = @json($ventasPorDia->pluck('total'));
+        const metodoLabels    = @json($ventasPorMetodo->pluck('metodo_pago'));
+        const metodoCant      = @json($ventasPorMetodo->pluck('cantidad'));
+        const stockLabels     = @json($stockPorProducto->pluck('nombre'));
+        const stockCant       = @json($stockPorProducto->pluck('stock'));
+
+        const baseGrid = {
+            color: 'rgba(148, 163, 184, 0.2)'
+        };
 
         new Chart(document.getElementById('chartVentasDia'), {
             type: 'line',
             data: {
                 labels: ventasDiaLabels,
                 datasets: [
-                    { label: 'Cantidad de ventas', data: ventasDiaCant, tension: 0.3 },
-                    { label: 'Total ($)', data: ventasDiaTotal, tension: 0.3 }
+                    {
+                        label: 'Cantidad de ventas',
+                        data: ventasDiaCant,
+                        tension: 0.35,
+                        borderColor: 'rgba(37, 99, 235, 0.9)',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        fill: true
+                    },
+                    {
+                        label: 'Total ($)',
+                        data: ventasDiaTotal,
+                        tension: 0.35,
+                        borderColor: 'rgba(16, 185, 129, 0.9)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true
+                    }
                 ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#0f172a',
+                            boxWidth: 10
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: baseGrid },
+                    y: { grid: baseGrid }
+                }
             }
         });
-
-        const metodoLabels = @json($ventasPorMetodo->pluck('metodo_pago'));
-        const metodoCant   = @json($ventasPorMetodo->pluck('cantidad'));
 
         new Chart(document.getElementById('chartMetodo'), {
             type: 'bar',
             data: {
                 labels: metodoLabels,
                 datasets: [
-                    { label: 'Cantidad', data: metodoCant }
+                    {
+                        label: 'Cantidad',
+                        data: metodoCant,
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                        borderRadius: 6
+                    }
                 ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { grid: baseGrid },
+                    y: { grid: baseGrid }
+                }
+            }
+        });
+
+        const metodoTotal = metodoCant.reduce((acc, value) => acc + value, 0);
+
+        new Chart(document.getElementById('chartMetodoPie'), {
+            type: 'doughnut',
+            data: {
+                labels: metodoLabels,
+                datasets: [
+                    {
+                        data: metodoCant,
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(234, 179, 8, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(99, 102, 241, 0.8)'
+                        ],
+                        borderWidth: 0
+                    }
+                ]
+            },
+            options: {
+                cutout: '62%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#0f172a',
+                            boxWidth: 10
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const value = context.raw || 0;
+                                const percentage = metodoTotal ? ((value / metodoTotal) * 100).toFixed(1) : 0;
+                                return `${context.label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('chartStockProducto'), {
+            type: 'bar',
+            data: {
+                labels: stockLabels,
+                datasets: [
+                    {
+                        label: 'Stock',
+                        data: stockCant,
+                        backgroundColor: 'rgba(15, 118, 110, 0.7)',
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { grid: baseGrid },
+                    y: { grid: baseGrid }
+                }
             }
         });
     </script>
