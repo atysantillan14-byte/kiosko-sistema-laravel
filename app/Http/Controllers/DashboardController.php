@@ -159,6 +159,7 @@ class DashboardController extends Controller
 
         // Usuarios para el filtro
         $usuarios = User::orderBy('name')->get(['id', 'name']);
+        $productosCount = Producto::count();
 
         $primeraVentaAt = Venta::where('estado', '!=', 'anulada')->min('created_at');
         $ultimaVentaAt = Venta::where('estado', '!=', 'anulada')->max('created_at');
@@ -188,10 +189,10 @@ class DashboardController extends Controller
             'topProductos',
             'primeraVenta',
             'ultimaVenta',
+            'productosCount',
         ));
     }
 }
-
 
 
 
