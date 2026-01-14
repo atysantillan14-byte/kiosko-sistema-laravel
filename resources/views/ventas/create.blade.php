@@ -26,7 +26,8 @@
                     <label class="block text-sm font-medium mb-1">Producto</label>
                     <div class="flex flex-col gap-2">
                         <input id="productoSearch" type="search" placeholder="Buscar producto por nombre o categoría..."
-                               class="w-full rounded border-gray-300" autocomplete="off">
+                               class="w-full rounded border-gray-300" autocomplete="off" list="productoSuggestions">
+                        <datalist id="productoSuggestions"></datalist>
                         <select id="productoSelect" class="w-full rounded border-gray-300">
                         <option value="">Seleccione...</option>
                         @foreach($productos as $p)
@@ -157,6 +158,7 @@
         const totalTxt = document.getElementById('totalTxt');
         const inputsHidden = document.getElementById('inputsHidden');
         const productoInfo = document.getElementById('productoInfo');
+        const productoSuggestions = document.getElementById('productoSuggestions');
         const ventaForm = document.getElementById('ventaForm');
         const pagoMixto = document.getElementById('pagoMixto');
         const pagoSimple = document.getElementById('pagoSimple');
@@ -173,15 +175,40 @@
         let carrito = [];
         let totalActual = 0;
         const opcionesOriginales = Array.from(productoSelect.options);
+        let syncingMontos = false;
+        let ultimoMontoEditado = 'primario';
 
         function normalizar(texto){
             return texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         }
 
+        function etiquetaProducto(opt) {
+            const categoria = opt.dataset.categoria || 'Sin categoría';
+            return `${opt.dataset.nombre} (${categoria})`;
+        }
+
+        function sincronizarSelectDesdeBusqueda(valor){
+            if (!valor) return;
+            const buscado = normalizar(valor);
+            const match = opcionesOriginales.find((opt) => {
+                if (!opt.value) return false;
+                const etiqueta = normalizar(etiquetaProducto(opt));
+                const nombre = normalizar(opt.dataset.nombre || '');
+                return buscado === etiqueta || buscado === nombre;
+            });
+
+            if (match) {
+                productoSelect.value = match.value;
+                productoSelect.dispatchEvent(new Event('change'));
+            }
+        }
+
         productoSearch.addEventListener('input', () => {
             const filtro = normalizar(productoSearch.value.trim());
             productoSelect.innerHTML = '';
+            productoSuggestions.innerHTML = '';
             const fragment = document.createDocumentFragment();
+            const sugerencias = document.createDocumentFragment();
 
             opcionesOriginales.forEach((opt) => {
                 if (!opt.value) {
@@ -191,10 +218,16 @@
                 const texto = normalizar(`${opt.dataset.nombre} ${opt.dataset.categoria}`);
                 if (filtro === '' || texto.includes(filtro)) {
                     fragment.appendChild(opt.cloneNode(true));
+                    const option = document.createElement('option');
+                    option.value = etiquetaProducto(opt);
+                    option.dataset.id = opt.value;
+                    sugerencias.appendChild(option);
                 }
             });
 
             productoSelect.appendChild(fragment);
+            productoSuggestions.appendChild(sugerencias);
+            sincronizarSelectDesdeBusqueda(productoSearch.value);
         });
 
         productoSelect.addEventListener('change', () => {
@@ -203,6 +236,7 @@
             const stock = (opt.dataset.stock !== '' && opt.dataset.stock != null) ? `Stock: ${opt.dataset.stock}` : 'Stock: —';
             const precio = Number(opt.dataset.precio || 0).toFixed(2).replace('.', ',');
             productoInfo.textContent = `${opt.dataset.categoria} · $ ${precio} · ${stock}`;
+            productoSearch.value = etiquetaProducto(opt);
         });
 
         function money(n){
@@ -218,6 +252,16 @@
             const metodoEfectivoPrimario = mixto && metodoPagoPrimario.value === 'efectivo';
             const metodoEfectivoSecundario = mixto && metodoPagoSecundario.value === 'efectivo';
             efectivoBox.classList.toggle('hidden', !(metodoEfectivoSimple || metodoEfectivoPrimario || metodoEfectivoSecundario));
+
+            if (mixto) {
+                if (montoPrimario.value !== '') {
+                    ultimoMontoEditado = 'primario';
+                    syncMontosMixto('primario');
+                } else if (montoSecundario.value !== '') {
+                    ultimoMontoEditado = 'secundario';
+                    syncMontosMixto('secundario');
+                }
+            }
 
             updateVuelto();
         }
@@ -241,6 +285,33 @@
             const recibido = Number(efectivoRecibido.value || 0);
             const vuelto = Math.max(0, recibido - efectivo);
             vueltoTxt.textContent = money(vuelto);
+        }
+
+        function syncMontosMixto(origen){
+            if (!pagoMixto.checked || syncingMontos) {
+                return;
+            }
+
+            syncingMontos = true;
+            const total = totalActual;
+            const primario = Number(montoPrimario.value || 0);
+            const secundario = Number(montoSecundario.value || 0);
+
+            if (total <= 0) {
+                syncingMontos = false;
+                return;
+            }
+
+            if (origen === 'primario') {
+                const restante = Math.max(0, total - (Number.isFinite(primario) ? primario : 0));
+                montoSecundario.value = restante.toFixed(2);
+            } else if (origen === 'secundario') {
+                const restante = Math.max(0, total - (Number.isFinite(secundario) ? secundario : 0));
+                montoPrimario.value = restante.toFixed(2);
+            }
+
+            syncingMontos = false;
+            updateVuelto();
         }
 
         function render(){
@@ -287,6 +358,14 @@
             totalTxt.textContent = money(total);
             totalActual = total;
             updateVuelto();
+
+            if (pagoMixto.checked) {
+                if (ultimoMontoEditado === 'primario' && montoPrimario.value !== '') {
+                    syncMontosMixto('primario');
+                } else if (ultimoMontoEditado === 'secundario' && montoSecundario.value !== '') {
+                    syncMontosMixto('secundario');
+                }
+            }
         }
 
         function getStock(opt){
@@ -366,11 +445,22 @@
             }
         });
 
+        montoPrimario.addEventListener('input', () => {
+            ultimoMontoEditado = 'primario';
+            syncMontosMixto('primario');
+        });
+
+        montoSecundario.addEventListener('input', () => {
+            ultimoMontoEditado = 'secundario';
+            syncMontosMixto('secundario');
+        });
+
         [pagoMixto, metodoPagoSimple, metodoPagoPrimario, metodoPagoSecundario, montoPrimario, montoSecundario, efectivoRecibido].forEach((el) => {
             el.addEventListener('input', updatePagoUI);
             el.addEventListener('change', updatePagoUI);
         });
 
+        productoSearch.dispatchEvent(new Event('input'));
         updatePagoUI();
         render();
     </script>
