@@ -126,6 +126,11 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
+        $stockPorProducto = Producto::query()
+            ->orderByDesc('stock')
+            ->limit(8)
+            ->get(['nombre', 'stock']);
+
         $topProductos = DB::table('detalle_ventas as dv')
             ->join('ventas as v', 'v.id', '=', 'dv.venta_id')
             ->leftJoin('productos as p', 'p.id', '=', 'dv.producto_id')
@@ -186,6 +191,7 @@ class DashboardController extends Controller
             'ventasPorDia',
             'ventasPorMetodo',
             'stockBajo',
+            'stockPorProducto',
             'topProductos',
             'primeraVenta',
             'ultimaVenta',
@@ -193,7 +199,6 @@ class DashboardController extends Controller
         ));
     }
 }
-
 
 
 
