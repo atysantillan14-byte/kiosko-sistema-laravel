@@ -22,7 +22,7 @@
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div x-data="{ open: {{ request('mes') || $desde || $hasta || $turno || $horaDesde || $horaHasta || $userId ? 'true' : 'false' }} }"
+            <div x-data="{ open: false }"
                  class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
