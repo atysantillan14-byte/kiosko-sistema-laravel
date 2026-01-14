@@ -14,20 +14,5 @@
 
     body {
         font-family: 'Inter', 'Figtree', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-        @apply bg-slate-50 text-slate-900 antialiased;
-    }
-
-    [x-cloak] {
-        display: none !important;
-    }
-}
-
-@layer components {
-    .container-shell {
-        @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
-    }
-
-    .surface-card {
-        @apply rounded-2xl border border-slate-200/80 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-900;
     }
 }

@@ -1,28 +1,29 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <h2 class="text-2xl font-semibold text-slate-900">Mi cuenta</h2>
-            <p class="text-sm text-slate-500">Gestioná tu perfil, contraseña y opciones de seguridad.</p>
-        </div>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Profile') }}
+        </h2>
     </x-slot>
 
-    <div class="space-y-6">
-        <x-card title="Información de perfil" description="Actualizá tu nombre, email y preferencias de verificación.">
-            <div class="max-w-2xl">
-                @include('profile.partials.update-profile-information-form')
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                <div class="max-w-xl">
+                    @include('profile.partials.update-profile-information-form')
+                </div>
             </div>
-        </x-card>
 
-        <x-card title="Seguridad" description="Actualizá tu contraseña de acceso periódicamente.">
-            <div class="max-w-2xl">
-                @include('profile.partials.update-password-form')
+            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                <div class="max-w-xl">
+                    @include('profile.partials.update-password-form')
+                </div>
             </div>
-        </x-card>
 
-        <x-card title="Eliminar cuenta" description="Acción irreversible. Esta operación elimina tu usuario.">
-            <div class="max-w-2xl">
-                @include('profile.partials.delete-user-form')
+            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                <div class="max-w-xl">
+                    @include('profile.partials.delete-user-form')
+                </div>
             </div>
-        </x-card>
+        </div>
     </div>
 </x-app-layout>
