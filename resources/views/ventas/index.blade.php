@@ -31,31 +31,31 @@
                         </div>
                         <span class="text-xs font-semibold text-blue-600">Total</span>
                     </div>
-                    <div class="mt-4 text-4xl font-black text-slate-900">{{ (int)$cantidadVentas }}</div>
+                    <div class="mt-4 text-5xl font-extrabold tracking-tight text-slate-900">{{ (int)$cantidadVentas }}</div>
                     <div class="mt-2 text-sm text-slate-500">Conteo total según los filtros aplicados.</div>
                 </div>
-                <div class="relative overflow-hidden rounded-3xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-white p-6 shadow-sm">
-                    <div class="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-emerald-200/40 blur-xl"></div>
+                <div class="relative overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-white p-6 shadow-sm">
+                    <div class="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-blue-200/40 blur-xl"></div>
                     <div class="flex items-center justify-between">
-                        <div class="inline-flex items-center gap-2 rounded-full bg-emerald-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                        <div class="inline-flex items-center gap-2 rounded-full bg-blue-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-blue-700">
                             Total en dinero
                         </div>
-                        <span class="text-xs font-semibold text-emerald-600">Acumulado</span>
+                        <span class="text-xs font-semibold text-blue-600">Acumulado</span>
                     </div>
-                    <div class="mt-4 text-4xl font-black text-slate-900">
+                    <div class="mt-4 text-5xl font-extrabold tracking-tight text-slate-900">
                         $ {{ number_format((float)$totalDinero, 2, ',', '.') }}
                     </div>
                     <div class="mt-2 text-sm text-slate-500">Suma total del período filtrado.</div>
                 </div>
-                <div class="relative overflow-hidden rounded-3xl border border-violet-100 bg-gradient-to-br from-violet-50 via-white to-white p-6 shadow-sm">
-                    <div class="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-violet-200/40 blur-xl"></div>
+                <div class="relative overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-white p-6 shadow-sm">
+                    <div class="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-blue-200/40 blur-xl"></div>
                     <div class="flex items-center justify-between">
-                        <div class="inline-flex items-center gap-2 rounded-full bg-violet-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-violet-700">
+                        <div class="inline-flex items-center gap-2 rounded-full bg-blue-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-blue-700">
                             Ticket promedio
                         </div>
-                        <span class="text-xs font-semibold text-violet-600">Promedio</span>
+                        <span class="text-xs font-semibold text-blue-600">Promedio</span>
                     </div>
-                    <div class="mt-4 text-4xl font-black text-slate-900">
+                    <div class="mt-4 text-5xl font-extrabold tracking-tight text-slate-900">
                         $ {{ number_format((float)$ticketPromedio, 2, ',', '.') }}
                     </div>
                     <div class="mt-2 text-sm text-slate-500">Monto promedio por venta en el período.</div>
@@ -74,9 +74,11 @@
                         <button type="button"
                                 @click="open = !open"
                                 class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow hover:bg-black">
-                            <span x-text="open ? 'Ocultar filtros' : 'Mostrar filtros'"></span>
+                            <span x-text="open ? 'Ocultar filtros' : 'Mostrar filtros'">Mostrar filtros</span>
                         </button>
                         <a href="{{ route('ventas.index') }}"
+                           x-show="open"
+                           x-transition
                            class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 hover:bg-slate-100">
                             Limpiar
                         </a>
@@ -122,7 +124,7 @@
             </div>
 
             {{-- Tabla (ancho completo) --}}
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen bg-white shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="min-w-full">
                         <thead class="bg-gray-50">
