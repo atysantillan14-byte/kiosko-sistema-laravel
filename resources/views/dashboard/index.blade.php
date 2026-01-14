@@ -142,7 +142,7 @@
                             <p class="text-sm text-slate-200">Resumen operativo</p>
                             <h3 class="text-2xl font-semibold">Todo listo para vender hoy</h3>
                             <p class="text-sm text-slate-200 mt-2">Controlá ventas, stock y usuarios desde un mismo lugar.</p>
-                            <div class="mt-4 grid grid-cols-1 gap-2 text-xs text-slate-200 sm:grid-cols-2">
+                            <div class="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-200">
                                 <div class="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
                                     <p class="uppercase tracking-wide text-[10px] text-slate-300">Primera venta</p>
                                     <p class="mt-1 text-sm font-semibold">
@@ -182,6 +182,7 @@
                             <p class="mt-2 text-2xl font-semibold">{{ $usuarios->count() }}</p>
                         </div>
                     </div>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 gap-4">
