@@ -287,6 +287,7 @@
                             <p class="text-xs text-gray-500 mt-1">Top ventas del período.</p>
                         </div>
                     </div>
+                </div>
             </div>
 
             {{-- FILTROS PLEGABLES (no ocupan pantalla) --}}
