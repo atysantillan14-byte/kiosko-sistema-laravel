@@ -38,6 +38,112 @@
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900">Filtros del dashboard</h3>
+                        <p class="text-xs text-gray-500">Personalizá el período, turno y usuario para refinar los indicadores.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-600">
+                            <i class="fas fa-filter mr-2"></i>
+                            Filtros activos
+                        </span>
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50">
+                            <i class="fas fa-rotate-left"></i>
+                            Restablecer
+                        </a>
+                    </div>
+                </div>
+
+                <form class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6" method="GET" action="{{ route('dashboard') }}">
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-gray-500">
+                        Mes (prioridad)
+                        <input
+                            class="rounded-xl border border-slate-200 px-3 py-2 text-sm text-gray-700 focus:border-slate-300 focus:ring-2 focus:ring-slate-200"
+                            type="month"
+                            name="mes"
+                            value="{{ request('mes') }}"
+                        >
+                    </label>
+
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-gray-500">
+                        Desde
+                        <input
+                            class="rounded-xl border border-slate-200 px-3 py-2 text-sm text-gray-700 focus:border-slate-300 focus:ring-2 focus:ring-slate-200"
+                            type="date"
+                            name="desde"
+                            value="{{ $desde?->format('Y-m-d') }}"
+                        >
+                    </label>
+
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-gray-500">
+                        Hasta
+                        <input
+                            class="rounded-xl border border-slate-200 px-3 py-2 text-sm text-gray-700 focus:border-slate-300 focus:ring-2 focus:ring-slate-200"
+                            type="date"
+                            name="hasta"
+                            value="{{ $hasta?->format('Y-m-d') }}"
+                        >
+                    </label>
+
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-gray-500">
+                        Turno
+                        <select
+                            class="rounded-xl border border-slate-200 px-3 py-2 text-sm text-gray-700 focus:border-slate-300 focus:ring-2 focus:ring-slate-200"
+                            name="turno"
+                        >
+                            <option value="">Todos</option>
+                            <option value="manana" @selected($turno === 'manana')>Mañana (06:00 - 13:59)</option>
+                            <option value="tarde" @selected($turno === 'tarde')>Tarde (14:00 - 21:59)</option>
+                            <option value="noche" @selected($turno === 'noche')>Noche (22:00 - 23:59)</option>
+                        </select>
+                    </label>
+
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-gray-500">
+                        Hora desde
+                        <input
+                            class="rounded-xl border border-slate-200 px-3 py-2 text-sm text-gray-700 focus:border-slate-300 focus:ring-2 focus:ring-slate-200"
+                            type="time"
+                            name="hora_desde"
+                            value="{{ $horaDesde }}"
+                        >
+                    </label>
+
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-gray-500">
+                        Hora hasta
+                        <input
+                            class="rounded-xl border border-slate-200 px-3 py-2 text-sm text-gray-700 focus:border-slate-300 focus:ring-2 focus:ring-slate-200"
+                            type="time"
+                            name="hora_hasta"
+                            value="{{ $horaHasta }}"
+                        >
+                    </label>
+
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-gray-500 md:col-span-2 lg:col-span-2 xl:col-span-2">
+                        Usuario
+                        <select
+                            class="rounded-xl border border-slate-200 px-3 py-2 text-sm text-gray-700 focus:border-slate-300 focus:ring-2 focus:ring-slate-200"
+                            name="user_id"
+                        >
+                            <option value="">Todos</option>
+                            @foreach($usuarios as $usuario)
+                                <option value="{{ $usuario->id }}" @selected((int) $userId === $usuario->id)>
+                                    {{ $usuario->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </label>
+
+                    <div class="flex items-end gap-2 md:col-span-2 lg:col-span-1 xl:col-span-2">
+                        <button class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800" type="submit">
+                            <i class="fas fa-magnifying-glass-chart"></i>
+                            Aplicar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             {{-- GRÁFICOS PRINCIPALES (primera vista) --}}
             <div class="rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-6 shadow-xl">
                 <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
