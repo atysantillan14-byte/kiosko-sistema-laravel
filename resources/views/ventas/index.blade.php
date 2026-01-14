@@ -17,53 +17,75 @@
 
             {{-- Totales (más visibles) --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <div class="text-sm font-semibold text-gray-600">Cantidad de ventas</div>
-                    <div class="mt-2 text-4xl font-extrabold text-gray-900">{{ (int)$cantidadVentas }}</div>
-                    <div class="text-xs text-gray-500 mt-1">Según filtros aplicados</div>
+                <div class="relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                    <div class="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-blue-100/60"></div>
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Cantidad de ventas</div>
+                    <div class="mt-2 text-5xl font-black text-slate-900">{{ (int)$cantidadVentas }}</div>
+                    <div class="text-xs text-slate-500 mt-2">Según filtros aplicados</div>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <div class="text-sm font-semibold text-gray-600">Total en dinero</div>
-                    <div class="mt-2 text-4xl font-extrabold text-gray-900">
+                <div class="relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                    <div class="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-emerald-100/70"></div>
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Total en dinero</div>
+                    <div class="mt-2 text-5xl font-black text-slate-900">
                         $ {{ number_format((float)$totalDinero, 2, ',', '.') }}
                     </div>
-                    <div class="text-xs text-gray-500 mt-1">Según filtros aplicados</div>
+                    <div class="text-xs text-slate-500 mt-2">Según filtros aplicados</div>
                 </div>
             </div>
 
-            {{-- Filtros (compactos) --}}
-            <div class="bg-white rounded-xl shadow-sm p-5">
-                <form method="GET" action="{{ route('ventas.index') }}"
-                      class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                    <div class="md:col-span-3">
-                        <label class="text-sm font-semibold text-gray-700">Desde</label>
-                        <input type="date" name="desde" value="{{ $desde }}"
-                               class="mt-1 w-full rounded-lg border-gray-300" />
+            {{-- Filtros (modernos + plegables) --}}
+            <div x-data="{ open: {{ $desde || $hasta || $buscar ? 'true' : 'false' }} }"
+                 class="rounded-2xl border border-slate-100 bg-white shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
+                    <div>
+                        <div class="text-sm font-semibold text-slate-900">Filtros de ventas</div>
+                        <div class="text-xs text-slate-500">Acotá el período o buscá por ID, método, estado o usuario.</div>
                     </div>
-
-                    <div class="md:col-span-3">
-                        <label class="text-sm font-semibold text-gray-700">Hasta</label>
-                        <input type="date" name="hasta" value="{{ $hasta }}"
-                               class="mt-1 w-full rounded-lg border-gray-300" />
-                    </div>
-
-                    <div class="md:col-span-4">
-                        <label class="text-sm font-semibold text-gray-700">Buscar</label>
-                        <input name="q" value="{{ $buscar }}"
-                               placeholder="ID / método / estado / usuario..."
-                               class="mt-1 w-full rounded-lg border-gray-300" />
-                    </div>
-
-                    <div class="md:col-span-2 flex gap-2">
-                        <button class="w-full px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-black">
-                            Aplicar
-                        </button>
+                    <div class="flex items-center gap-2">
                         <a href="{{ route('ventas.index') }}"
-                           class="w-full px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-center">
+                           class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50">
                             Limpiar
                         </a>
+                        <button type="button"
+                                @click="open = !open"
+                                class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white hover:bg-black">
+                            <span x-text="open ? 'Ocultar filtros' : 'Mostrar filtros'"></span>
+                        </button>
                     </div>
-                </form>
+                </div>
+                <div x-show="open" x-transition class="border-t border-slate-100 px-5 pb-5">
+                    <form method="GET" action="{{ route('ventas.index') }}"
+                          class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-12 items-end">
+                        <div class="md:col-span-3">
+                            <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Desde</label>
+                            <input type="date" name="desde" value="{{ $desde }}"
+                                   class="mt-2 w-full rounded-xl border-slate-200 bg-slate-50 focus:border-slate-400 focus:ring-slate-200" />
+                        </div>
+
+                        <div class="md:col-span-3">
+                            <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Hasta</label>
+                            <input type="date" name="hasta" value="{{ $hasta }}"
+                                   class="mt-2 w-full rounded-xl border-slate-200 bg-slate-50 focus:border-slate-400 focus:ring-slate-200" />
+                        </div>
+
+                        <div class="md:col-span-4">
+                            <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Buscar</label>
+                            <input name="q" value="{{ $buscar }}"
+                                   placeholder="ID / método / estado / usuario..."
+                                   class="mt-2 w-full rounded-xl border-slate-200 bg-slate-50 focus:border-slate-400 focus:ring-slate-200" />
+                        </div>
+
+                        <div class="md:col-span-2 flex gap-2">
+                            <button class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black">
+                                Aplicar
+                            </button>
+                            <a href="{{ route('ventas.index') }}"
+                               class="w-full rounded-xl bg-slate-100 px-4 py-2 text-center text-sm font-semibold text-slate-600 hover:bg-slate-200">
+                                Limpiar
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             {{-- Tabla (ancho completo) --}}
