@@ -193,7 +193,7 @@
         }
 
         function sincronizarSelectDesdeBusqueda(valor){
-            if (!valor) return;
+            if (!valor) return false;
             const buscado = normalizar(valor);
             const match = opcionesOriginales.find((opt) => {
                 if (!opt.value) return false;
@@ -205,7 +205,10 @@
             if (match) {
                 productoSelect.value = match.value;
                 productoSelect.dispatchEvent(new Event('change'));
+                return true;
             }
+
+            return false;
         }
 
         productoSearch.addEventListener('input', () => {
@@ -231,10 +234,28 @@
 
             productoSelect.appendChild(fragment);
             productoSuggestions.appendChild(sugerencias);
+
+            const synced = sincronizarSelectDesdeBusqueda(productoSearch.value.trim());
+            if (!synced) {
+                agregarWrapper.classList.add('hidden');
+                productoInfo.textContent = '';
+            }
         });
 
         productoSearch.addEventListener('change', () => {
             sincronizarSelectDesdeBusqueda(productoSearch.value.trim());
+        });
+
+        productoSearch.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+            }
+        });
+
+        cantidadInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+            }
         });
 
         productoSelect.addEventListener('change', function() {
