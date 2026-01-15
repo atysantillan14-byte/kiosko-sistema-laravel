@@ -184,7 +184,13 @@
         let ultimoMontoEditado = 'primario';
 
         function normalizar(texto){
-            return texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            return texto
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[()]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
         }
 
         function etiquetaProducto(opt) {
