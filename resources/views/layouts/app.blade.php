@@ -12,9 +12,16 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased bg-[rgb(var(--bg))] text-[rgb(var(--text))]">
-<div class="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-slate-50 to-slate-100">
-    @include('layouts.navigation')
+@php
+    $bodyClass = $bodyClass ?? '';
+    $shellClass = $shellClass ?? 'min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-slate-50 to-slate-100';
+    $mainClass = ($fullBleed ?? false) ? 'app-page' : 'app-container app-page';
+@endphp
+<body class="font-sans antialiased bg-[rgb(var(--bg))] text-[rgb(var(--text))] {{ $bodyClass }}">
+<div class="{{ $shellClass }}">
+    @unless($hideNav ?? false)
+        @include('layouts.navigation')
+    @endunless
 
     @isset($header)
         <header class="border-b border-slate-200/70 bg-white/80 backdrop-blur">
@@ -24,7 +31,7 @@
         </header>
     @endisset
 
-    <main class="app-container app-page">
+    <main class="{{ $mainClass }}">
         {{ $slot }}
     </main>
 </div>
