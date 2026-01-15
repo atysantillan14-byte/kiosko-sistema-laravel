@@ -246,10 +246,18 @@
             productoSelect.appendChild(fragment);
             productoSuggestions.appendChild(sugerencias);
             sincronizarSelectDesdeBusqueda(productoSearch.value);
+            toggleAgregar();
         });
 
         function toggleAgregar(){
-            const opt = productoSelect.selectedOptions[0];
+            let opt = productoSelect.selectedOptions[0];
+            if (!opt || !opt.value) {
+                const encontrado = encontrarOpcionSeleccionada();
+                if (encontrado) {
+                    productoSelect.value = encontrado.value;
+                    opt = encontrado;
+                }
+            }
             const visible = !!(opt && opt.value);
             agregarWrapper.classList.toggle('hidden', !visible);
             agregarBtn.disabled = !visible;
