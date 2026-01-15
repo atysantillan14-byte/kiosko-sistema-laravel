@@ -9,12 +9,9 @@ use App\Http\Controllers\VentaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProveedorController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('home');
+    Route::get('/dashboard', fn () => redirect()->route('home'))->name('dashboard');
 
     Route::resource('categorias', CategoriaController::class);
     Route::resource('productos', ProductoController::class);
@@ -35,4 +32,3 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 });
 
 require __DIR__ . '/auth.php';
-
