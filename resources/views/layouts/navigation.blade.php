@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white/90 backdrop-blur border-b border-slate-200/70 shadow-sm">
+<nav x-data="{ open: false }" class="relative z-50 bg-white/90 backdrop-blur border-b border-slate-200/70 shadow-sm">
     @php
         $kioskoNombre = env('KIOSKO_NOMBRE', config('app.name'));
         $kioskoLogo = env('KIOSKO_LOGO', null);
