@@ -1,8 +1,8 @@
 <x-app-layout
     :hideNav="true"
     :fullBleed="true"
-    body-class="bg-slate-950 text-slate-100"
-    shell-class="min-h-screen bg-slate-950 text-slate-100"
+    body-class="bg-slate-100 text-slate-900"
+    shell-class="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-100 text-slate-900"
 >
     @php
         $logoUrl = null;
@@ -17,102 +17,136 @@
             $logoUrl = asset('img/logo.png');
         }
 
+        $ventasRoute = \Illuminate\Support\Facades\Route::has('ventas.create')
+            ? route('ventas.create')
+            : route('ventas.index');
+
         $modules = [
             [
+                'key' => 'ventas',
                 'label' => 'Ventas',
                 'description' => 'Operaciones diarias y cobranzas.',
                 'route' => route('ventas.index'),
-                'icon' => 'fas fa-receipt',
             ],
             [
+                'key' => 'productos',
                 'label' => 'Productos',
                 'description' => 'Inventario, stock y precios.',
                 'route' => route('productos.index'),
-                'icon' => 'fas fa-boxes-stacked',
             ],
             [
+                'key' => 'categorias',
                 'label' => 'Categorías',
                 'description' => 'Catálogo ordenado por familias.',
                 'route' => route('categorias.index'),
-                'icon' => 'fas fa-tags',
             ],
             [
+                'key' => 'estadisticas',
                 'label' => 'Estadísticas',
                 'description' => 'Indicadores y rendimiento general.',
                 'route' => route('dashboard'),
-                'icon' => 'fas fa-chart-line',
             ],
             [
+                'key' => 'proveedores',
                 'label' => 'Proveedores',
                 'description' => 'Relaciones clave y abastecimiento.',
                 'route' => route('proveedores.index'),
-                'icon' => 'fas fa-truck',
             ],
         ];
     @endphp
 
     <section class="relative min-h-screen overflow-hidden">
-        <div class="absolute inset-0">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.18),_transparent_55%)]"></div>
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(37,99,235,0.16),_transparent_60%)]"></div>
-            <div class="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-950/95 to-slate-900"></div>
+        <div class="pointer-events-none absolute inset-0">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.18),_transparent_55%)]"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(129,140,248,0.2),_transparent_60%)]"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.7),_transparent_70%)]"></div>
         </div>
 
-        <div class="relative app-container py-12 lg:py-16">
-            <div class="mx-auto flex max-w-6xl flex-col gap-10">
-                <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_35px_80px_-45px_rgba(15,23,42,0.75)] backdrop-blur-lg sm:p-10">
-                    <div class="flex flex-col items-center gap-6 text-center">
-                        <div class="inline-flex items-center gap-4 rounded-2xl border border-white/15 bg-slate-900/60 px-5 py-4 shadow-[0_20px_50px_-30px_rgba(15,23,42,0.8)]">
-                            <img src="{{ $logoUrl }}" alt="Logo del negocio" class="h-12 w-auto sm:h-14">
-                            <div class="text-left">
-                                <p class="text-xs font-semibold uppercase tracking-[0.32em] text-slate-400">Inicio</p>
-                                <p class="text-sm text-slate-200">Panel principal</p>
-                            </div>
-                        </div>
+        <div class="relative app-container py-12 sm:py-16">
+            <div class="mx-auto flex max-w-6xl flex-col gap-12">
+                <div class="flex flex-col items-center gap-6 text-center">
+                    <img src="{{ $logoUrl }}" alt="Logo del negocio" class="h-16 w-auto sm:h-20">
 
-                        <div class="max-w-2xl">
-                            <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
-                                Hola, {{ auth()->user()->name }}
-                            </h1>
-                            <p class="mt-3 text-sm text-slate-300 sm:text-base">
-                                Accedé a los módulos esenciales con una experiencia premium, clara y enfocada en productividad.
-                            </p>
-                        </div>
+                    <div class="space-y-3">
+                        <h1 class="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+                            Hola, {{ auth()->user()->name }}
+                        </h1>
+                        <p class="text-base text-slate-600 sm:text-lg">
+                            ¿Listo para vender hoy? Todo tu negocio a un clic de distancia.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-center gap-4">
+                        <a
+                            href="{{ $ventasRoute }}"
+                            class="inline-flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:-translate-y-0.5 hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
+                        >
+                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/20">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-4 w-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+                                </svg>
+                            </span>
+                            Nueva venta
+                        </a>
+                        <span class="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-blue-700 shadow-sm">
+                            Home rápida
+                        </span>
                     </div>
                 </div>
 
-                <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.75)] backdrop-blur-lg sm:p-8">
-                    <div class="flex flex-wrap items-center justify-between gap-4">
-                        <div>
-                            <h2 class="text-xl font-semibold tracking-tight text-white sm:text-2xl">Módulos principales</h2>
-                            <p class="mt-2 text-sm text-slate-300">Entrá directo a cada sección clave del sistema.</p>
-                        </div>
-                        <span class="rounded-full border border-white/10 bg-slate-900/60 px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-300">
-                            Premium Ready
-                        </span>
-                    </div>
-
-                    <div class="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-5">
-                        @foreach ($modules as $module)
-                            <a
-                                href="{{ $module['route'] }}"
-                                class="group flex h-full flex-col gap-4 rounded-2xl border border-white/10 bg-slate-900/50 p-5 text-left transition duration-300 hover:-translate-y-1 hover:border-indigo-400/50 hover:bg-slate-900/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80"
-                            >
-                                <div class="flex items-center justify-between">
-                                    <span class="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-slate-950 text-slate-100 transition duration-300 group-hover:border-indigo-400/60">
-                                        <i class="{{ $module['icon'] }} text-sm"></i>
-                                    </span>
-                                    <span class="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-xs text-slate-400 transition duration-300 group-hover:border-indigo-400/60 group-hover:text-white">
-                                        <i class="fas fa-arrow-up-right"></i>
-                                    </span>
-                                </div>
-                                <div>
-                                    <h3 class="text-sm font-semibold text-white">{{ $module['label'] }}</h3>
-                                    <p class="mt-1 text-xs text-slate-400">{{ $module['description'] }}</p>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
+                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                    @foreach ($modules as $module)
+                        <a
+                            href="{{ $module['route'] }}"
+                            class="group flex h-full flex-col justify-between gap-6 rounded-3xl border border-white/70 bg-white/70 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-400/60 hover:shadow-lg hover:shadow-blue-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
+                        >
+                            <div class="flex items-center justify-between">
+                                <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-700 transition group-hover:bg-blue-100">
+                                    @switch($module['key'])
+                                        @case('ventas')
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-6 w-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8m-8 4h8m-6 4h6M6 3h9l3 3v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+                                            </svg>
+                                            @break
+                                        @case('productos')
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-6 w-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5 12 3l9 4.5-9 4.5L3 7.5z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5V17l9 4.5 9-4.5V7.5" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 12v9.5" />
+                                            </svg>
+                                            @break
+                                        @case('categorias')
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-6 w-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h4l6 6-4 4-6-6V7z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 7a2 2 0 1 0 0 4" />
+                                            </svg>
+                                            @break
+                                        @case('estadisticas')
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-6 w-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 19h16" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16V9" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V5" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 16v-6" />
+                                            </svg>
+                                            @break
+                                        @case('proveedores')
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-6 w-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v9" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 10h2.586a1 1 0 0 1 .707.293l2.414 2.414A1 1 0 0 1 22 13.414V16a2 2 0 0 1-2 2h-1" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 20a2 2 0 1 1 4 0" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20a2 2 0 1 1 4 0" />
+                                            </svg>
+                                            @break
+                                    @endswitch
+                                </span>
+                                <span class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-500">Ir</span>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-slate-900">{{ $module['label'] }}</h3>
+                                <p class="mt-2 text-sm text-slate-600">{{ $module['description'] }}</p>
+                            </div>
+                        </a>
+                    @endforeach
                 </div>
 
                 <div class="flex justify-center">
@@ -120,9 +154,12 @@
                         @csrf
                         <button
                             type="submit"
-                            class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:border-indigo-400/60 hover:bg-indigo-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80"
+                            class="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-6 py-3 text-sm font-semibold text-blue-700 shadow-sm transition hover:border-blue-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
                         >
-                            <i class="fas fa-right-from-bracket text-xs"></i>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-4 w-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 8l4 4m0 0-4 4m4-4H9" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5" />
+                            </svg>
                             Cerrar sesión
                         </button>
                     </form>
