@@ -48,24 +48,26 @@ class VentaController extends Controller
     }
 
     public function create()
-{
-    $usuarios = \App\Models\User::orderBy('name')->get(['id','name']);
+    {
+        $usuarios = User::orderBy('name')->get(['id', 'name']);
 
-    $productos = \App\Models\Producto::where('disponible', 1)
-        ->orderBy('nombre')
-        ->get(['id','nombre','precio','stock']);
+        $productos = Producto::where('disponible', 1)
+            ->with('categoria')
+            ->orderBy('nombre')
+            ->get(['id', 'nombre', 'precio', 'precio_descuento', 'stock', 'categoria_id']);
 
-    $productosForJs = $productos->map(function ($p) {
-        return [
-            'id'     => $p->id,
-            'nombre' => $p->nombre,
-            'precio' => (float) $p->precio,
-            'stock'  => (int) $p->stock,
-        ];
-    })->values();
+        $productosForJs = $productos->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'nombre' => $p->nombre,
+                'precio' => (float) $p->precio,
+                'stock' => (int) $p->stock,
+                'categoria' => $p->categoria?->nombre,
+            ];
+        })->values();
 
-    return view('ventas.create', compact('usuarios', 'productos', 'productosForJs'));
-}
+        return view('ventas.create', compact('usuarios', 'productos', 'productosForJs'));
+    }
 
 
     public function store(Request $request)
