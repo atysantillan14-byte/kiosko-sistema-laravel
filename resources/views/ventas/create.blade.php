@@ -192,8 +192,26 @@
             return `${opt.dataset.nombre} (${categoria})`;
         }
 
+        function actualizarProductoSeleccionado() {
+            const selected = productoSelect.options[productoSelect.selectedIndex];
+            if (!selected || !selected.value) {
+                productoInfo.textContent = '';
+                agregarWrapper.classList.add('hidden');
+                return;
+            }
+
+            const stock = selected.dataset.stock ? `Stock: ${selected.dataset.stock}` : '';
+            const categoria = selected.dataset.categoria || 'Sin categoría';
+            productoInfo.textContent = `${selected.dataset.nombre} · ${categoria} ${stock ? '· ' + stock : ''}`;
+            agregarWrapper.classList.remove('hidden');
+        }
+
         function sincronizarSelectDesdeBusqueda(valor, permitirParcial = false){
-            if (!valor) return false;
+            if (!valor) {
+                productoSelect.value = '';
+                actualizarProductoSeleccionado();
+                return false;
+            }
             const buscado = normalizar(valor);
             const match = opcionesOriginales.find((opt) => {
                 if (!opt.value) return false;
@@ -210,10 +228,12 @@
 
             if (match) {
                 productoSelect.value = match.value;
-                productoSelect.dispatchEvent(new Event('change'));
+                actualizarProductoSeleccionado();
                 return true;
             }
 
+            productoSelect.value = '';
+            actualizarProductoSeleccionado();
             return false;
         }
 
@@ -241,14 +261,14 @@
             productoSelect.appendChild(fragment);
             productoSuggestions.appendChild(sugerencias);
 
-            const synced = sincronizarSelectDesdeBusqueda(productoSearch.value.trim(), true);
-            if (!synced) {
-                agregarWrapper.classList.add('hidden');
-                productoInfo.textContent = '';
-            }
+            sincronizarSelectDesdeBusqueda(productoSearch.value.trim(), true);
         });
 
         productoSearch.addEventListener('change', () => {
+            sincronizarSelectDesdeBusqueda(productoSearch.value.trim());
+        });
+
+        productoSearch.addEventListener('blur', () => {
             sincronizarSelectDesdeBusqueda(productoSearch.value.trim());
         });
 
@@ -265,17 +285,7 @@
         });
 
         productoSelect.addEventListener('change', function() {
-            const selected = this.options[this.selectedIndex];
-            if (!selected || !selected.value) {
-                productoInfo.textContent = '';
-                agregarWrapper.classList.add('hidden');
-                return;
-            }
-
-            const stock = selected.dataset.stock ? `Stock: ${selected.dataset.stock}` : '';
-            const categoria = selected.dataset.categoria || 'Sin categoría';
-            productoInfo.textContent = `${selected.dataset.nombre} · ${categoria} ${stock ? '· ' + stock : ''}`;
-            agregarWrapper.classList.remove('hidden');
+            actualizarProductoSeleccionado();
         });
 
         agregarBtn?.addEventListener('click', () => {
