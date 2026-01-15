@@ -12,9 +12,9 @@
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white/90 rounded-2xl border border-slate-100 shadow-xl p-6 sm:p-8">
+    <div class="py-6">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white/90 rounded-2xl border border-slate-100 shadow-xl p-6 sm:p-7">
                 <div class="mb-6">
                     <h3 class="text-lg font-semibold text-slate-900">Detalles del producto</h3>
                     <p class="text-sm text-slate-500">Completá los datos principales para registrar el producto.</p>

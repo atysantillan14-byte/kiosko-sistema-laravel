@@ -3,7 +3,7 @@
         <h2 class="font-semibold text-xl text-gray-800">Nueva venta (Caja)</h2>
     </x-slot>
 
-    <div class="py-6 max-w-6xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6 max-w-4xl mx-auto sm:px-6 lg:px-8">
         @if ($errors->any())
             <div class="mb-4 p-3 rounded bg-red-100 text-red-800">
                 <ul class="list-disc pl-5">
@@ -24,11 +24,10 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="md:col-span-2">
                     <label class="block text-sm font-semibold text-slate-700 mb-1">Producto</label>
-                    <div class="flex flex-col gap-2">
-                        <input id="productoSearch" type="search" placeholder="Buscar producto por nombre o categoría..."
-                               class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" autocomplete="off" list="productoSuggestions">
-                        <datalist id="productoSuggestions"></datalist>
-                        <select id="productoSelect" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                    <input id="productoSearch" type="search" placeholder="Buscar y seleccionar producto..."
+                           class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" autocomplete="off" list="productoSuggestions">
+                    <datalist id="productoSuggestions"></datalist>
+                    <select id="productoSelect" class="sr-only" aria-hidden="true">
                         <option value="">Seleccione...</option>
                         @foreach($productos as $p)
                             <option value="{{ $p->id }}"
@@ -39,8 +38,7 @@
                                 {{ $p->nombre }} ({{ $p->categoria?->nombre ?? 'Sin categoría' }})
                             </option>
                         @endforeach
-                        </select>
-                    </div>
+                    </select>
                     <p class="text-xs text-slate-500 mt-2" id="productoInfo"></p>
                 </div>
 
@@ -375,8 +373,22 @@
             return Number.isFinite(n) ? n : null;
         }
 
+        function encontrarOpcionSeleccionada(){
+            const seleccion = productoSelect.selectedOptions[0];
+            if (seleccion && seleccion.value) return seleccion;
+            const buscado = normalizar(productoSearch.value.trim());
+            if (!buscado) return null;
+            const coincidencias = opcionesOriginales.filter((opt) => {
+                if (!opt.value) return false;
+                const etiqueta = normalizar(etiquetaProducto(opt));
+                const nombre = normalizar(opt.dataset.nombre || '');
+                return etiqueta.includes(buscado) || nombre.includes(buscado);
+            });
+            return coincidencias.length === 1 ? coincidencias[0] : null;
+        }
+
         agregarBtn.addEventListener('click', () => {
-            const opt = productoSelect.selectedOptions[0];
+            const opt = encontrarOpcionSeleccionada();
             if (!opt || !opt.value) { alert('Seleccione un producto.'); return; }
 
             const producto_id = Number(opt.value);
