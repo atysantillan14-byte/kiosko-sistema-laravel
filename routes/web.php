@@ -10,8 +10,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProveedorController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('home');
-    Route::get('/dashboard', fn () => redirect()->route('home'))->name('dashboard');
+    Route::get('/', fn () => view('home'))->name('home');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('categorias', CategoriaController::class);
     Route::resource('productos', ProductoController::class);
