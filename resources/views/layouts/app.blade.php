@@ -39,8 +39,6 @@
     @endif
 </head>
 @php
-    $bodyClass = $bodyClass ?? '';
-    $shellClass = $shellClass ?? 'min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-slate-50 to-slate-100';
     $mainClass = ($fullBleed ?? false) ? 'app-page' : 'app-container app-page';
 @endphp
 <body class="font-sans antialiased bg-[rgb(var(--bg))] text-[rgb(var(--text))] {{ $bodyClass }}">
