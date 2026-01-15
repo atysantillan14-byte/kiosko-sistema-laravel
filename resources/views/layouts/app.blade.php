@@ -49,11 +49,11 @@
     </div>
 @endif
 <div class="{{ $shellClass }}">
-    @if(!($hideNav ?? false))
+    @if (!($hideNav ?? false))
         @include('layouts.navigation')
     @endif
 
-    @if(!($hideNav ?? false))
+    @if (!($hideNav ?? false))
         @isset($header)
             <header class="border-b border-slate-200/70 bg-white/80 backdrop-blur">
                 <div class="app-container py-6">
