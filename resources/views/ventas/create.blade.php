@@ -130,7 +130,7 @@
                                 <div id="efectivoBox" class="hidden">
                                     <label class="app-label">Efectivo recibido</label>
                                     <input type="number" step="0.01" min="0" name="efectivo_recibido" id="efectivoRecibido" class="app-input" placeholder="0,00">
-                                    <p class="app-helper mt-1">Vuelto: <span id="vueltoTxt">$ 0,00</span></p>
+                                    <p class="app-helper mt-1">Vuelto: <span id="vueltoTxt" class="font-semibold text-emerald-600">$ 0,00</span></p>
                                 </div>
                             </div>
 
@@ -198,17 +198,39 @@
             return `${opt.dataset.nombre} (${categoria})`;
         }
 
+        function setProductoInfo(texto, esError = false) {
+            productoInfo.textContent = texto;
+            productoInfo.classList.toggle('text-rose-600', esError);
+            productoInfo.classList.toggle('text-slate-500', !esError);
+        }
+
+        function obtenerStockSeleccionado(selected) {
+            if (!selected) return null;
+            if (selected.dataset.stock === undefined || selected.dataset.stock === '') {
+                return null;
+            }
+            const stock = parseInt(selected.dataset.stock, 10);
+            return Number.isNaN(stock) ? null : stock;
+        }
+
         function actualizarProductoSeleccionado() {
             const selected = productoSelect.options[productoSelect.selectedIndex];
             if (!selected || !selected.value) {
-                productoInfo.textContent = '';
+                setProductoInfo('');
                 agregarWrapper.classList.add('hidden');
                 return;
             }
 
-            const stock = selected.dataset.stock ? `Stock: ${selected.dataset.stock}` : '';
+            const stockDisponible = obtenerStockSeleccionado(selected);
+            const stockText = stockDisponible !== null ? `Stock: ${stockDisponible}` : '';
             const categoria = selected.dataset.categoria || 'Sin categoría';
-            productoInfo.textContent = `${selected.dataset.nombre} · ${categoria} ${stock ? '· ' + stock : ''}`;
+            const infoBase = `${selected.dataset.nombre} · ${categoria} ${stockText ? '· ' + stockText : ''}`;
+            if (stockDisponible !== null && stockDisponible <= 0) {
+                setProductoInfo(`${infoBase} · Sin stock`, true);
+                agregarWrapper.classList.add('hidden');
+                return;
+            }
+            setProductoInfo(infoBase);
             agregarWrapper.classList.remove('hidden');
         }
 
@@ -298,6 +320,7 @@
             const selected = productoSelect.options[productoSelect.selectedIndex];
             if (!selected || !selected.value) return;
             const cantidad = parseInt(cantidadInput.value, 10) || 1;
+            const stockDisponible = obtenerStockSeleccionado(selected);
 
             const item = {
                 id: selected.value,
@@ -307,6 +330,11 @@
             };
 
             const existente = carrito.find((producto) => producto.id === item.id);
+            const cantidadTotal = (existente?.cantidad || 0) + cantidad;
+            if (stockDisponible !== null && cantidadTotal > stockDisponible) {
+                setProductoInfo('Stock insuficiente para esa cantidad.', true);
+                return;
+            }
             if (existente) {
                 existente.cantidad += cantidad;
             } else {
@@ -334,7 +362,7 @@
                         <td class="px-4 py-3 text-slate-700">${producto.cantidad}</td>
                         <td class="px-4 py-3 text-slate-700">$ ${(producto.precio * producto.cantidad).toFixed(2).replace('.', ',')}</td>
                         <td class="px-4 py-3 text-right">
-                            <button type="button" class="app-btn-ghost px-3 py-1.5 text-xs" onclick="eliminarProducto(${index})">Quitar</button>
+                            <button type="button" class="app-btn-ghost px-3 py-1.5 text-xs text-rose-600 hover:text-rose-700" onclick="eliminarProducto(${index})">Quitar</button>
                         </td>
                     `;
                     tbody.appendChild(row);
@@ -405,13 +433,13 @@
             carrito.forEach((producto, index) => {
                 const idInput = document.createElement('input');
                 idInput.type = 'hidden';
-                idInput.name = `productos[${index}][id]`;
+                idInput.name = `items[${index}][producto_id]`;
                 idInput.value = producto.id;
                 inputsHidden.appendChild(idInput);
 
                 const cantidadInputHidden = document.createElement('input');
                 cantidadInputHidden.type = 'hidden';
-                cantidadInputHidden.name = `productos[${index}][cantidad]`;
+                cantidadInputHidden.name = `items[${index}][cantidad]`;
                 cantidadInputHidden.value = producto.cantidad;
                 inputsHidden.appendChild(cantidadInputHidden);
             });
