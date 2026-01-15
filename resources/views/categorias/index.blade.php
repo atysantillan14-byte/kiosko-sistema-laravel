@@ -1,77 +1,78 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Categorías
-            </h2>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h2 class="app-title">Categorías</h2>
+                <p class="app-subtitle">Organizá el catálogo con estados y prioridades claras.</p>
+            </div>
 
-            <a href="{{ route('categorias.create') }}"
-               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
-                Nueva
+            <a href="{{ route('categorias.create') }}" class="app-btn-primary">
+                <i class="fas fa-plus"></i>
+                Nueva categoría
             </a>
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                        <tr class="text-left text-sm font-semibold text-gray-600">
-                            <th class="px-6 py-4">Nombre</th>
-                            <th class="px-6 py-4">Slug</th>
-                            <th class="px-6 py-4">Estado</th>
-                            <th class="px-6 py-4">Orden</th>
-                            <th class="px-6 py-4 text-right">Acciones</th>
+    <div class="app-page">
+        <div class="app-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="app-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Slug</th>
+                            <th>Estado</th>
+                            <th>Orden</th>
+                            <th class="text-right">Acciones</th>
                         </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                        @foreach($categorias as $cat)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4">
-                                    <a class="font-semibold text-gray-900 hover:text-blue-600"
+                    </thead>
+                    <tbody class="divide-y divide-slate-200/70">
+                        @forelse($categorias as $cat)
+                            <tr>
+                                <td>
+                                    <a class="font-semibold text-slate-900 hover:text-blue-600"
                                        href="{{ route('productos.index', ['categoria_id' => $cat->id]) }}">
                                         {{ $cat->nombre }}
                                     </a>
-                                    <div class="text-xs text-gray-500 mt-1">
+                                    <div class="mt-1 text-xs text-slate-500">
                                         Ver productos de esta categoría
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-gray-700">{{ $cat->slug }}</td>
-                                <td class="px-6 py-4">
-                                    <span class="px-3 py-1 rounded-full text-xs font-semibold
-                                        {{ ($cat->estado ?? 'activa') === 'activa' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }}">
+                                <td>{{ $cat->slug }}</td>
+                                <td>
+                                    <span class="app-chip {{ ($cat->estado ?? 'activa') === 'activa' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600' }}">
                                         {{ $cat->estado ?? 'activa' }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-gray-700">{{ $cat->orden ?? 0 }}</td>
-                                <td class="px-6 py-4">
+                                <td>{{ $cat->orden ?? 0 }}</td>
+                                <td>
                                     <div class="flex justify-end gap-2">
-                                        <a href="{{ route('categorias.edit', $cat) }}"
-                                           class="px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200">
+                                        <a href="{{ route('categorias.edit', $cat) }}" class="app-btn-secondary px-3 py-1.5 text-xs">
                                             Editar
                                         </a>
-                                        <form method="POST" action="{{ route('categorias.destroy', $cat) }}"
-                                              onsubmit="return confirm('¿Eliminar esta categoría?');">
+                                        <form method="POST" action="{{ route('categorias.destroy', $cat) }}" onsubmit="return confirm('¿Eliminar esta categoría?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">
+                                            <button class="app-btn-danger px-3 py-1.5 text-xs">
                                                 Eliminar
                                             </button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                        @empty
+                            <tr>
+                                <td class="px-6 py-10 text-center text-sm text-slate-500" colspan="5">
+                                    <div class="flex flex-col items-center gap-2">
+                                        <i class="fas fa-tags text-2xl text-slate-300"></i>
+                                        No hay categorías registradas.
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-
         </div>
     </div>
 </x-app-layout>
-
-
-

@@ -1,31 +1,27 @@
-<nav x-data="{ open: false }" class="relative z-50 bg-white/90 backdrop-blur border-b border-slate-200/70 shadow-sm">
+<nav x-data="{ open: false }" class="sticky top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur">
     @php
         $kioskoNombre = env('KIOSKO_NOMBRE', config('app.name'));
         $kioskoLogo = env('KIOSKO_LOGO', null);
     @endphp
 
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex items-center gap-6">
-                <!-- Brand (Logo + Nombre) -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('home') }}" class="flex items-center gap-3 group">
-                        @if($kioskoLogo)
-                            <img src="{{ $kioskoLogo }}" alt="Logo" class="h-9 w-9 rounded-xl object-cover shadow-sm ring-1 ring-slate-200/80">
-                        @else
-                            <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 shadow-sm ring-1 ring-slate-200/80"></div>
-                        @endif
-
-                        <div class="leading-tight">
-                            <div class="text-sm font-semibold text-slate-900 group-hover:text-slate-950">{{ $kioskoNombre }}</div>
-                            <div class="text-xs text-slate-500">Sistema de gestión</div>
+    <div class="app-container">
+        <div class="flex h-16 items-center justify-between gap-6">
+            <div class="flex items-center gap-8">
+                <a href="{{ route('home') }}" class="flex items-center gap-3">
+                    @if($kioskoLogo)
+                        <img src="{{ $kioskoLogo }}" alt="Logo" class="h-10 w-10 rounded-2xl object-cover shadow-sm ring-1 ring-slate-200/80">
+                    @else
+                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-500 text-white shadow-sm">
+                            <i class="fas fa-store text-lg"></i>
                         </div>
-                    </a>
-                </div>
+                    @endif
+                    <div class="leading-tight">
+                        <div class="text-sm font-semibold text-slate-900">{{ $kioskoNombre }}</div>
+                        <div class="text-xs text-slate-500">SaaS de gestión</div>
+                    </div>
+                </a>
 
-                <!-- Navigation Links -->
-                <div class="hidden sm:flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 ring-1 ring-slate-200/70 shadow-sm">
+                <div class="hidden items-center gap-1 rounded-full border border-slate-200/70 bg-slate-50/80 p-1 shadow-sm sm:flex">
                     <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
                         Inicio
                     </x-nav-link>
@@ -52,21 +48,15 @@
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div class="hidden items-center gap-3 sm:flex">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center gap-2 px-3 py-2 border border-slate-200 text-sm leading-4 font-medium rounded-full text-slate-700 bg-white hover:bg-slate-50 hover:text-slate-900 focus:outline-none transition ease-in-out duration-150 shadow-sm">
-                            <div class="h-7 w-7 rounded-full bg-slate-900/10 flex items-center justify-center text-slate-700 font-semibold">
+                        <button class="flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
+                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600/10 text-sm font-bold text-blue-700">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                            </div>
-                            <div class="hidden md:block">{{ Auth::user()->name }}</div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
+                            </span>
+                            <span class="hidden md:block">{{ Auth::user()->name }}</span>
+                            <i class="fas fa-chevron-down text-xs text-slate-400"></i>
                         </button>
                     </x-slot>
 
@@ -86,10 +76,9 @@
                 </x-dropdown>
             </div>
 
-            <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
                 <button @click="open = ! open"
-                    class="inline-flex items-center justify-center p-2 rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-100 focus:outline-none focus:bg-slate-100 focus:text-slate-700 transition duration-150 ease-in-out">
+                    class="inline-flex items-center justify-center rounded-xl border border-slate-200/70 bg-white p-2 text-slate-600 shadow-sm transition hover:bg-slate-50">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -99,9 +88,8 @@
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-gray-100">
-        <div class="pt-2 pb-3 space-y-1">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden border-t border-slate-200/70 bg-white sm:hidden">
+        <div class="space-y-1 px-4 py-3">
             <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
                 Inicio
             </x-responsive-nav-link>
@@ -127,12 +115,9 @@
             </x-responsive-nav-link>
         </div>
 
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
+        <div class="border-t border-slate-200/70 px-4 py-3">
+            <div class="text-sm font-semibold text-slate-800">{{ Auth::user()->name }}</div>
+            <div class="text-xs text-slate-500">{{ Auth::user()->email }}</div>
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">

@@ -1,103 +1,90 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Nuevo Producto
-            </h2>
-
-            <a href="{{ route('productos.index') }}"
-               class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h2 class="app-title">Nuevo producto</h2>
+                <p class="app-subtitle">Completá los datos principales para registrar el producto.</p>
+            </div>
+            <a href="{{ route('productos.index') }}" class="app-btn-secondary">
                 Volver
             </a>
         </div>
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white/90 rounded-2xl border border-slate-100 shadow-xl p-6 sm:p-7">
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-slate-900">Detalles del producto</h3>
-                    <p class="text-sm text-slate-500">Completá los datos principales para registrar el producto.</p>
-                </div>
-                <form method="POST" action="{{ route('productos.store') }}" class="space-y-5">
+    <div class="app-page">
+        <div class="max-w-4xl">
+            <div class="app-card p-6 sm:p-8">
+                <form method="POST" action="{{ route('productos.store') }}" class="space-y-6">
                     @csrf
 
                     <div>
-                        <label class="text-sm font-semibold text-slate-700">Categoría</label>
-                        <select name="categoria_id" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                        <label class="app-label">Categoría</label>
+                        <select name="categoria_id" class="app-input @error('categoria_id') app-input-error @enderror">
                             @foreach($categorias as $c)
                                 <option value="{{ $c->id }}">{{ $c->nombre }}</option>
                             @endforeach
                         </select>
-                        @error('categoria_id')<div class="text-sm text-red-600 mt-1">{{ $message }}</div>@enderror
+                        @error('categoria_id')<div class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</div>@enderror
                     </div>
 
                     <div>
-                        <label class="text-sm font-semibold text-slate-700">Nombre</label>
-                        <input name="nombre" value="{{ old('nombre') }}"
-                               class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" />
-                        @error('nombre')<div class="text-sm text-red-600 mt-1">{{ $message }}</div>@enderror
+                        <label class="app-label">Nombre</label>
+                        <input name="nombre" value="{{ old('nombre') }}" class="app-input @error('nombre') app-input-error @enderror" />
+                        @error('nombre')<div class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</div>@enderror
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <label class="text-sm font-semibold text-slate-700">Precio</label>
-                            <input name="precio" value="{{ old('precio') }}" type="number" step="0.01"
-                                   class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" />
-                            @error('precio')<div class="text-sm text-red-600 mt-1">{{ $message }}</div>@enderror
+                            <label class="app-label">Precio</label>
+                            <input name="precio" value="{{ old('precio') }}" type="number" step="0.01" class="app-input @error('precio') app-input-error @enderror" />
+                            @error('precio')<div class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</div>@enderror
                         </div>
                         <div>
-                            <label class="text-sm font-semibold text-slate-700">Precio descuento</label>
-                            <input name="precio_descuento" value="{{ old('precio_descuento') }}" type="number" step="0.01"
-                                   class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" />
+                            <label class="app-label">Precio descuento</label>
+                            <input name="precio_descuento" value="{{ old('precio_descuento') }}" type="number" step="0.01" class="app-input" />
+                            <p class="app-helper mt-1">Opcional para promociones.</p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <label class="text-sm font-semibold text-slate-700">Stock</label>
-                            <input name="stock" value="{{ old('stock', 0) }}" type="number"
-                                   class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" />
-                            @error('stock')<div class="text-sm text-red-600 mt-1">{{ $message }}</div>@enderror
+                            <label class="app-label">Stock</label>
+                            <input name="stock" value="{{ old('stock', 0) }}" type="number" class="app-input @error('stock') app-input-error @enderror" />
+                            @error('stock')<div class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</div>@enderror
                         </div>
                         <div>
-                            <label class="text-sm font-semibold text-slate-700">SKU</label>
-                            <input name="sku" value="{{ old('sku') }}"
-                                   placeholder="Si lo dejás vacío se genera solo"
-                                   class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" />
+                            <label class="app-label">SKU</label>
+                            <input name="sku" value="{{ old('sku') }}" placeholder="Si lo dejás vacío se genera solo" class="app-input" />
                         </div>
                     </div>
 
                     <div>
-                        <label class="text-sm font-semibold text-slate-700">Descripción</label>
-                        <textarea name="descripcion" rows="4"
-                                  class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">{{ old('descripcion') }}</textarea>
+                        <label class="app-label">Descripción</label>
+                        <textarea name="descripcion" rows="4" class="app-input">{{ old('descripcion') }}</textarea>
                     </div>
 
                     <div>
-                        <label class="text-sm font-semibold text-slate-700">Imagen (URL o path)</label>
-                        <input name="imagen" value="{{ old('imagen') }}"
-                               class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" />
+                        <label class="app-label">Imagen (URL o path)</label>
+                        <input name="imagen" value="{{ old('imagen') }}" class="app-input" />
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-6 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3">
-                        <label class="inline-flex items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-6 rounded-2xl border border-slate-200/70 bg-slate-50/80 px-4 py-3">
+                        <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
                             <input type="checkbox" name="disponible" value="1" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-200">
-                            <span class="text-sm text-slate-700 font-semibold">Disponible</span>
+                            Disponible
                         </label>
 
-                        <label class="inline-flex items-center gap-2">
+                        <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
                             <input type="checkbox" name="destacado" value="1" class="rounded border-slate-300 text-blue-600 focus:ring-blue-200">
-                            <span class="text-sm text-slate-700 font-semibold">Destacado</span>
+                            Destacado
                         </label>
                     </div>
 
-                    <div class="flex flex-wrap justify-end gap-2 pt-2">
-                        <a href="{{ route('productos.index') }}"
-                           class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50">
+                    <div class="flex flex-wrap justify-end gap-2">
+                        <a href="{{ route('productos.index') }}" class="app-btn-secondary">
                             Cancelar
                         </a>
-                        <button class="px-5 py-2 rounded-xl bg-blue-600 text-white shadow-sm hover:bg-blue-700">
+                        <button class="app-btn-primary" type="submit">
                             Guardar
                         </button>
                     </div>
