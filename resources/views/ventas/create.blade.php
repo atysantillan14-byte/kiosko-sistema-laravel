@@ -375,6 +375,7 @@
         function actualizarTotal() {
             totalActual = carrito.reduce((acc, producto) => acc + producto.precio * producto.cantidad, 0);
             totalTxt.textContent = `$ ${totalActual.toFixed(2).replace('.', ',')}`;
+            actualizarEfectivoBox();
         }
 
         function eliminarProducto(index) {
@@ -382,11 +383,46 @@
             renderCarrito();
         }
 
+        function calcularEfectivoAPagar() {
+            if (!pagoMixto.checked) {
+                return metodoPagoSimple.value === 'efectivo' ? totalActual : 0;
+            }
+
+            const montoPrimarioValor = parseFloat(montoPrimario.value || '0');
+            const montoSecundarioValor = parseFloat(montoSecundario.value || '0');
+            let efectivo = 0;
+
+            if (metodoPagoPrimario.value === 'efectivo') {
+                efectivo += montoPrimarioValor;
+            }
+            if (metodoPagoSecundario.value === 'efectivo') {
+                efectivo += montoSecundarioValor;
+            }
+
+            return efectivo;
+        }
+
         function actualizarVuelto() {
-            if (!efectivoBox.classList.contains('hidden')) {
-                const recibido = parseFloat(efectivoRecibido.value || '0');
-                const vuelto = recibido - totalActual;
-                vueltoTxt.textContent = `$ ${Math.max(vuelto, 0).toFixed(2).replace('.', ',')}`;
+            if (efectivoBox.classList.contains('hidden')) {
+                return;
+            }
+
+            const recibido = parseFloat(efectivoRecibido.value || '0');
+            const efectivoAPagar = calcularEfectivoAPagar();
+            const vuelto = recibido - efectivoAPagar;
+            vueltoTxt.textContent = `$ ${Math.max(vuelto, 0).toFixed(2).replace('.', ',')}`;
+        }
+
+        function actualizarEfectivoBox() {
+            const efectivoAPagar = calcularEfectivoAPagar();
+            const mostrar = efectivoAPagar > 0;
+            efectivoBox.classList.toggle('hidden', !mostrar);
+
+            if (!mostrar) {
+                efectivoRecibido.value = '';
+                vueltoTxt.textContent = '$ 0,00';
+            } else {
+                actualizarVuelto();
             }
         }
 
@@ -394,11 +430,15 @@
             const mix = pagoMixto.checked;
             pagoMixtoCampos.classList.toggle('hidden', !mix);
             pagoSimple.classList.toggle('hidden', mix);
+            actualizarEfectivoBox();
         });
 
         metodoPagoSimple.addEventListener('change', () => {
-            efectivoBox.classList.toggle('hidden', metodoPagoSimple.value !== 'efectivo');
+            actualizarEfectivoBox();
         });
+
+        metodoPagoPrimario.addEventListener('change', actualizarEfectivoBox);
+        metodoPagoSecundario.addEventListener('change', actualizarEfectivoBox);
 
         efectivoRecibido.addEventListener('input', actualizarVuelto);
 
@@ -421,11 +461,13 @@
         montoPrimario.addEventListener('input', () => {
             ultimoMontoEditado = 'primario';
             actualizarMontosMixtos();
+            actualizarEfectivoBox();
         });
 
         montoSecundario.addEventListener('input', () => {
             ultimoMontoEditado = 'secundario';
             actualizarMontosMixtos();
+            actualizarEfectivoBox();
         });
 
         ventaForm.addEventListener('submit', () => {
@@ -444,5 +486,7 @@
                 inputsHidden.appendChild(cantidadInputHidden);
             });
         });
+
+        actualizarEfectivoBox();
     </script>
 </x-app-layout>
