@@ -12,19 +12,19 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased text-slate-900">
-<div class="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100">
+<body class="font-sans antialiased bg-[rgb(var(--bg))] text-[rgb(var(--text))]">
+<div class="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-slate-50 to-slate-100">
     @include('layouts.navigation')
 
     @isset($header)
-        <header class="bg-white/80 backdrop-blur shadow-sm border-b border-slate-100">
-            <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
+        <header class="border-b border-slate-200/70 bg-white/80 backdrop-blur">
+            <div class="app-container py-6">
                 {{ $header }}
             </div>
         </header>
     @endisset
 
-    <main class="w-full px-4 sm:px-6 lg:px-8 py-6">
+    <main class="app-container app-page">
         {{ $slot }}
     </main>
 </div>

@@ -1,104 +1,98 @@
-<div class="h-full flex flex-col">
-    <!-- Logo en sidebar -->
-    <div class="p-6 border-b border-gray-200">
+<div class="flex h-full flex-col">
+    <div class="border-b border-slate-200/70 p-6">
         <div class="flex items-center justify-center">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-500">
                 <i class="fas fa-store text-white text-xl"></i>
             </div>
         </div>
     </div>
-    
-    <!-- Menú de navegación -->
-    <nav class="flex-1 p-4 space-y-2">
-        <a href="{{ route('home') }}" 
-           class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('home') ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-500' : 'hover:bg-gray-100 text-gray-700' }}">
-            <i class="fas fa-tachometer-alt w-6 mr-3"></i>
-            <span class="font-medium">Inicio</span>
+
+    <nav class="flex-1 space-y-1 p-4">
+        <a href="{{ route('home') }}"
+           class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('home') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50' }}">
+            <i class="fas fa-tachometer-alt w-5"></i>
+            <span>Inicio</span>
         </a>
 
-        <a href="{{ route('dashboard') }}" 
-           class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-500' : 'hover:bg-gray-100 text-gray-700' }}">
-            <i class="fas fa-chart-line w-6 mr-3"></i>
-            <span class="font-medium">Panel analítico</span>
+        <a href="{{ route('dashboard') }}"
+           class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('dashboard') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50' }}">
+            <i class="fas fa-chart-line w-5"></i>
+            <span>Panel analítico</span>
         </a>
-        
-        <a href="{{ route('categorias.index') }}" 
-           class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('categorias.*') ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-500' : 'hover:bg-gray-100 text-gray-700' }}">
-            <i class="fas fa-tags w-6 mr-3"></i>
-            <span class="font-medium">Categorías</span>
+
+        <a href="{{ route('categorias.index') }}"
+           class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('categorias.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50' }}">
+            <i class="fas fa-tags w-5"></i>
+            <span>Categorías</span>
         </a>
-        
-        <a href="{{ route('productos.index') }}" 
-           class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('productos.*') ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-500' : 'hover:bg-gray-100 text-gray-700' }}">
-            <i class="fas fa-box w-6 mr-3"></i>
-            <span class="font-medium">Productos</span>
+
+        <a href="{{ route('productos.index') }}"
+           class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('productos.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50' }}">
+            <i class="fas fa-box w-5"></i>
+            <span>Productos</span>
             @isset($stats)
-            <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
-                {{ $stats['productosSinStock'] ?? 0 }}
-            </span>
+                <span class="ml-auto rounded-full bg-rose-500 px-2 py-0.5 text-xs font-semibold text-white">
+                    {{ $stats['productosSinStock'] ?? 0 }}
+                </span>
             @endisset
         </a>
-        
-        <a href="{{ route('ventas.index') }}" 
-           class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('ventas.*') ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-500' : 'hover:bg-gray-100 text-gray-700' }}">
-            <i class="fas fa-shopping-cart w-6 mr-3"></i>
-            <span class="font-medium">Ventas</span>
+
+        <a href="{{ route('ventas.index') }}"
+           class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('ventas.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50' }}">
+            <i class="fas fa-shopping-cart w-5"></i>
+            <span>Ventas</span>
         </a>
 
-        <a href="{{ route('proveedores.index') }}" 
-           class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('proveedores.*') ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-500' : 'hover:bg-gray-100 text-gray-700' }}">
-            <i class="fas fa-truck w-6 mr-3"></i>
-            <span class="font-medium">Proveedores</span>
+        <a href="{{ route('proveedores.index') }}"
+           class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('proveedores.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50' }}">
+            <i class="fas fa-truck w-5"></i>
+            <span>Proveedores</span>
         </a>
-        
-        <a href="#" 
-           class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-gray-100 text-gray-700">
-            <i class="fas fa-chart-line w-6 mr-3"></i>
-            <span class="font-medium">Reportes</span>
+
+        <a href="#"
+           class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+            <i class="fas fa-chart-line w-5"></i>
+            <span>Reportes</span>
         </a>
-        
-        <a href="#" 
-           class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-gray-100 text-gray-700">
-            <i class="fas fa-users w-6 mr-3"></i>
-            <span class="font-medium">Clientes</span>
+
+        <a href="#"
+           class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+            <i class="fas fa-users w-5"></i>
+            <span>Clientes</span>
         </a>
-        
-        <!-- Separador -->
-        <div class="pt-4 mt-4 border-t border-gray-200">
-            <p class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                Configuración
-            </p>
-            
-            <a href="#" 
-               class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-gray-100 text-gray-700">
-                <i class="fas fa-cog w-6 mr-3"></i>
-                <span class="font-medium">Sistema</span>
+
+        <div class="mt-4 border-t border-slate-200/70 pt-4">
+            <p class="px-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Configuración</p>
+
+            <a href="#"
+               class="mt-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+                <i class="fas fa-cog w-5"></i>
+                <span>Sistema</span>
             </a>
-            
-            <a href="#" 
-               class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-gray-100 text-gray-700">
-                <i class="fas fa-user-shield w-6 mr-3"></i>
-                <span class="font-medium">Usuarios</span>
+
+            <a href="#"
+               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+                <i class="fas fa-user-shield w-5"></i>
+                <span>Usuarios</span>
             </a>
-            
-            <a href="#" 
-               class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-gray-100 text-gray-700">
-                <i class="fas fa-database w-6 mr-3"></i>
-                <span class="font-medium">Backup</span>
+
+            <a href="#"
+               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+                <i class="fas fa-database w-5"></i>
+                <span>Backup</span>
             </a>
         </div>
     </nav>
-    
-    <!-- Estado del sistema -->
-    <div class="p-4 border-t border-gray-200">
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4">
+
+    <div class="border-t border-slate-200/70 p-4">
+        <div class="rounded-2xl bg-gradient-to-r from-emerald-50 to-emerald-100 p-4">
             <div class="flex items-center">
-                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                    <i class="fas fa-check text-green-600"></i>
+                <div class="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
+                    <i class="fas fa-check text-emerald-600"></i>
                 </div>
                 <div>
-                    <p class="font-medium text-gray-800">Sistema operativo</p>
-                    <p class="text-sm text-gray-600">Todos los servicios funcionando</p>
+                    <p class="text-sm font-semibold text-slate-800">Sistema operativo</p>
+                    <p class="text-xs text-slate-600">Todos los servicios funcionando</p>
                 </div>
             </div>
         </div>

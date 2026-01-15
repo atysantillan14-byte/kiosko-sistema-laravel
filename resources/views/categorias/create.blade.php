@@ -1,15 +1,21 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">Nueva categoría</h2>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h2 class="app-title">Nueva categoría</h2>
+                <p class="app-subtitle">Definí la estructura de tu catálogo con claridad.</p>
+            </div>
+            <a href="{{ route('categorias.index') }}" class="app-btn-secondary">Volver</a>
+        </div>
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow-sm sm:rounded-lg p-6">
-
+    <div class="app-page">
+        <div class="max-w-4xl">
+            <div class="app-card p-6 sm:p-8">
                 @if ($errors->any())
-                    <div class="mb-4 p-3 rounded bg-red-100 text-red-800">
-                        <ul class="list-disc pl-5">
+                    <div class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+                        <div class="font-semibold">Revisá los errores antes de continuar</div>
+                        <ul class="mt-2 list-disc pl-5">
                             @foreach ($errors->all() as $e)
                                 <li>{{ $e }}</li>
                             @endforeach
@@ -17,62 +23,49 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('categorias.store') }}" class="space-y-4">
+                <form method="POST" action="{{ route('categorias.store') }}" class="space-y-6">
                     @csrf
 
                     <div>
-                        <label class="block text-sm font-medium">Nombre</label>
-                        <input name="nombre" value="{{ old('nombre') }}"
-                               class="mt-1 w-full rounded border-gray-300" required>
+                        <label class="app-label">Nombre</label>
+                        <input name="nombre" value="{{ old('nombre') }}" class="app-input @error('nombre') app-input-error @enderror" required>
+                        @error('nombre')<div class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</div>@enderror
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium">Slug (opcional)</label>
-                        <input name="slug" value="{{ old('slug') }}"
-                               class="mt-1 w-full rounded border-gray-300"
-                               placeholder="se-genera-solo-si-lo-dejas-vacio">
+                        <label class="app-label">Slug (opcional)</label>
+                        <input name="slug" value="{{ old('slug') }}" class="app-input" placeholder="se-genera-solo-si-lo-dejas-vacio">
+                        <p class="app-helper mt-1">Se genera automáticamente si queda vacío.</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium">Descripción</label>
-                        <textarea name="descripcion" class="mt-1 w-full rounded border-gray-300"
-                                  rows="3">{{ old('descripcion') }}</textarea>
+                        <label class="app-label">Descripción</label>
+                        <textarea name="descripcion" class="app-input" rows="3">{{ old('descripcion') }}</textarea>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <label class="block text-sm font-medium">Imagen (URL o path)</label>
-                            <input name="imagen" value="{{ old('imagen') }}"
-                                   class="mt-1 w-full rounded border-gray-300">
+                            <label class="app-label">Imagen (URL o path)</label>
+                            <input name="imagen" value="{{ old('imagen') }}" class="app-input">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium">Orden</label>
-                            <input type="number" name="orden" value="{{ old('orden', 0) }}"
-                                   class="mt-1 w-full rounded border-gray-300" min="0">
+                            <label class="app-label">Orden</label>
+                            <input type="number" name="orden" value="{{ old('orden', 0) }}" class="app-input" min="0">
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" name="activo" value="1"
-                               class="rounded border-gray-300"
-                               {{ old('activo', true) ? 'checked' : '' }}>
-                        <span>Activa</span>
+                    <div class="flex items-center gap-2 rounded-xl border border-slate-200/70 bg-slate-50/80 px-4 py-3 text-sm font-semibold text-slate-700">
+                        <input type="checkbox" name="activo" value="1" class="rounded border-slate-300 text-blue-600 focus:ring-blue-200" {{ old('activo', true) ? 'checked' : '' }}>
+                        Activa
                     </div>
 
-                    <div class="flex gap-2">
-                        <a href="{{ route('categorias.index') }}"
-                           class="px-4 py-2 rounded border">
-                            Volver
-                        </a>
-                        <button class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
-                            Guardar
-                        </button>
+                    <div class="flex flex-wrap justify-end gap-2">
+                        <a href="{{ route('categorias.index') }}" class="app-btn-secondary">Cancelar</a>
+                        <button class="app-btn-primary" type="submit">Guardar</button>
                     </div>
                 </form>
-
             </div>
         </div>
     </div>
 </x-app-layout>
-
