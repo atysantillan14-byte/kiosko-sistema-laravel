@@ -13,9 +13,9 @@
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <h2 class="text-2xl font-bold text-slate-900">
-                    Dashboard
+                    Panel principal
                 </h2>
-                <p class="text-sm text-slate-500">Panel de control del kiosko con métricas clave.</p>
+                <p class="text-sm text-slate-500">Centro operativo del kiosko con accesos directos y métricas clave.</p>
             </div>
         </div>
     </x-slot>
@@ -46,7 +46,7 @@
                     </div>
                 </div>
 
-                <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <a href="{{ route('ventas.index') }}" class="group rounded-2xl border border-white/10 bg-white/5 p-5 text-white transition hover:-translate-y-1 hover:bg-white/10">
                         <div class="flex items-center justify-between">
                             <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-rose-500/20 text-rose-200">
@@ -78,17 +78,6 @@
                         </div>
                         <h4 class="mt-4 text-base font-semibold">Categorías</h4>
                         <p class="mt-1 text-xs text-slate-300">Ordená tu catálogo por familias.</p>
-                    </a>
-
-                    <a href="{{ route('dashboard') }}" class="group rounded-2xl border border-white/10 bg-white/5 p-5 text-white transition hover:-translate-y-1 hover:bg-white/10">
-                        <div class="flex items-center justify-between">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-sky-500/20 text-sky-200">
-                                <i class="fas fa-chart-line"></i>
-                            </span>
-                            <i class="fas fa-arrow-right text-xs text-white/60 transition group-hover:translate-x-1"></i>
-                        </div>
-                        <h4 class="mt-4 text-base font-semibold">Estadísticas</h4>
-                        <p class="mt-1 text-xs text-slate-300">Indicadores y comparativas diarias.</p>
                     </a>
 
                     <a href="{{ route('proveedores.index') }}" class="group rounded-2xl border border-white/10 bg-white/5 p-5 text-white transition hover:-translate-y-1 hover:bg-white/10">
@@ -129,7 +118,7 @@
                       x-transition
                       class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
                       method="GET"
-                      action="{{ route('dashboard') }}">
+                      action="{{ route('home') }}">
                     <label class="flex flex-col gap-1 text-xs font-semibold text-gray-500">
                         Mes (prioridad)
                         <input
@@ -213,7 +202,7 @@
                             <i class="fas fa-magnifying-glass-chart"></i>
                             Aplicar
                         </button>
-                        <a href="{{ route('dashboard') }}"
+                        <a href="{{ route('home') }}"
                            class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
                             <i class="fas fa-rotate-left"></i>
                             Limpiar

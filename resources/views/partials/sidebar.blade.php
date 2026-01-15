@@ -10,10 +10,10 @@
     
     <!-- Menú de navegación -->
     <nav class="flex-1 p-4 space-y-2">
-        <a href="{{ route('dashboard') }}" 
-           class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-500' : 'hover:bg-gray-100 text-gray-700' }}">
+        <a href="{{ route('home') }}" 
+           class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('home') ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-500' : 'hover:bg-gray-100 text-gray-700' }}">
             <i class="fas fa-tachometer-alt w-6 mr-3"></i>
-            <span class="font-medium">Dashboard</span>
+            <span class="font-medium">Inicio</span>
         </a>
         
         <a href="{{ route('categorias.index') }}" 

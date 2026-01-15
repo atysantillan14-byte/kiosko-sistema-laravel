@@ -10,7 +10,7 @@
             <div class="flex items-center gap-6">
                 <!-- Brand (Logo + Nombre) -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
+                    <a href="{{ route('home') }}" class="flex items-center gap-3 group">
                         @if($kioskoLogo)
                             <img src="{{ $kioskoLogo }}" alt="Logo" class="h-9 w-9 rounded-xl object-cover shadow-sm ring-1 ring-slate-200/80">
                         @else
@@ -26,8 +26,8 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden sm:flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 ring-1 ring-slate-200/70 shadow-sm">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        Dashboard
+                    <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
+                        Inicio
                     </x-nav-link>
 
                     <x-nav-link :href="url('/productos')" :active="request()->is('productos*')">
@@ -98,8 +98,8 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-gray-100">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                Dashboard
+            <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
+                Inicio
             </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="url('/productos')" :active="request()->is('productos*')">
