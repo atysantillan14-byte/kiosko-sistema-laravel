@@ -41,6 +41,10 @@
                     <x-nav-link :href="url('/ventas')" :active="request()->is('ventas*')">
                         Ventas
                     </x-nav-link>
+
+                    <x-nav-link :href="route('proveedores.index')" :active="request()->is('proveedores*')">
+                        Proveedores
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -108,6 +112,10 @@
 
             <x-responsive-nav-link :href="url('/ventas')" :active="request()->is('ventas*')">
                 Ventas
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('proveedores.index')" :active="request()->is('proveedores*')">
+                Proveedores
             </x-responsive-nav-link>
         </div>
 

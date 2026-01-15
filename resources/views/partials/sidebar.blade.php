@@ -38,6 +38,12 @@
             <i class="fas fa-shopping-cart w-6 mr-3"></i>
             <span class="font-medium">Ventas</span>
         </a>
+
+        <a href="{{ route('proveedores.index') }}" 
+           class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('proveedores.*') ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-500' : 'hover:bg-gray-100 text-gray-700' }}">
+            <i class="fas fa-truck w-6 mr-3"></i>
+            <span class="font-medium">Proveedores</span>
+        </a>
         
         <a href="#" 
            class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:bg-gray-100 text-gray-700">
