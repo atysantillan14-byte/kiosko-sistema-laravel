@@ -53,19 +53,18 @@
                                 @endforeach
                             </select>
                             <p class="text-xs text-slate-500 mt-2" id="productoInfo"></p>
+                            <div id="agregarWrapper" class="mt-3 hidden">
+                                <button type="button" id="agregarBtn"
+                                        class="w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-900 text-white shadow-sm transition hover:bg-slate-800">
+                                    Agregar producto
+                                </button>
+                            </div>
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-1">Cantidad</label>
                             <input id="cantidadInput" type="number" min="1" value="1" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
                         </div>
-                    </div>
-
-                    <div class="flex justify-end">
-                        <button type="button" id="agregarBtn"
-                                class="px-4 py-2 rounded-xl bg-slate-900 text-white shadow-sm transition hover:bg-slate-800">
-                            Agregar
-                        </button>
                     </div>
 
                     <div class="mt-6">
@@ -171,6 +170,7 @@
         const productoSelect = document.getElementById('productoSelect');
         const cantidadInput = document.getElementById('cantidadInput');
         const agregarBtn = document.getElementById('agregarBtn');
+        const agregarWrapper = document.getElementById('agregarWrapper');
         const carritoVacio = document.getElementById('carritoVacio');
         const tbody = document.querySelector('#tablaCarrito tbody');
         const totalTxt = document.getElementById('totalTxt');
@@ -248,13 +248,25 @@
             sincronizarSelectDesdeBusqueda(productoSearch.value);
         });
 
+        function toggleAgregar(){
+            const opt = productoSelect.selectedOptions[0];
+            const visible = !!(opt && opt.value);
+            agregarWrapper.classList.toggle('hidden', !visible);
+            agregarBtn.disabled = !visible;
+        }
+
         productoSelect.addEventListener('change', () => {
             const opt = productoSelect.selectedOptions[0];
-            if (!opt || !opt.value) { productoInfo.textContent = ''; return; }
+            if (!opt || !opt.value) {
+                productoInfo.textContent = '';
+                toggleAgregar();
+                return;
+            }
             const stock = (opt.dataset.stock !== '' && opt.dataset.stock != null) ? `Stock: ${opt.dataset.stock}` : 'Stock: —';
             const precio = Number(opt.dataset.precio || 0).toFixed(2).replace('.', ',');
             productoInfo.textContent = `${opt.dataset.categoria} · $ ${precio} · ${stock}`;
             productoSearch.value = etiquetaProducto(opt);
+            toggleAgregar();
         });
 
         function money(n){
@@ -495,5 +507,6 @@
         productoSearch.dispatchEvent(new Event('input'));
         updatePagoUI();
         render();
+        toggleAgregar();
     </script>
 </x-app-layout>
