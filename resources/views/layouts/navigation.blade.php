@@ -30,6 +30,10 @@
                         Inicio
                     </x-nav-link>
 
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        Panel analítico
+                    </x-nav-link>
+
                     <x-nav-link :href="url('/productos')" :active="request()->is('productos*')">
                         Productos
                     </x-nav-link>
@@ -100,6 +104,10 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
                 Inicio
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                Panel analítico
             </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="url('/productos')" :active="request()->is('productos*')">
