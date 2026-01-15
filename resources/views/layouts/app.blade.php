@@ -19,17 +19,19 @@
 @endphp
 <body class="font-sans antialiased bg-[rgb(var(--bg))] text-[rgb(var(--text))] {{ $bodyClass }}">
 <div class="{{ $shellClass }}">
-    @unless($hideNav ?? false)
+    @if(!($hideNav ?? false))
         @include('layouts.navigation')
-    @endunless
+    @endif
 
-    @isset($header)
-        <header class="border-b border-slate-200/70 bg-white/80 backdrop-blur">
-            <div class="app-container py-6">
-                {{ $header }}
-            </div>
-        </header>
-    @endisset
+    @if(!($hideNav ?? false))
+        @isset($header)
+            <header class="border-b border-slate-200/70 bg-white/80 backdrop-blur">
+                <div class="app-container py-6">
+                    {{ $header }}
+                </div>
+            </header>
+        @endisset
+    @endif
 
     <main class="{{ $mainClass }}">
         {{ $slot }}
