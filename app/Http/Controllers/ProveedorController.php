@@ -5,12 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Proveedor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class ProveedorController extends Controller
 {
     public function index(): View
     {
+        if (! Schema::hasTable('proveedores')) {
+            $proveedores = collect();
+
+            return view('proveedores.index', compact('proveedores'))
+                ->with('error', 'La tabla de proveedores no está disponible. Ejecutá las migraciones para crearla.');
+        }
+
         $proveedores = Proveedor::query()->orderBy('nombre')->get();
 
         return view('proveedores.index', compact('proveedores'));

@@ -19,6 +19,11 @@
                     {{ session('success') }}
                 </div>
             @endif
+            @if (session('error'))
+                <div class="border-b border-rose-200/70 bg-rose-50 px-6 py-4 text-sm text-rose-700">
+                    {{ session('error') }}
+                </div>
+            @endif
             <div class="overflow-x-auto">
                 <table class="app-table">
                     <thead>
