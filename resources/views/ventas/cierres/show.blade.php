@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout :title="'Cierre #' . $cierre->id">
     <x-slot name="header">
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
