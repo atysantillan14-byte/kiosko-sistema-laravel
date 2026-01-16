@@ -11,6 +11,10 @@
                     <i class="fas fa-cash-register"></i>
                     Cierre de caja
                 </a>
+                <a href="{{ route('ventas.cierres.index') }}" class="app-btn-secondary">
+                    <i class="fas fa-list"></i>
+                    Cierres guardados
+                </a>
                 <a href="{{ route('ventas.create') }}" class="app-btn-primary">
                     <i class="fas fa-plus"></i>
                     Nueva venta

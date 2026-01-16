@@ -541,6 +541,39 @@ class VentaController extends Controller
             ->with('success', 'Cierre de caja guardado.');
     }
 
+    public function cierresIndex(Request $request)
+    {
+        $esAdmin = (Auth::user()->role ?? null) === 'admin';
+
+        $cierresQuery = CierreCaja::query()
+            ->with('usuario')
+            ->orderByDesc('created_at');
+
+        if (! $esAdmin) {
+            $cierresQuery->where('user_id', Auth::id());
+        }
+
+        $cierres = $cierresQuery->paginate(12)->withQueryString();
+
+        return view('ventas.cierres.index', compact('cierres', 'esAdmin'));
+    }
+
+    public function cierresShow(CierreCaja $cierreCaja)
+    {
+        $this->authorizeCierreAcceso($cierreCaja);
+
+        $cierreCaja->load('usuario');
+        $desglosePagos = collect($cierreCaja->desglose_pagos ?? []);
+        $productos = collect($cierreCaja->productos ?? []);
+
+        return view('ventas.cierres.show', [
+            'cierre' => $cierreCaja,
+            'desglosePagos' => $desglosePagos,
+            'productos' => $productos,
+            'autoPrint' => request()->boolean('imprimir'),
+        ]);
+    }
+
     private function ensureCierresCajaTableExists(): void
     {
         if (Schema::hasTable('cierres_caja')) {
@@ -623,6 +656,19 @@ class VentaController extends Controller
         }
 
         if ($venta->user_id !== Auth::id()) {
+            abort(403);
+        }
+    }
+
+    private function authorizeCierreAcceso(CierreCaja $cierreCaja): void
+    {
+        $esAdmin = (Auth::user()->role ?? null) === 'admin';
+
+        if ($esAdmin) {
+            return;
+        }
+
+        if ($cierreCaja->user_id !== Auth::id()) {
             abort(403);
         }
     }
