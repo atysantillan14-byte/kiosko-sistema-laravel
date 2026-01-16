@@ -18,6 +18,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('productos', ProductoController::class);
     Route::get('ventas/cierre', [VentaController::class, 'cierre'])->name('ventas.cierre');
     Route::post('ventas/cierre', [VentaController::class, 'guardarCierre'])->name('ventas.cierre.guardar');
+    Route::get('ventas/cierres', [VentaController::class, 'cierresIndex'])->name('ventas.cierres.index');
+    Route::get('ventas/cierres/{cierreCaja}', [VentaController::class, 'cierresShow'])->name('ventas.cierres.show');
     Route::resource('ventas', VentaController::class);
     Route::resource('proveedores', ProveedorController::class)
         ->parameters(['proveedores' => 'proveedor'])
