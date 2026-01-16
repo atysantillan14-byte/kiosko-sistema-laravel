@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('direccion')->nullable();
             $table->string('condiciones_pago')->nullable();
+            $table->text('productos')->nullable();
+            $table->unsignedInteger('cantidad')->nullable();
             $table->text('notas')->nullable();
             $table->boolean('activo')->default(true);
             $table->timestamps();
