@@ -150,3 +150,31 @@
 .app-table tbody tr:hover {
     background-color: rgb(241 245 249 / 0.8);
 }
+
+@media print {
+    body {
+        background-color: #ffffff;
+    }
+
+    .print-hidden {
+        display: none !important;
+    }
+
+    .print-overflow-visible {
+        overflow: visible !important;
+    }
+
+    .print-avoid-break {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .app-page {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .app-card {
+        box-shadow: none;
+    }
+}

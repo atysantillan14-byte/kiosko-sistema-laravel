@@ -10,11 +10,7 @@
                     <i class="fas fa-arrow-left"></i>
                     Volver a ventas
                 </a>
-                <button form="cierre-guardar-form" type="submit" class="app-btn-primary">
-                    <i class="fas fa-save"></i>
-                    Guardar cierre
-                </button>
-                <button type="button" onclick="window.print()" class="app-btn-primary">
+                <button type="button" onclick="window.print()" class="app-btn-primary print-hidden">
                     <i class="fas fa-print"></i>
                     Exportar / Imprimir
                 </button>
@@ -153,12 +149,12 @@
         </div>
 
         <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-            <div class="app-card overflow-hidden xl:col-span-2">
+            <div class="app-card overflow-hidden print-avoid-break xl:col-span-2">
                 <div class="border-b border-slate-200/70 px-5 py-4">
                     <h3 class="text-sm font-semibold text-slate-900">Desglose por medio de pago</h3>
                     <p class="text-xs text-slate-500">Montos y cantidad de transacciones por medio.</p>
                 </div>
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto print-overflow-visible">
                     <table class="app-table">
                         <thead>
                             <tr>
@@ -212,7 +208,7 @@
         </div>
 
         <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-            <div class="app-card p-6">
+            <div class="app-card p-6 print-avoid-break">
                 <h3 class="text-sm font-semibold text-slate-900">Detalle del efectivo esperado</h3>
                 <p class="mt-1 text-xs text-slate-500">Incluye caja chica e ingresos/retiros manuales.</p>
                 <div class="mt-4 space-y-3 text-sm text-slate-600">
@@ -276,7 +272,7 @@
                 <h3 class="text-sm font-semibold text-slate-900">Productos vendidos en el cierre</h3>
                 <p class="text-xs text-slate-500">Detalle de los productos vendidos en este turno.</p>
             </div>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto print-overflow-visible">
                 <table class="app-table">
                     <thead>
                         <tr>
@@ -302,6 +298,13 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <div class="flex justify-end print-hidden">
+            <button form="cierre-guardar-form" type="submit" class="app-btn-primary">
+                <i class="fas fa-save"></i>
+                Guardar cierre
+            </button>
         </div>
     </div>
 </x-app-layout>
