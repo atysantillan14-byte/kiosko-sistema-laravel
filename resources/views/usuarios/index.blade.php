@@ -93,9 +93,24 @@
                                     <td class="font-semibold text-slate-900">{{ $usuario->name }}</td>
                                     <td>{{ $usuario->email }}</td>
                                     <td>
-                                        <span class="app-chip {{ $usuario->role === 'admin' ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-600' }}">
-                                            {{ $usuario->role }}
-                                        </span>
+                                        <div class="flex flex-col gap-2">
+                                            <span class="app-chip {{ $usuario->role === 'admin' ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-600' }}">
+                                                {{ $usuario->role }}
+                                            </span>
+                                            @if ($usuario->id !== auth()->id())
+                                                <form class="flex flex-wrap items-center gap-2" method="POST" action="{{ route('usuarios.role', $usuario) }}">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <select class="app-input h-8 py-1 text-xs" name="role" required>
+                                                        <option value="empleado" @selected($usuario->role === 'empleado')>Empleado</option>
+                                                        <option value="admin" @selected($usuario->role === 'admin')>Administrador</option>
+                                                    </select>
+                                                    <button class="rounded-full border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-50" type="submit">
+                                                        Actualizar
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td>{{ $usuario->created_at?->format('d/m/Y') }}</td>
                                     <td class="text-right">

@@ -49,4 +49,21 @@ class UsuarioController extends Controller
 
         return redirect()->route('usuarios.index')->with('success', 'Usuario eliminado.');
     }
+
+    public function updateRole(Request $request, User $user): RedirectResponse
+    {
+        if ($user->id === Auth::id()) {
+            return redirect()->route('usuarios.index')->with('error', 'No podés cambiar tu propio rol.');
+        }
+
+        $data = $request->validate([
+            'role' => ['required', 'in:admin,empleado'],
+        ]);
+
+        $user->update([
+            'role' => $data['role'],
+        ]);
+
+        return redirect()->route('usuarios.index')->with('success', 'Rol actualizado.');
+    }
 }

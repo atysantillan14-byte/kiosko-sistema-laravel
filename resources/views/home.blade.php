@@ -87,6 +87,14 @@
                         <span class="inline-flex items-center gap-2 rounded-full border border-white/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-slate-100 transition hover:bg-blue-500/10">
                             Home rápida
                         </span>
+                        @if ((auth()->user()->role ?? null) === 'admin')
+                            <a
+                                href="{{ route('usuarios.index') }}"
+                                class="inline-flex items-center gap-2 rounded-full border border-white/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-slate-100 transition hover:bg-blue-500/10"
+                            >
+                                Usuarios
+                            </a>
+                        @endif
                     </div>
                 </div>
 
