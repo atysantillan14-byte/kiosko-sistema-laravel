@@ -439,6 +439,12 @@ class VentaController extends Controller
             ->where('metodo', 'efectivo')
             ->sum('monto');
 
+        $efectivoEsperado = $efectivoVentas
+            + ($data['fondo_inicial'] ?? 0)
+            + ($data['ingresos'] ?? 0)
+            - ($data['retiros'] ?? 0)
+            - ($data['devoluciones'] ?? 0);
+
         $productosVendidos = $ventas
             ->flatMap(fn ($venta) => $venta->detalles)
             ->groupBy('producto_id')
@@ -468,7 +474,7 @@ class VentaController extends Controller
             'cantidad_ventas' => $cantidadVentas,
             'ticket_promedio' => $ticketPromedio,
             'efectivo_ventas' => $efectivoVentas,
-            'efectivo_esperado' => $efectivoVentas,
+            'efectivo_esperado' => $efectivoEsperado,
             'efectivo_contado' => $data['efectivo_contado'] ?? 0,
             'diferencia' => $data['diferencia'] ?? 0,
             'fondo_inicial' => $data['fondo_inicial'] ?? 0,
