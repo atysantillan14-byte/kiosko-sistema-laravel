@@ -19,12 +19,17 @@ class Proveedor extends Model
         'direccion',
         'condiciones_pago',
         'productos',
+        'productos_detalle',
         'cantidad',
+        'hora',
+        'pago',
+        'deuda',
         'notas',
         'activo',
     ];
 
     protected $casts = [
         'activo' => 'boolean',
+        'productos_detalle' => 'array',
     ];
 }
