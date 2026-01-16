@@ -83,9 +83,7 @@
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             <div class="app-card p-5 text-center">
                 <div class="flex flex-col items-center gap-2 text-sm text-slate-500">
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-                        <i class="fas fa-bolt"></i>
-                    </span>
+                    <i class="fas fa-bolt text-xl text-emerald-600"></i>
                     <span>Ventas hoy</span>
                 </div>
                 <div class="mt-3 text-4xl font-semibold text-slate-900">{{ $ventasHoy }}</div>
@@ -94,9 +92,7 @@
 
             <div class="app-card p-5 text-center">
                 <div class="flex flex-col items-center gap-2 text-sm text-slate-500">
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-sky-50 text-sky-600">
-                        <i class="fas fa-calendar-check"></i>
-                    </span>
+                    <i class="fas fa-calendar-check text-xl text-sky-600"></i>
                     <span>Ventas del período</span>
                 </div>
                 <div class="mt-3 text-4xl font-semibold text-slate-900">{{ $ventasMes }}</div>
@@ -105,9 +101,7 @@
 
             <div class="app-card p-5 text-center">
                 <div class="flex flex-col items-center gap-2 text-sm text-slate-500">
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-amber-50 text-amber-600">
-                        <i class="fas fa-receipt"></i>
-                    </span>
+                    <i class="fas fa-receipt text-xl text-amber-600"></i>
                     <span>Promedio diario</span>
                 </div>
                 <div class="mt-3 text-3xl font-semibold text-slate-900">$ {{ number_format($promedioDiario, 2, ',', '.') }}</div>
@@ -116,9 +110,7 @@
 
             <div class="app-card p-5 text-center">
                 <div class="flex flex-col items-center gap-2 text-sm text-slate-500">
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-purple-50 text-purple-600">
-                        <i class="fas fa-coins"></i>
-                    </span>
+                    <i class="fas fa-coins text-xl text-purple-600"></i>
                     <span>Total vendido del período</span>
                 </div>
                 <div class="mt-3 text-3xl font-semibold text-slate-900">$ {{ number_format($totalFiltrado, 2, ',', '.') }}</div>
