@@ -10,6 +10,10 @@
                     <i class="fas fa-arrow-left"></i>
                     Volver a ventas
                 </a>
+                <button form="cierre-guardar-form" type="submit" class="app-btn-primary">
+                    <i class="fas fa-save"></i>
+                    Guardar cierre
+                </button>
                 <button type="button" onclick="window.print()" class="app-btn-primary">
                     <i class="fas fa-print"></i>
                     Exportar / Imprimir
@@ -18,7 +22,40 @@
         </div>
     </x-slot>
 
-    <div class="app-page space-y-6">
+    <div class="app-page space-y-6" x-data="{
+        efectivoVentas: {{ (float) $efectivoVentas }},
+        fondoInicial: 0,
+        ingresos: 0,
+        retiros: 0,
+        devoluciones: 0,
+        efectivoContado: 0,
+        observaciones: '',
+        get efectivoEsperado() {
+            return this.efectivoVentas + this.fondoInicial + this.ingresos - this.retiros - this.devoluciones;
+        },
+        get diferencia() {
+            return this.efectivoContado - this.efectivoEsperado;
+        },
+        get diferenciaClase() {
+            return this.diferencia >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700';
+        }
+    }">
+        <form id="cierre-guardar-form" method="POST" action="{{ route('ventas.cierre.guardar') }}">
+            @csrf
+            <input type="hidden" name="desde" value="{{ $rangos['desde'] }}">
+            <input type="hidden" name="hasta" value="{{ $rangos['hasta'] }}">
+            <input type="hidden" name="hora_desde" value="{{ $rangos['hora_desde'] }}">
+            <input type="hidden" name="hora_hasta" value="{{ $rangos['hora_hasta'] }}">
+            <input type="hidden" name="turno" value="{{ $rangos['turno'] }}">
+            <input type="hidden" name="fondo_inicial" x-model="fondoInicial">
+            <input type="hidden" name="ingresos" x-model="ingresos">
+            <input type="hidden" name="retiros" x-model="retiros">
+            <input type="hidden" name="devoluciones" x-model="devoluciones">
+            <input type="hidden" name="efectivo_contado" x-model="efectivoContado">
+            <input type="hidden" name="diferencia" :value="diferencia">
+            <input type="hidden" name="observaciones" x-model="observaciones">
+        </form>
+
         <div class="app-card p-5">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
@@ -89,7 +126,7 @@
             </div>
             <div class="app-card p-6">
                 <div class="flex items-center justify-between">
-                    <span class="app-chip bg-emerald-50 text-emerald-700">Ventas netas</span>
+                    <span class="app-chip bg-emerald-50 text-emerald-700">Total de dinero</span>
                     <span class="text-xs font-semibold text-emerald-600">Total</span>
                 </div>
                 <div class="mt-4 text-3xl font-semibold text-slate-900">
@@ -99,7 +136,7 @@
             </div>
             <div class="app-card p-6">
                 <div class="flex items-center justify-between">
-                    <span class="app-chip bg-amber-50 text-amber-700">Tickets</span>
+                    <span class="app-chip bg-amber-50 text-amber-700">Total de ventas</span>
                     <span class="text-xs font-semibold text-amber-600">Cantidad</span>
                 </div>
                 <div class="mt-4 text-3xl font-semibold text-slate-900">{{ (int) $cantidadVentas }}</div>
@@ -174,23 +211,7 @@
             </div>
         </div>
 
-        <div x-data="{
-            efectivoVentas: {{ (float) $efectivoVentas }},
-            fondoInicial: 0,
-            ingresos: 0,
-            retiros: 0,
-            devoluciones: 0,
-            efectivoContado: 0,
-            get efectivoEsperado() {
-                return this.efectivoVentas + this.fondoInicial + this.ingresos - this.retiros - this.devoluciones;
-            },
-            get diferencia() {
-                return this.efectivoContado - this.efectivoEsperado;
-            },
-            get diferenciaClase() {
-                return Math.abs(this.diferencia) < 0.01 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700';
-            }
-        }" class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
             <div class="app-card p-6">
                 <h3 class="text-sm font-semibold text-slate-900">Detalle del efectivo esperado</h3>
                 <p class="mt-1 text-xs text-slate-500">Incluye caja chica e ingresos/retiros manuales.</p>
@@ -237,11 +258,11 @@
                                 $ <span x-text="diferencia.toFixed(2)"></span>
                             </span>
                         </div>
-                        <p class="mt-2 text-xs text-slate-500">Verde si coincide, rojo si hay sobrante o faltante.</p>
+                        <p class="mt-2 text-xs text-slate-500">Verde si el saldo es positivo, rojo si es negativo.</p>
                     </div>
                     <label class="text-xs font-semibold text-slate-500">
                         Observaciones del cajero
-                        <textarea class="app-input mt-2 h-24" placeholder="Anotá motivos de diferencias, ajustes o aclaraciones..."></textarea>
+                        <textarea x-model="observaciones" class="app-input mt-2 h-24" placeholder="Anotá motivos de diferencias, ajustes o aclaraciones..."></textarea>
                     </label>
                     <div class="rounded-xl bg-slate-50 p-3 text-xs text-slate-500">
                         Firma/usuario del cierre: <span class="font-semibold text-slate-700">{{ auth()->user()->name }}</span>
@@ -250,32 +271,36 @@
             </div>
         </div>
 
-        <div class="app-card p-6">
-            <h3 class="text-sm font-semibold text-slate-900">Indicadores útiles para el gerente</h3>
-            <p class="mt-1 text-xs text-slate-500">Resumen rápido para supervisión de turnos.</p>
-            @php
-                $medioPrincipal = $desglosePagos->first();
-            @endphp
-            <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div class="rounded-2xl border border-slate-200/70 bg-white p-4">
-                    <div class="text-xs font-semibold text-slate-500">Diferencias por cajero</div>
-                    <div class="mt-2 text-lg font-semibold text-slate-900">Revisar conciliación</div>
-                    <p class="mt-1 text-xs text-slate-500">Compará el efectivo esperado vs contado.</p>
-                </div>
-                <div class="rounded-2xl border border-slate-200/70 bg-white p-4">
-                    <div class="text-xs font-semibold text-slate-500">Medios de pago más usados</div>
-                    <div class="mt-2 text-lg font-semibold text-slate-900">
-                        {{ $medioPrincipal['metodo'] ?? 'Sin datos' }}
-                    </div>
-                    <p class="mt-1 text-xs text-slate-500">Basado en el monto total del turno.</p>
-                </div>
-                <div class="rounded-2xl border border-slate-200/70 bg-white p-4">
-                    <div class="text-xs font-semibold text-slate-500">Ticket promedio</div>
-                    <div class="mt-2 text-lg font-semibold text-slate-900">
-                        $ {{ number_format((float) $ticketPromedio, 2, ',', '.') }}
-                    </div>
-                    <p class="mt-1 text-xs text-slate-500">Promedio de venta en este período.</p>
-                </div>
+        <div class="app-card overflow-hidden">
+            <div class="border-b border-slate-200/70 px-5 py-4">
+                <h3 class="text-sm font-semibold text-slate-900">Productos vendidos en el cierre</h3>
+                <p class="text-xs text-slate-500">Detalle de los productos vendidos en este turno.</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="app-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200/70">
+                        @forelse($productosVendidos as $producto)
+                            <tr>
+                                <td class="font-semibold text-slate-900">{{ $producto['producto'] }}</td>
+                                <td>{{ (int) $producto['cantidad'] }}</td>
+                                <td>$ {{ number_format((float) $producto['total'], 2, ',', '.') }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td class="px-6 py-6 text-center text-sm text-slate-500" colspan="3">
+                                    Sin productos vendidos en el período.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

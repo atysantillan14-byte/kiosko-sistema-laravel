@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CierreCaja;
 use App\Models\Venta;
 use App\Models\Producto;
 use App\Models\User;
@@ -225,7 +226,7 @@ class VentaController extends Controller
         }
 
         $ventasQuery = Venta::query()
-            ->with('detalles')
+            ->with('detalles.producto')
             ->where('estado', '!=', 'anulada')
             ->where('user_id', $userId);
 
@@ -314,6 +315,21 @@ class VentaController extends Controller
 
         $efectivoEsperado = $efectivoVentas;
 
+        $productosVendidos = $ventas
+            ->flatMap(fn ($venta) => $venta->detalles)
+            ->groupBy('producto_id')
+            ->map(function ($items) {
+                $producto = $items->first()->producto;
+
+                return [
+                    'producto' => $producto?->nombre ?? 'Producto sin nombre',
+                    'cantidad' => $items->sum('cantidad'),
+                    'total' => $items->sum('subtotal'),
+                ];
+            })
+            ->sortByDesc('total')
+            ->values();
+
         return view('ventas.cierre', [
             'rangos' => $rangos,
             'rangoInicio' => $ventas->min('created_at'),
@@ -326,9 +342,155 @@ class VentaController extends Controller
             'desglosePagos' => $desglosePagos,
             'efectivoVentas' => $efectivoVentas,
             'efectivoEsperado' => $efectivoEsperado,
+            'productosVendidos' => $productosVendidos,
             'anulacionesCantidad' => $anuladasQuery->count(),
             'anulacionesTotal' => $anuladasQuery->sum('total'),
         ]);
+    }
+
+    public function guardarCierre(Request $request)
+    {
+        $userId = Auth::id();
+        $turno = $request->input('turno');
+        $desde = $request->input('desde');
+        $hasta = $request->input('hasta');
+        $horaDesde = $request->input('hora_desde');
+        $horaHasta = $request->input('hora_hasta');
+
+        $data = $request->validate([
+            'fondo_inicial' => ['nullable', 'numeric'],
+            'ingresos' => ['nullable', 'numeric'],
+            'retiros' => ['nullable', 'numeric'],
+            'devoluciones' => ['nullable', 'numeric'],
+            'efectivo_contado' => ['nullable', 'numeric'],
+            'diferencia' => ['nullable', 'numeric'],
+            'observaciones' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        if ($turno) {
+            if ($turno === 'manana') { $horaDesde = '06:00'; $horaHasta = '13:59'; }
+            if ($turno === 'tarde') { $horaDesde = '14:00'; $horaHasta = '21:59'; }
+            if ($turno === 'noche') { $horaDesde = '22:00'; $horaHasta = '23:59'; }
+        }
+
+        $ventasQuery = Venta::query()
+            ->with('detalles.producto')
+            ->where('estado', '!=', 'anulada')
+            ->where('user_id', $userId);
+
+        if ($desde) {
+            $ventasQuery->whereDate('created_at', '>=', $desde);
+        }
+        if ($hasta) {
+            $ventasQuery->whereDate('created_at', '<=', $hasta);
+        }
+        if ($horaDesde && $horaHasta) {
+            $ventasQuery->whereRaw("TIME(created_at) BETWEEN ? AND ?", [$horaDesde, $horaHasta]);
+        }
+
+        $ventas = $ventasQuery->get();
+
+        $cantidadVentas = $ventas->count();
+        $totalBruto = $ventas->sum(fn ($venta) => $venta->detalles->sum('subtotal'));
+        $totalNeto = $ventas->sum('total');
+        $totalDescuentos = max(0, $totalBruto - $totalNeto);
+        $ticketPromedio = $cantidadVentas > 0 ? $totalNeto / $cantidadVentas : 0;
+
+        $metodosPago = $ventas->flatMap(function ($venta) {
+            $metodos = [];
+
+            if ($venta->metodo_pago === 'mixto') {
+                if ($venta->metodo_pago_primario) {
+                    $metodos[] = [
+                        'metodo' => $venta->metodo_pago_primario,
+                        'monto' => (float) $venta->monto_primario,
+                    ];
+                }
+                if ($venta->metodo_pago_secundario) {
+                    $metodos[] = [
+                        'metodo' => $venta->metodo_pago_secundario,
+                        'monto' => (float) $venta->monto_secundario,
+                    ];
+                }
+            } else {
+                $metodos[] = [
+                    'metodo' => $venta->metodo_pago,
+                    'monto' => (float) $venta->total,
+                ];
+            }
+
+            return $metodos;
+        });
+
+        $desglosePagos = $metodosPago
+            ->groupBy('metodo')
+            ->map(function ($items, $metodo) {
+                return [
+                    'metodo' => $metodo,
+                    'monto' => $items->sum('monto'),
+                    'transacciones' => $items->count(),
+                ];
+            })
+            ->sortByDesc('monto')
+            ->values()
+            ->toArray();
+
+        $efectivoVentas = $metodosPago
+            ->where('metodo', 'efectivo')
+            ->sum('monto');
+
+        $productosVendidos = $ventas
+            ->flatMap(fn ($venta) => $venta->detalles)
+            ->groupBy('producto_id')
+            ->map(function ($items) {
+                $producto = $items->first()->producto;
+
+                return [
+                    'producto' => $producto?->nombre ?? 'Producto sin nombre',
+                    'cantidad' => $items->sum('cantidad'),
+                    'total' => $items->sum('subtotal'),
+                ];
+            })
+            ->sortByDesc('total')
+            ->values()
+            ->toArray();
+
+        CierreCaja::create([
+            'user_id' => $userId,
+            'desde' => $desde,
+            'hasta' => $hasta,
+            'hora_desde' => $horaDesde,
+            'hora_hasta' => $horaHasta,
+            'turno' => $turno,
+            'total_bruto' => $totalBruto,
+            'total_neto' => $totalNeto,
+            'total_descuentos' => $totalDescuentos,
+            'cantidad_ventas' => $cantidadVentas,
+            'ticket_promedio' => $ticketPromedio,
+            'efectivo_ventas' => $efectivoVentas,
+            'efectivo_esperado' => $efectivoVentas,
+            'efectivo_contado' => $data['efectivo_contado'] ?? 0,
+            'diferencia' => $data['diferencia'] ?? 0,
+            'fondo_inicial' => $data['fondo_inicial'] ?? 0,
+            'ingresos' => $data['ingresos'] ?? 0,
+            'retiros' => $data['retiros'] ?? 0,
+            'devoluciones' => $data['devoluciones'] ?? 0,
+            'observaciones' => $data['observaciones'] ?? null,
+            'desglose_pagos' => $desglosePagos,
+            'productos' => $productosVendidos,
+        ]);
+
+        $redirectParams = array_filter([
+            'desde' => $desde,
+            'hasta' => $hasta,
+            'hora_desde' => $horaDesde,
+            'hora_hasta' => $horaHasta,
+            'turno' => $turno,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        return redirect()
+            ->route('ventas.cierre', $redirectParams)
+            ->with('success', 'Cierre de caja guardado.');
     }
 
     public function edit(Venta $venta)
