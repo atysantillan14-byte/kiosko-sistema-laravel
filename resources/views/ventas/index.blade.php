@@ -41,13 +41,13 @@
             </div>
             <div class="app-card p-6">
                 <div class="flex items-center justify-between">
-                    <span class="app-chip bg-amber-50 text-amber-700">Promedio</span>
+                    <span class="app-chip bg-amber-50 text-amber-700">Promedio diario</span>
                     <span class="text-xs font-semibold text-amber-600">Promedio</span>
                 </div>
                 <div class="mt-4 text-4xl font-semibold text-slate-900">
-                    {{ number_format((float) $diasPromedio, 0, ',', '.') }} días
+                    $ {{ number_format((float) $promedioDiario, 2, ',', '.') }}
                 </div>
-                <p class="mt-2 text-sm text-slate-500">Promedio de días en el período filtrado.</p>
+                <p class="mt-2 text-sm text-slate-500">Ingreso promedio por día en el período filtrado.</p>
             </div>
         </div>
 

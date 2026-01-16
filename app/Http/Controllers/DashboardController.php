@@ -82,7 +82,8 @@ class DashboardController extends Controller
         // =========================
         $ventasFiltradas = (clone $ventasBase)->count();
         $totalFiltrado   = (clone $ventasBase)->sum('total');
-        $diasPromedio = $desde->diffInDays($hasta) + 1;
+        $diasPeriodo = $desde->diffInDays($hasta) + 1;
+        $promedioDiario = $diasPeriodo > 0 ? $totalFiltrado / $diasPeriodo : 0;
 
         // KPIs "Hoy" y "Mes" (en modo profesional: reflejan el filtro actual)
         // Si querés "Hoy" siempre hoy real, lo cambiamos luego.
@@ -188,7 +189,7 @@ class DashboardController extends Controller
             'userId',
             'ventasFiltradas',
             'totalFiltrado',
-            'diasPromedio',
+            'promedioDiario',
             'ventasHoy',
             'ingresosHoy',
             'ventasMes',

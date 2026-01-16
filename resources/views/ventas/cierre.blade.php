@@ -136,7 +136,7 @@
                     <span class="text-xs font-semibold text-amber-600">Cantidad</span>
                 </div>
                 <div class="mt-4 text-3xl font-semibold text-slate-900">{{ (int) $cantidadVentas }}</div>
-                <p class="mt-2 text-xs text-slate-500">Promedio: {{ number_format((float) $diasPromedio, 0, ',', '.') }} días</p>
+                <p class="mt-2 text-xs text-slate-500">Promedio diario: $ {{ number_format((float) $promedioDiario, 2, ',', '.') }}</p>
             </div>
             <div class="app-card p-6">
                 <div class="flex items-center justify-between">
