@@ -15,6 +15,11 @@ class VentaController extends Controller
         $desde = $request->query('desde');
         $hasta = $request->query('hasta');
         $buscar = trim((string) $request->query('q', ''));
+        $buscarId = null;
+
+        if ($buscar !== '' && preg_match('/^#?\s*(\d+)\s*$/', $buscar, $matches)) {
+            $buscarId = (int) $matches[1];
+        }
 
         $ventasQuery = Venta::query()
             ->with('usuario')
@@ -28,9 +33,14 @@ class VentaController extends Controller
         }
 
         if ($buscar !== '') {
-            $ventasQuery->where(function ($q) use ($buscar) {
-                $q->where('id', $buscar)
-                  ->orWhere('metodo_pago', 'like', "%{$buscar}%")
+            $ventasQuery->where(function ($q) use ($buscar, $buscarId) {
+                if ($buscarId !== null) {
+                    $q->where('id', $buscarId);
+                } else {
+                    $q->where('id', $buscar);
+                }
+
+                $q->orWhere('metodo_pago', 'like', "%{$buscar}%")
                   ->orWhere('estado', 'like', "%{$buscar}%")
                   ->orWhereHas('usuario', fn($u) => $u->where('name', 'like', "%{$buscar}%"));
             });
