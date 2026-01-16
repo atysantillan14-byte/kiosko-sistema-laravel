@@ -96,22 +96,10 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-[2fr,1fr]">
-                        <div>
-                            <label class="app-label">Productos (texto libre)</label>
-                            <textarea name="productos" class="app-input" rows="3" placeholder="Ej: Snacks, bebidas, golosinas...">{{ old('productos') }}</textarea>
-                        </div>
-
-                        <div>
-                            <label class="app-label">Cantidad estimada</label>
-                            <input type="number" name="cantidad" value="{{ old('cantidad') }}" class="app-input" min="0" placeholder="Cantidad">
-                        </div>
-                    </div>
-
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <div>
                             <label class="app-label">Hora de entrega</label>
-                            <input type="time" name="hora" value="{{ old('hora') }}" class="app-input">
+                            <input type="time" name="hora" value="{{ old('hora', now()->format('H:i')) }}" class="app-input">
                         </div>
                         <div>
                             <label class="app-label">Pago realizado</label>
