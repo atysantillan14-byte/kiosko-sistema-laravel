@@ -33,6 +33,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
     Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
+    Route::patch('/usuarios/{user}/role', [UsuarioController::class, 'updateRole'])->name('usuarios.role');
     Route::delete('/usuarios/{user}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
 });
 
