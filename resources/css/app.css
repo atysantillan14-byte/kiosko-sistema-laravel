@@ -156,6 +156,10 @@
         background-color: #ffffff;
     }
 
+    .print-only {
+        display: block !important;
+    }
+
     .print-hidden {
         display: none !important;
     }
@@ -177,4 +181,8 @@
     .app-card {
         box-shadow: none;
     }
+}
+
+.print-only {
+    display: none;
 }

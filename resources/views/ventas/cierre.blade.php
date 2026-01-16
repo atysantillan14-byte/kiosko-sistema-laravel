@@ -52,6 +52,30 @@
             <input type="hidden" name="observaciones" x-model="observaciones">
         </form>
 
+        <div class="app-card p-5 print-only">
+            <h3 class="text-sm font-semibold text-slate-900">Resumen del cierre</h3>
+            <div class="mt-3 grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-3">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500">Turno</p>
+                    <p class="font-semibold text-slate-900">{{ $rangos['turno'] ? ucfirst($rangos['turno']) : 'Todos' }}</p>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-slate-500">Rango</p>
+                    <p class="font-semibold text-slate-900">
+                        {{ $rangoInicio ? $rangoInicio->format('d/m/Y H:i') : 'Sin datos' }}
+                        —
+                        {{ $rangoFin ? $rangoFin->format('d/m/Y H:i') : 'Sin datos' }}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-slate-500">Horas</p>
+                    <p class="font-semibold text-slate-900">
+                        {{ $rangos['hora_desde'] ?: '00:00' }} - {{ $rangos['hora_hasta'] ?: '23:59' }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <div class="app-card p-5">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
@@ -117,7 +141,8 @@
                     {{ $rangoFin ? $rangoFin->format('d/m/Y H:i') : 'Sin datos' }}
                 </div>
                 <p class="mt-2 text-xs text-slate-400">
-                    Turno: {{ $rangos['turno'] ? ucfirst($rangos['turno']) : 'Todos' }}.
+                    Turno: {{ $rangos['turno'] ? ucfirst($rangos['turno']) : 'Todos' }} ·
+                    Horas: {{ $rangos['hora_desde'] ?: '00:00' }} - {{ $rangos['hora_hasta'] ?: '23:59' }}.
                 </p>
             </div>
             <div class="app-card p-6">
@@ -218,19 +243,23 @@
                     </div>
                     <label class="flex items-center justify-between gap-3 text-sm text-slate-600">
                         Fondo inicial (caja chica)
-                        <input x-model.number="fondoInicial" type="number" step="0.01" min="0" class="app-input w-32 text-right" placeholder="0,00">
+                        <input x-model.number="fondoInicial" type="number" step="0.01" min="0" class="app-input w-32 text-right print-hidden" placeholder="0,00">
+                        <span class="print-only font-semibold text-slate-900">$ <span x-text="fondoInicial.toFixed(2)"></span></span>
                     </label>
                     <label class="flex items-center justify-between gap-3 text-sm text-slate-600">
                         Ingresos manuales
-                        <input x-model.number="ingresos" type="number" step="0.01" min="0" class="app-input w-32 text-right" placeholder="0,00">
+                        <input x-model.number="ingresos" type="number" step="0.01" min="0" class="app-input w-32 text-right print-hidden" placeholder="0,00">
+                        <span class="print-only font-semibold text-slate-900">$ <span x-text="ingresos.toFixed(2)"></span></span>
                     </label>
                     <label class="flex items-center justify-between gap-3 text-sm text-slate-600">
                         Retiros manuales
-                        <input x-model.number="retiros" type="number" step="0.01" min="0" class="app-input w-32 text-right" placeholder="0,00">
+                        <input x-model.number="retiros" type="number" step="0.01" min="0" class="app-input w-32 text-right print-hidden" placeholder="0,00">
+                        <span class="print-only font-semibold text-slate-900">$ <span x-text="retiros.toFixed(2)"></span></span>
                     </label>
                     <label class="flex items-center justify-between gap-3 text-sm text-slate-600">
                         Devoluciones en efectivo
-                        <input x-model.number="devoluciones" type="number" step="0.01" min="0" class="app-input w-32 text-right" placeholder="0,00">
+                        <input x-model.number="devoluciones" type="number" step="0.01" min="0" class="app-input w-32 text-right print-hidden" placeholder="0,00">
+                        <span class="print-only font-semibold text-slate-900">$ <span x-text="devoluciones.toFixed(2)"></span></span>
                     </label>
                     <div class="mt-4 flex items-center justify-between border-t border-slate-200/70 pt-3 text-sm font-semibold text-slate-900">
                         <span>Efectivo esperado</span>
@@ -245,7 +274,8 @@
                 <div class="mt-4 space-y-4">
                     <label class="text-xs font-semibold text-slate-500">
                         Efectivo contado
-                        <input x-model.number="efectivoContado" type="number" step="0.01" min="0" class="app-input mt-2" placeholder="0,00">
+                        <input x-model.number="efectivoContado" type="number" step="0.01" min="0" class="app-input mt-2 print-hidden" placeholder="0,00">
+                        <span class="print-only mt-2 block font-semibold text-slate-900">$ <span x-text="efectivoContado.toFixed(2)"></span></span>
                     </label>
                     <div class="rounded-xl border border-slate-200/70 p-4 text-sm">
                         <div class="flex items-center justify-between">
