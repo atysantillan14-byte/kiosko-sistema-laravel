@@ -118,12 +118,12 @@
             <div class="app-card p-5 text-center">
                 <div class="flex flex-col items-center gap-2 text-sm text-slate-500">
                     <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-purple-50 text-purple-600">
-                        <i class="fas fa-boxes-stacked"></i>
+                        <i class="fas fa-coins"></i>
                     </span>
-                    <span>Productos en sistema</span>
+                    <span>Total vendido del período</span>
                 </div>
-                <div class="mt-3 text-4xl font-semibold text-slate-900">{{ $productosCount }}</div>
-                <div class="mt-1 text-xs text-slate-500">Inventario activo</div>
+                <div class="mt-3 text-3xl font-semibold text-slate-900">$ {{ number_format($totalFiltrado, 2, ',', '.') }}</div>
+                <div class="mt-1 text-xs text-slate-500">Monto acumulado en el período</div>
             </div>
         </div>
 
