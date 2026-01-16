@@ -20,9 +20,6 @@
     </x-slot>
 
     <div class="app-page space-y-6">
-        @php
-            $ticketPromedio = $cantidadVentas > 0 ? $totalDinero / $cantidadVentas : 0;
-        @endphp
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div class="app-card p-6">
                 <div class="flex items-center justify-between">
@@ -44,13 +41,13 @@
             </div>
             <div class="app-card p-6">
                 <div class="flex items-center justify-between">
-                    <span class="app-chip bg-amber-50 text-amber-700">Ticket promedio</span>
+                    <span class="app-chip bg-amber-50 text-amber-700">Promedio</span>
                     <span class="text-xs font-semibold text-amber-600">Promedio</span>
                 </div>
                 <div class="mt-4 text-4xl font-semibold text-slate-900">
-                    $ {{ number_format((float)$ticketPromedio, 2, ',', '.') }}
+                    {{ number_format((float) $diasPromedio, 0, ',', '.') }} días
                 </div>
-                <p class="mt-2 text-sm text-slate-500">Monto promedio por venta en el período.</p>
+                <p class="mt-2 text-sm text-slate-500">Promedio de días en el período filtrado.</p>
             </div>
         </div>
 

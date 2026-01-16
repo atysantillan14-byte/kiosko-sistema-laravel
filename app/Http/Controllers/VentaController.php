@@ -6,6 +6,7 @@ use App\Models\CierreCaja;
 use App\Models\Venta;
 use App\Models\Producto;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -52,12 +53,39 @@ class VentaController extends Controller
         $cantidadVentas = (clone $ventasQuery)->count();
         $totalDinero    = (clone $ventasQuery)->sum('total');
 
+        $rangoInicio = $desde ? Carbon::parse($desde)->startOfDay() : null;
+        $rangoFin = $hasta ? Carbon::parse($hasta)->startOfDay() : null;
+
+        if (! $rangoInicio) {
+            $rangoInicio = (clone $ventasQuery)->min('created_at');
+            $rangoInicio = $rangoInicio ? Carbon::parse($rangoInicio) : null;
+        }
+
+        if (! $rangoFin) {
+            $rangoFin = (clone $ventasQuery)->max('created_at');
+            $rangoFin = $rangoFin ? Carbon::parse($rangoFin) : null;
+        }
+
+        $diasPromedio = 0;
+        if ($rangoInicio && $rangoFin) {
+            $diasPromedio = $rangoInicio->diffInDays($rangoFin) + 1;
+        }
+
         $ventas = $ventasQuery
             ->orderByDesc('id')
             ->paginate(12)
             ->withQueryString();
 
-        return view('ventas.index', compact('ventas', 'cantidadVentas', 'totalDinero', 'desde', 'hasta', 'buscar', 'esAdmin'));
+        return view('ventas.index', compact(
+            'ventas',
+            'cantidadVentas',
+            'totalDinero',
+            'diasPromedio',
+            'desde',
+            'hasta',
+            'buscar',
+            'esAdmin'
+        ));
     }
 
     public function create()
@@ -262,6 +290,13 @@ class VentaController extends Controller
         $totalNeto = $ventas->sum('total');
         $totalDescuentos = max(0, $totalBruto - $totalNeto);
         $ticketPromedio = $cantidadVentas > 0 ? $totalNeto / $cantidadVentas : 0;
+        $rangoInicio = $ventas->min('created_at');
+        $rangoFin = $ventas->max('created_at');
+        $diasPromedio = 0;
+
+        if ($rangoInicio && $rangoFin) {
+            $diasPromedio = Carbon::parse($rangoInicio)->diffInDays(Carbon::parse($rangoFin)) + 1;
+        }
 
         $rangos = [
             'desde' => $desde,
@@ -332,13 +367,14 @@ class VentaController extends Controller
 
         return view('ventas.cierre', [
             'rangos' => $rangos,
-            'rangoInicio' => $ventas->min('created_at'),
-            'rangoFin' => $ventas->max('created_at'),
+            'rangoInicio' => $rangoInicio,
+            'rangoFin' => $rangoFin,
             'cantidadVentas' => $cantidadVentas,
             'totalBruto' => $totalBruto,
             'totalDescuentos' => $totalDescuentos,
             'totalNeto' => $totalNeto,
             'ticketPromedio' => $ticketPromedio,
+            'diasPromedio' => $diasPromedio,
             'desglosePagos' => $desglosePagos,
             'efectivoVentas' => $efectivoVentas,
             'efectivoEsperado' => $efectivoEsperado,

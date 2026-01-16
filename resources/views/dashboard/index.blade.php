@@ -1,7 +1,6 @@
 <x-app-layout>
     @php
         $ventasFiltradas = max((int) $ventasFiltradas, 0);
-        $ticketPromedio = $ventasFiltradas > 0 ? $totalFiltrado / $ventasFiltradas : 0;
     @endphp
 
     <x-slot name="header">
@@ -121,10 +120,10 @@
                     <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-amber-50 text-amber-600">
                         <i class="fas fa-receipt"></i>
                     </span>
-                    <span>Ticket promedio</span>
+                    <span>Promedio</span>
                 </div>
-                <div class="mt-3 text-3xl font-semibold text-slate-900">$ {{ number_format($ticketPromedio, 2, ',', '.') }}</div>
-                <div class="mt-1 text-xs text-slate-500">Promedio del período filtrado</div>
+                <div class="mt-3 text-3xl font-semibold text-slate-900">{{ number_format($diasPromedio, 0, ',', '.') }} días</div>
+                <div class="mt-1 text-xs text-slate-500">Promedio de días del período filtrado</div>
             </div>
 
             <div class="app-card p-5 text-center">
