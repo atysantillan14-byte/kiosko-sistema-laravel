@@ -6,12 +6,14 @@ use App\Models\Venta;
 use App\Models\Producto;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class VentaController extends Controller
 {
     public function index(Request $request)
     {
+        $esAdmin = (Auth::user()->role ?? null) === 'admin';
         $desde = $request->query('desde');
         $hasta = $request->query('hasta');
         $buscar = trim((string) $request->query('q', ''));
@@ -54,11 +56,12 @@ class VentaController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        return view('ventas.index', compact('ventas', 'cantidadVentas', 'totalDinero', 'desde', 'hasta', 'buscar'));
+        return view('ventas.index', compact('ventas', 'cantidadVentas', 'totalDinero', 'desde', 'hasta', 'buscar', 'esAdmin'));
     }
 
     public function create()
     {
+        $esAdmin = (Auth::user()->role ?? null) === 'admin';
         $usuarios = User::orderBy('name')->get(['id', 'name']);
 
         $productos = Producto::where('disponible', 1)
@@ -76,14 +79,15 @@ class VentaController extends Controller
             ];
         })->values();
 
-        return view('ventas.create', compact('usuarios', 'productos', 'productosForJs'));
+        return view('ventas.create', compact('usuarios', 'productos', 'productosForJs', 'esAdmin'));
     }
 
 
     public function store(Request $request)
     {
+        $esAdmin = (Auth::user()->role ?? null) === 'admin';
         $data = $request->validate([
-            'user_id' => ['required', 'exists:users,id'],
+            'user_id' => $esAdmin ? ['required', 'exists:users,id'] : ['nullable'],
             'metodo_pago' => ['nullable', 'string', 'max:50'],
             'pago_mixto' => ['nullable', 'boolean'],
             'metodo_pago_primario' => ['nullable', 'string', 'max:50'],
@@ -96,6 +100,10 @@ class VentaController extends Controller
             'items.*.producto_id' => ['required', 'exists:productos,id'],
             'items.*.cantidad' => ['required', 'integer', 'min:1'],
         ]);
+
+        if (! $esAdmin) {
+            $data['user_id'] = Auth::id();
+        }
 
         return DB::transaction(function () use ($data) {
             $pagoMixto = (bool) ($data['pago_mixto'] ?? false);
@@ -203,17 +211,30 @@ class VentaController extends Controller
 
     public function edit(Venta $venta)
     {
+        $this->authorizeVentaEdicion($venta);
+        $esAdmin = (Auth::user()->role ?? null) === 'admin';
         $usuarios = User::query()->orderBy('name')->get(['id', 'name']);
-        return view('ventas.edit', compact('venta', 'usuarios'));
+        return view('ventas.edit', compact('venta', 'usuarios', 'esAdmin'));
     }
 
     public function update(Request $request, Venta $venta)
     {
-        $data = $request->validate([
-            'user_id' => ['required', 'exists:users,id'],
+        $this->authorizeVentaEdicion($venta);
+        $esAdmin = (Auth::user()->role ?? null) === 'admin';
+        $rules = [
             'metodo_pago' => ['required', 'string', 'max:50'],
             'estado' => ['required', 'string', 'max:40'],
-        ]);
+        ];
+
+        if ($esAdmin) {
+            $rules['user_id'] = ['required', 'exists:users,id'];
+        }
+
+        $data = $request->validate($rules);
+
+        if (! $esAdmin) {
+            $data['user_id'] = $venta->user_id;
+        }
 
         $venta->update($data);
 
@@ -222,7 +243,21 @@ class VentaController extends Controller
 
     public function destroy(Venta $venta)
     {
+        $this->authorizeVentaEdicion($venta);
         $venta->delete();
         return redirect()->route('ventas.index')->with('success', 'Venta eliminada.');
+    }
+
+    private function authorizeVentaEdicion(Venta $venta): void
+    {
+        $esAdmin = (Auth::user()->role ?? null) === 'admin';
+
+        if ($esAdmin) {
+            return;
+        }
+
+        if ($venta->user_id !== Auth::id()) {
+            abort(403);
+        }
     }
 }

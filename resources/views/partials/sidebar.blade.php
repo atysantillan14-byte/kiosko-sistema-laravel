@@ -70,11 +70,13 @@
                 <span>Sistema</span>
             </a>
 
-            <a href="#"
-               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
-                <i class="fas fa-user-shield w-5"></i>
-                <span>Usuarios</span>
-            </a>
+            @if ((auth()->user()->role ?? null) === 'admin')
+                <a href="{{ route('usuarios.index') }}"
+                   class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('usuarios.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50' }}">
+                    <i class="fas fa-user-shield w-5"></i>
+                    <span>Usuarios</span>
+                </a>
+            @endif
 
             <a href="#"
                class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">

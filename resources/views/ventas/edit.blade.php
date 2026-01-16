@@ -16,16 +16,24 @@
                     @csrf
                     @method('PUT')
 
-                    <div>
-                        <label class="app-label">Usuario</label>
-                        <select name="user_id" class="app-input">
-                            @foreach($usuarios as $u)
-                                <option value="{{ $u->id }}" @selected((string)$venta->user_id === (string)$u->id)>
-                                    {{ $u->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                    @if ($esAdmin)
+                        <div>
+                            <label class="app-label">Usuario</label>
+                            <select name="user_id" class="app-input">
+                                @foreach($usuarios as $u)
+                                    <option value="{{ $u->id }}" @selected((string)$venta->user_id === (string)$u->id)>
+                                        {{ $u->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @else
+                        <div>
+                            <label class="app-label">Usuario</label>
+                            <input class="app-input" value="{{ $venta->usuario?->name }}" readonly>
+                        </div>
+                        <input type="hidden" name="user_id" value="{{ $venta->user_id }}">
+                    @endif
 
                     <div>
                         <label class="app-label">Método de pago</label>

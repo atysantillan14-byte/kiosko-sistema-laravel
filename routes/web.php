@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\UsuarioController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', fn () => view('home'))->name('home');
@@ -29,6 +30,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin', function () {
         return 'Panel de administrador';
     });
+
+    Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+    Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
 });
 
 require __DIR__ . '/auth.php';

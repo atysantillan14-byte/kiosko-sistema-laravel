@@ -129,16 +129,18 @@
                                         <a href="{{ route('ventas.show', $v) }}" class="app-btn-secondary px-3 py-1.5 text-xs">
                                             Ver
                                         </a>
-                                        <a href="{{ route('ventas.edit', $v) }}" class="app-btn-secondary px-3 py-1.5 text-xs">
-                                            Editar
-                                        </a>
-                                        <form method="POST" action="{{ route('ventas.destroy', $v) }}" onsubmit="return confirm('¿Eliminar esta venta?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="app-btn-danger px-3 py-1.5 text-xs">
-                                                Eliminar
-                                            </button>
-                                        </form>
+                                        @if ($esAdmin || $v->user_id === auth()->id())
+                                            <a href="{{ route('ventas.edit', $v) }}" class="app-btn-secondary px-3 py-1.5 text-xs">
+                                                Editar
+                                            </a>
+                                            <form method="POST" action="{{ route('ventas.destroy', $v) }}" onsubmit="return confirm('¿Eliminar esta venta?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="app-btn-danger px-3 py-1.5 text-xs">
+                                                    Eliminar
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

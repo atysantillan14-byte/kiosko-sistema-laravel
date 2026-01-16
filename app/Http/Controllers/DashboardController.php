@@ -20,10 +20,9 @@ class DashboardController extends Controller
         // =========================
         // 1) Filtros base (GET)
         // =========================
-        $userId = $request->filled('user_id') ? (int) $request->input('user_id') : null;
-        if (! $esAdmin) {
-            $userId = Auth::id();
-        }
+        $userId = $esAdmin && $request->filled('user_id')
+            ? (int) $request->input('user_id')
+            : null;
 
         // mes tiene prioridad sobre desde/hasta
         $desde = null;
@@ -203,5 +202,4 @@ class DashboardController extends Controller
         ));
     }
 }
-
 
