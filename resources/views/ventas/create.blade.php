@@ -26,20 +26,7 @@
                 <form method="POST" action="{{ route('ventas.store') }}" class="space-y-6" id="ventaForm">
                     @csrf
 
-                    @if ($esAdmin)
-                        <div>
-                            <label class="app-label">Usuario</label>
-                            <select name="user_id" class="app-input">
-                                @foreach($usuarios as $u)
-                                    <option value="{{ $u->id }}" @selected((string) old('user_id', auth()->id()) === (string) $u->id)>
-                                        {{ $u->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    @else
-                        <input type="hidden" name="user_id" value="{{ auth()->id() }}">
-                    @endif
+                    <input type="hidden" name="user_id" value="{{ auth()->id() }}">
                     <input type="hidden" name="estado" value="confirmada">
 
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -47,7 +34,7 @@
                             <label class="app-label">Producto</label>
                             <input id="productoSearch" type="search" placeholder="Buscar y seleccionar producto..." class="app-input" autocomplete="off" list="productoSuggestions">
                             <datalist id="productoSuggestions"></datalist>
-                            <select id="productoSelect" class="sr-only" aria-hidden="true">
+                            <select id="productoSelect" class="sr-only" aria-hidden="true" hidden>
                                 <option value="">Seleccione...</option>
                                 @foreach($productos as $p)
                                     <option value="{{ $p->id }}"
