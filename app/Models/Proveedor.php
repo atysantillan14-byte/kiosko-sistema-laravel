@@ -16,6 +16,8 @@ class Proveedor extends Model
         'email',
         'direccion',
         'condiciones_pago',
+        'productos',
+        'cantidad',
         'notas',
         'activo',
     ];

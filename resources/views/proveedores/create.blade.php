@@ -12,6 +12,11 @@
     <div class="app-page">
         <div class="max-w-4xl">
             <div class="app-card p-6 sm:p-8">
+                @if (session('error'))
+                    <div class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+                        {{ session('error') }}
+                    </div>
+                @endif
                 @if ($errors->any())
                     <div class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
                         <div class="font-semibold">Revisá los errores antes de continuar</div>
@@ -59,6 +64,18 @@
                     <div>
                         <label class="app-label">Condiciones de pago</label>
                         <input name="condiciones_pago" value="{{ old('condiciones_pago') }}" class="app-input" placeholder="Ej: 15 días, transferencia bancaria">
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-[2fr,1fr]">
+                        <div>
+                            <label class="app-label">Productos que trae</label>
+                            <textarea name="productos" class="app-input" rows="3" placeholder="Ej: Snacks, bebidas, golosinas...">{{ old('productos') }}</textarea>
+                        </div>
+
+                        <div>
+                            <label class="app-label">Cantidad estimada</label>
+                            <input type="number" name="cantidad" value="{{ old('cantidad') }}" class="app-input" min="0" placeholder="Cantidad">
+                        </div>
                     </div>
 
                     <div>

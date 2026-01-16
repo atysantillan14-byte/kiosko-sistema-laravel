@@ -38,11 +38,19 @@ class ProveedorController extends Controller
             'email' => ['nullable', 'email', 'max:255'],
             'direccion' => ['nullable', 'string', 'max:255'],
             'condiciones_pago' => ['nullable', 'string', 'max:255'],
+            'productos' => ['nullable', 'string', 'max:1000'],
+            'cantidad' => ['nullable', 'integer', 'min:0'],
             'notas' => ['nullable', 'string'],
             'activo' => ['nullable', 'boolean'],
         ]);
 
         $data['activo'] = $request->boolean('activo');
+
+        if (! Schema::hasTable('proveedores')) {
+            return back()
+                ->withInput()
+                ->with('error', 'La tabla de proveedores no está disponible. Ejecutá las migraciones para crearla.');
+        }
 
         Proveedor::create($data);
 
@@ -63,6 +71,8 @@ class ProveedorController extends Controller
             'email' => ['nullable', 'email', 'max:255'],
             'direccion' => ['nullable', 'string', 'max:255'],
             'condiciones_pago' => ['nullable', 'string', 'max:255'],
+            'productos' => ['nullable', 'string', 'max:1000'],
+            'cantidad' => ['nullable', 'integer', 'min:0'],
             'notas' => ['nullable', 'string'],
             'activo' => ['nullable', 'boolean'],
         ]);
