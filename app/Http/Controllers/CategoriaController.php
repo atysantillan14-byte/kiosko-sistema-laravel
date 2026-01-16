@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class CategoriaController extends Controller
 {
@@ -23,12 +25,19 @@ class CategoriaController extends Controller
     {
         $data = $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
-            'estado' => ['nullable', 'string', 'max:40'],
+            'slug' => ['nullable', 'string', 'max:255'],
+            'descripcion' => ['nullable', 'string'],
+            'imagen' => ['nullable', 'string', 'max:255'],
+            'activo' => ['nullable', 'boolean'],
             'orden' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        $data['slug'] = Str::slug($data['nombre']);
-        $data['estado'] = $data['estado'] ?? 'activa';
+        $data['slug'] = Str::slug($data['slug'] ?: $data['nombre']);
+        Validator::make(
+            ['slug' => $data['slug']],
+            ['slug' => ['required', 'string', 'max:255', Rule::unique('categorias', 'slug')]]
+        )->validate();
+        $data['activo'] = $request->boolean('activo');
         $data['orden'] = $data['orden'] ?? 0;
 
         Categoria::create($data);
@@ -45,12 +54,26 @@ class CategoriaController extends Controller
     {
         $data = $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
-            'estado' => ['nullable', 'string', 'max:40'],
+            'slug' => ['nullable', 'string', 'max:255'],
+            'descripcion' => ['nullable', 'string'],
+            'imagen' => ['nullable', 'string', 'max:255'],
+            'activo' => ['nullable', 'boolean'],
             'orden' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        $data['slug'] = Str::slug($data['nombre']);
-        $data['estado'] = $data['estado'] ?? 'activa';
+        $data['slug'] = Str::slug($data['slug'] ?: $data['nombre']);
+        Validator::make(
+            ['slug' => $data['slug']],
+            [
+                'slug' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('categorias', 'slug')->ignore($categoria->id),
+                ],
+            ]
+        )->validate();
+        $data['activo'] = $request->boolean('activo');
         $data['orden'] = $data['orden'] ?? 0;
 
         $categoria->update($data);
@@ -64,5 +87,3 @@ class CategoriaController extends Controller
         return redirect()->route('categorias.index')->with('success', 'Categoría eliminada.');
     }
 }
-
-
