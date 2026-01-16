@@ -47,16 +47,6 @@
         @endif
         <div class="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-slate-50 to-slate-100">
             <div class="flex min-h-screen flex-col items-center justify-center px-4 py-10">
-                <div class="mb-8 flex items-center gap-3">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-500 text-white shadow-sm">
-                        <i class="fas fa-store text-lg"></i>
-                    </div>
-                    <div>
-                        <div class="text-sm font-semibold text-slate-900">{{ config('app.name', 'Laravel') }}</div>
-                        <div class="text-xs text-slate-500">Acceso seguro</div>
-                    </div>
-                </div>
-
                 <div class="w-full max-w-md">
                     <div class="app-card p-6 shadow-lg">
                         {{ $slot }}
