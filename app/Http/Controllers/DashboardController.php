@@ -15,11 +15,15 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $tz = config('app.timezone', 'America/Argentina/Buenos_Aires');
+        $esAdmin = (Auth::user()->role ?? null) === 'admin';
 
         // =========================
         // 1) Filtros base (GET)
         // =========================
         $userId = $request->filled('user_id') ? (int) $request->input('user_id') : null;
+        if (! $esAdmin) {
+            $userId = Auth::id();
+        }
 
         // mes tiene prioridad sobre desde/hasta
         $desde = null;
@@ -147,8 +151,6 @@ class DashboardController extends Controller
         // =========================
         // 7) Ranking de usuarios (solo admin)
         // =========================
-        $esAdmin = (Auth::user()->role ?? null) === 'admin';
-
         $rankingUsuarios = collect();
         if ($esAdmin) {
             $rankingUsuarios = Venta::query()
@@ -172,7 +174,9 @@ class DashboardController extends Controller
         $primeraVenta = $primeraVentaAt ? Carbon::parse($primeraVentaAt, $tz) : null;
         $ultimaVenta = $ultimaVentaAt ? Carbon::parse($ultimaVentaAt, $tz) : null;
 
-        return view('dashboard.index', compact(
+        $dashboardView = $esAdmin ? 'dashboard.index' : 'dashboard.employee';
+
+        return view($dashboardView, compact(
             'usuarios',
             'esAdmin',
             'rankingUsuarios',
@@ -199,6 +203,5 @@ class DashboardController extends Controller
         ));
     }
 }
-
 
 
