@@ -17,7 +17,11 @@ return new class extends Migration
             $table->string('direccion')->nullable();
             $table->string('condiciones_pago')->nullable();
             $table->text('productos')->nullable();
+            $table->json('productos_detalle')->nullable();
             $table->unsignedInteger('cantidad')->nullable();
+            $table->string('hora', 5)->nullable();
+            $table->decimal('pago', 10, 2)->nullable();
+            $table->decimal('deuda', 10, 2)->nullable();
             $table->text('notas')->nullable();
             $table->boolean('activo')->default(true);
             $table->timestamps();

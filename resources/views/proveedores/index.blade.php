@@ -32,6 +32,7 @@
                             <th>Contacto</th>
                             <th>Condiciones</th>
                             <th>Productos</th>
+                            <th>Pagos</th>
                             <th>Fecha</th>
                             <th>Estado</th>
                             <th class="text-right">Acciones</th>
@@ -55,16 +56,40 @@
                                     <div class="mt-1 text-xs text-slate-500">{{ $proveedor->direccion ?: 'Sin dirección' }}</div>
                                 </td>
                                 <td>
+                                    @if ($proveedor->productos_detalle)
+                                        <ul class="space-y-1 text-sm text-slate-700">
+                                            @foreach ($proveedor->productos_detalle as $detalle)
+                                                <li>
+                                                    {{ $detalle['nombre'] ?? 'Producto' }}
+                                                    <span class="text-xs text-slate-500">
+                                                        {{ isset($detalle['cantidad']) ? $detalle['cantidad'] . ' uds' : '' }}
+                                                    </span>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        <div class="text-sm text-slate-700">
+                                            {{ $proveedor->productos ?: 'Sin productos registrados' }}
+                                        </div>
+                                        <div class="mt-1 text-xs text-slate-500">
+                                            {{ $proveedor->cantidad !== null ? $proveedor->cantidad . ' unidades' : 'Sin cantidad' }}
+                                        </div>
+                                    @endif
+                                </td>
+                                <td>
                                     <div class="text-sm text-slate-700">
-                                        {{ $proveedor->productos ?: 'Sin productos registrados' }}
+                                        {{ $proveedor->pago !== null ? '$' . number_format($proveedor->pago, 2, ',', '.') : 'Sin pago' }}
                                     </div>
                                     <div class="mt-1 text-xs text-slate-500">
-                                        {{ $proveedor->cantidad !== null ? $proveedor->cantidad . ' unidades' : 'Sin cantidad' }}
+                                        {{ $proveedor->deuda !== null ? 'Debe $' . number_format($proveedor->deuda, 2, ',', '.') : 'Sin deuda' }}
                                     </div>
                                 </td>
                                 <td>
                                     <div class="text-sm text-slate-700">
                                         {{ $proveedor->created_at ? $proveedor->created_at->format('d/m/Y') : 'Sin fecha' }}
+                                    </div>
+                                    <div class="mt-1 text-xs text-slate-500">
+                                        {{ $proveedor->hora ?: 'Sin hora' }}
                                     </div>
                                 </td>
                                 <td>
@@ -89,7 +114,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td class="px-6 py-10 text-center text-sm text-slate-500" colspan="7">
+                                <td class="px-6 py-10 text-center text-sm text-slate-500" colspan="8">
                                     <div class="flex flex-col items-center gap-2">
                                         <i class="fas fa-truck text-2xl text-slate-300"></i>
                                         Todavía no registraste proveedores.

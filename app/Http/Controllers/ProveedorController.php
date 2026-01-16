@@ -40,12 +40,19 @@ class ProveedorController extends Controller
             'direccion' => ['nullable', 'string', 'max:255'],
             'condiciones_pago' => ['nullable', 'string', 'max:255'],
             'productos' => ['nullable', 'string', 'max:1000'],
+            'productos_detalle' => ['nullable', 'array'],
+            'productos_detalle.*.nombre' => ['nullable', 'string', 'max:255'],
+            'productos_detalle.*.cantidad' => ['nullable', 'integer', 'min:0'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
+            'hora' => ['nullable', 'date_format:H:i'],
+            'pago' => ['nullable', 'numeric', 'min:0'],
+            'deuda' => ['nullable', 'numeric', 'min:0'],
             'notas' => ['nullable', 'string'],
             'activo' => ['nullable', 'boolean'],
         ]);
 
         $data['activo'] = $request->boolean('activo');
+        $data['productos_detalle'] = $this->sanitizeProductosDetalle($request->input('productos_detalle', []));
 
         if (! $this->ensureProveedoresTable()) {
             return back()
@@ -73,12 +80,19 @@ class ProveedorController extends Controller
             'direccion' => ['nullable', 'string', 'max:255'],
             'condiciones_pago' => ['nullable', 'string', 'max:255'],
             'productos' => ['nullable', 'string', 'max:1000'],
+            'productos_detalle' => ['nullable', 'array'],
+            'productos_detalle.*.nombre' => ['nullable', 'string', 'max:255'],
+            'productos_detalle.*.cantidad' => ['nullable', 'integer', 'min:0'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
+            'hora' => ['nullable', 'date_format:H:i'],
+            'pago' => ['nullable', 'numeric', 'min:0'],
+            'deuda' => ['nullable', 'numeric', 'min:0'],
             'notas' => ['nullable', 'string'],
             'activo' => ['nullable', 'boolean'],
         ]);
 
         $data['activo'] = $request->boolean('activo');
+        $data['productos_detalle'] = $this->sanitizeProductosDetalle($request->input('productos_detalle', []));
 
         $proveedor->update($data);
 
@@ -107,12 +121,34 @@ class ProveedorController extends Controller
             $table->string('direccion')->nullable();
             $table->string('condiciones_pago')->nullable();
             $table->text('productos')->nullable();
+            $table->json('productos_detalle')->nullable();
             $table->unsignedInteger('cantidad')->nullable();
+            $table->string('hora', 5)->nullable();
+            $table->decimal('pago', 10, 2)->nullable();
+            $table->decimal('deuda', 10, 2)->nullable();
             $table->text('notas')->nullable();
             $table->boolean('activo')->default(true);
             $table->timestamps();
         });
 
         return Schema::hasTable('proveedores');
+    }
+
+    private function sanitizeProductosDetalle(array $productosDetalle): ?array
+    {
+        $items = collect($productosDetalle)
+            ->map(function ($item) {
+                return [
+                    'nombre' => isset($item['nombre']) ? trim((string) $item['nombre']) : null,
+                    'cantidad' => isset($item['cantidad']) && $item['cantidad'] !== '' ? (int) $item['cantidad'] : null,
+                ];
+            })
+            ->filter(function ($item) {
+                return filled($item['nombre']) || $item['cantidad'] !== null;
+            })
+            ->values()
+            ->all();
+
+        return $items !== [] ? $items : null;
     }
 }

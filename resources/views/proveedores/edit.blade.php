@@ -67,15 +67,60 @@
                         <input name="condiciones_pago" value="{{ old('condiciones_pago', $proveedor->condiciones_pago) }}" class="app-input" placeholder="Ej: 15 días, transferencia bancaria">
                     </div>
 
+                    @php
+                        $productosDetalle = old('productos_detalle', $proveedor->productos_detalle ?? [['nombre' => '', 'cantidad' => '']]);
+                    @endphp
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-4">
+                            <div>
+                                <label class="app-label">Productos y cantidades</label>
+                                <p class="text-xs text-slate-500">Sumá varios productos con su cantidad correspondiente.</p>
+                            </div>
+                            <button type="button" class="app-btn-secondary px-3 py-2 text-xs" data-add-producto>Agregar producto</button>
+                        </div>
+                        <div class="space-y-3" data-productos-list>
+                            @foreach ($productosDetalle as $index => $detalle)
+                                <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200/70 bg-slate-50/60 p-3 md:grid-cols-[2fr,1fr,auto]" data-producto-row>
+                                    <div>
+                                        <label class="app-label">Producto</label>
+                                        <input name="productos_detalle[{{ $index }}][nombre]" value="{{ $detalle['nombre'] ?? '' }}" class="app-input" placeholder="Ej: Papas, bebidas">
+                                    </div>
+                                    <div>
+                                        <label class="app-label">Cantidad</label>
+                                        <input type="number" name="productos_detalle[{{ $index }}][cantidad]" value="{{ $detalle['cantidad'] ?? '' }}" class="app-input" min="0" placeholder="0">
+                                    </div>
+                                    <div class="flex items-end">
+                                        <button type="button" class="app-btn-secondary px-3 py-2 text-xs" data-remove-producto>Quitar</button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-[2fr,1fr]">
                         <div>
-                            <label class="app-label">Productos que trae</label>
+                            <label class="app-label">Productos (texto libre)</label>
                             <textarea name="productos" class="app-input" rows="3" placeholder="Ej: Snacks, bebidas, golosinas...">{{ old('productos', $proveedor->productos) }}</textarea>
                         </div>
 
                         <div>
                             <label class="app-label">Cantidad estimada</label>
                             <input type="number" name="cantidad" value="{{ old('cantidad', $proveedor->cantidad) }}" class="app-input" min="0" placeholder="Cantidad">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <div>
+                            <label class="app-label">Hora de entrega</label>
+                            <input type="time" name="hora" value="{{ old('hora', $proveedor->hora) }}" class="app-input">
+                        </div>
+                        <div>
+                            <label class="app-label">Pago realizado</label>
+                            <input type="number" name="pago" value="{{ old('pago', $proveedor->pago) }}" class="app-input" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="app-label">Deuda pendiente</label>
+                            <input type="number" name="deuda" value="{{ old('deuda', $proveedor->deuda) }}" class="app-input" min="0" step="0.01" placeholder="0.00">
                         </div>
                     </div>
 
@@ -97,4 +142,66 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const list = document.querySelector('[data-productos-list]');
+            const addButton = document.querySelector('[data-add-producto]');
+
+            if (!list || !addButton) {
+                return;
+            }
+
+            const buildRow = (index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'grid grid-cols-1 gap-3 rounded-xl border border-slate-200/70 bg-slate-50/60 p-3 md:grid-cols-[2fr,1fr,auto]';
+                wrapper.setAttribute('data-producto-row', '');
+                wrapper.innerHTML = `
+                    <div>
+                        <label class="app-label">Producto</label>
+                        <input name="productos_detalle[${index}][nombre]" class="app-input" placeholder="Ej: Papas, bebidas">
+                    </div>
+                    <div>
+                        <label class="app-label">Cantidad</label>
+                        <input type="number" name="productos_detalle[${index}][cantidad]" class="app-input" min="0" placeholder="0">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" class="app-btn-secondary px-3 py-2 text-xs" data-remove-producto>Quitar</button>
+                    </div>
+                `;
+                return wrapper;
+            };
+
+            const refreshRemoveButtons = () => {
+                list.querySelectorAll('[data-remove-producto]').forEach((button) => {
+                    button.onclick = () => {
+                        if (list.children.length > 1) {
+                            button.closest('[data-producto-row]').remove();
+                        } else {
+                            const inputs = list.querySelectorAll('input');
+                            inputs.forEach((input) => {
+                                input.value = '';
+                            });
+                        }
+                    };
+                });
+            };
+
+            const getNextIndex = () => {
+                const indices = Array.from(list.querySelectorAll('input[name^="productos_detalle"]'))
+                    .map((input) => input.name.match(/productos_detalle\[(\d+)\]/))
+                    .filter(Boolean)
+                    .map((match) => Number.parseInt(match[1], 10));
+                return indices.length ? Math.max(...indices) + 1 : list.children.length;
+            };
+
+            addButton.addEventListener('click', () => {
+                const index = getNextIndex();
+                list.appendChild(buildRow(index));
+                refreshRemoveButtons();
+            });
+
+            refreshRemoveButtons();
+        });
+    </script>
 </x-app-layout>
