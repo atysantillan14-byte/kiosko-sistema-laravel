@@ -32,6 +32,7 @@
                             <th>Contacto</th>
                             <th>Condiciones</th>
                             <th>Productos</th>
+                            <th>Fecha</th>
                             <th>Estado</th>
                             <th class="text-right">Acciones</th>
                         </tr>
@@ -62,6 +63,11 @@
                                     </div>
                                 </td>
                                 <td>
+                                    <div class="text-sm text-slate-700">
+                                        {{ $proveedor->created_at ? $proveedor->created_at->format('d/m/Y') : 'Sin fecha' }}
+                                    </div>
+                                </td>
+                                <td>
                                     <span class="app-chip {{ $proveedor->activo ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600' }}">
                                         {{ $proveedor->activo ? 'activo' : 'inactivo' }}
                                     </span>
@@ -83,7 +89,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td class="px-6 py-10 text-center text-sm text-slate-500" colspan="6">
+                                <td class="px-6 py-10 text-center text-sm text-slate-500" colspan="7">
                                     <div class="flex flex-col items-center gap-2">
                                         <i class="fas fa-truck text-2xl text-slate-300"></i>
                                         Todavía no registraste proveedores.
