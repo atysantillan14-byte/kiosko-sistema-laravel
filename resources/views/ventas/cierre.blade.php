@@ -10,10 +10,12 @@
                     <i class="fas fa-arrow-left"></i>
                     Volver a ventas
                 </a>
-                <button type="button" onclick="window.print()" class="app-btn-primary print-hidden">
-                    <i class="fas fa-print"></i>
-                    Exportar / Imprimir
-                </button>
+                @if (session('success'))
+                    <button type="button" onclick="window.print()" class="app-btn-primary print-hidden">
+                        <i class="fas fa-print"></i>
+                        Exportar / Imprimir
+                    </button>
+                @endif
             </div>
         </div>
     </x-slot>
