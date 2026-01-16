@@ -2,18 +2,13 @@
     @php
         $ventasFiltradas = max((int) $ventasFiltradas, 0);
         $ticketPromedio = $ventasFiltradas > 0 ? $totalFiltrado / $ventasFiltradas : 0;
-        $stockBajoCount = $stockBajo->count();
-        $promedioDiario = $ventasPorDia->avg('total') ?? 0;
-        $variacionHoy = $promedioDiario > 0 ? (($ingresosHoy - $promedioDiario) / $promedioDiario) * 100 : 0;
-        $variacionBadge = $variacionHoy >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700';
-        $variacionIcono = $variacionHoy >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
     @endphp
 
     <x-slot name="header">
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-                <h2 class="app-title">Panel analítico</h2>
-                <p class="app-subtitle">Métricas clave y visualizaciones para decisiones rápidas.</p>
+                <h2 class="app-title">Estadísticas</h2>
+                <p class="app-subtitle">Vista operativa con métricas clave del negocio.</p>
             </div>
         </div>
     </x-slot>
@@ -22,8 +17,8 @@
         <div x-data="{ open: false }" class="app-card p-5">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                    <h3 class="text-sm font-semibold text-slate-900">Filtros del dashboard</h3>
-                    <p class="text-xs text-slate-500">Personalizá el período, turno y usuario para refinar los indicadores.</p>
+                    <h3 class="text-sm font-semibold text-slate-900">Filtros de período</h3>
+                    <p class="text-xs text-slate-500">Filtrá por fechas, turno, horas o usuario para revisar las ventas.</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
                     <span class="app-chip bg-slate-100 text-slate-600">
@@ -98,244 +93,76 @@
             </form>
         </div>
 
-        <div class="rounded-[28px] bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-6 text-white shadow-xl">
-            <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                <div>
-                    <h3 class="text-lg font-semibold">Visualización general</h3>
-                    <p class="text-sm text-slate-300">Resumen moderno con métricas clave y comportamiento de ventas.</p>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div class="app-card p-5 text-center">
+                <div class="flex flex-col items-center gap-2 text-sm text-slate-500">
+                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                        <i class="fas fa-bolt"></i>
+                    </span>
+                    <span>Ventas hoy</span>
                 </div>
-                <div class="app-chip bg-white/10 text-slate-100">Panel analítico</div>
+                <div class="mt-3 text-4xl font-semibold text-slate-900">{{ $ventasHoy }}</div>
+                <div class="mt-1 text-xs text-slate-500">Ingresos $ {{ number_format($ingresosHoy, 2, ',', '.') }}</div>
             </div>
-            <div class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div class="rounded-2xl bg-white/95 p-4 text-slate-900 shadow-sm ring-1 ring-white/10">
-                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
-                        <span>Ventas por día</span>
-                        <i class="fas fa-wave-square text-slate-400"></i>
-                    </div>
-                    <div class="mt-3">
-                        <canvas id="chartVentasDia" height="140"></canvas>
-                    </div>
-                </div>
 
-                <div class="rounded-2xl bg-white/95 p-4 text-slate-900 shadow-sm ring-1 ring-white/10">
-                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
-                        <span>Ventas por método</span>
-                        <i class="fas fa-layer-group text-slate-400"></i>
-                    </div>
-                    <div class="mt-3">
-                        <canvas id="chartMetodo" height="140"></canvas>
-                    </div>
+            <div class="app-card p-5 text-center">
+                <div class="flex flex-col items-center gap-2 text-sm text-slate-500">
+                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-sky-50 text-sky-600">
+                        <i class="fas fa-calendar-check"></i>
+                    </span>
+                    <span>Ventas del período</span>
                 </div>
-
-                <div class="rounded-2xl bg-white/95 p-4 text-slate-900 shadow-sm ring-1 ring-white/10">
-                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
-                        <span>Participación por método</span>
-                        <i class="fas fa-chart-pie text-slate-400"></i>
-                    </div>
-                    <div class="mt-3">
-                        <canvas id="chartMetodoPie" height="140"></canvas>
-                    </div>
-                </div>
-
-                <div class="rounded-2xl bg-white/95 p-4 text-slate-900 shadow-sm ring-1 ring-white/10">
-                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
-                        <span>Stock por producto</span>
-                        <i class="fas fa-boxes-stacked text-slate-400"></i>
-                    </div>
-                    <div class="mt-3">
-                        <canvas id="chartStockProducto" height="140"></canvas>
-                    </div>
-                </div>
+                <div class="mt-3 text-4xl font-semibold text-slate-900">{{ $ventasMes }}</div>
+                <div class="mt-1 text-xs text-slate-500">Ingresos $ {{ number_format($ingresosMes, 2, ',', '.') }}</div>
             </div>
-            <p class="mt-4 text-xs text-slate-300">
-                Visualización optimizada para detectar tendencias y posibles quiebres de inventario.
-            </p>
-        </div>
 
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div class="app-card p-5 text-center">
                 <div class="flex flex-col items-center gap-2 text-sm text-slate-500">
                     <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-amber-50 text-amber-600">
-                        <i class="fas fa-boxes"></i>
+                        <i class="fas fa-receipt"></i>
                     </span>
-                    <span>Productos registrados</span>
+                    <span>Ticket promedio</span>
                 </div>
-                <div class="mt-3 text-4xl font-semibold text-slate-900">{{ $productosCount }}</div>
-                <div class="mt-1 text-xs text-slate-500">Inventario total activo</div>
+                <div class="mt-3 text-3xl font-semibold text-slate-900">$ {{ number_format($ticketPromedio, 2, ',', '.') }}</div>
+                <div class="mt-1 text-xs text-slate-500">Promedio del período filtrado</div>
             </div>
 
             <div class="app-card p-5 text-center">
                 <div class="flex flex-col items-center gap-2 text-sm text-slate-500">
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-                        <i class="fas fa-flag-checkered"></i>
-                    </span>
-                    <span>Primera venta registrada</span>
-                </div>
-                <div class="mt-3 text-lg font-semibold text-slate-900">
-                    {{ $primeraVenta ? $primeraVenta->format('d/m/Y H:i') : 'Sin ventas' }}
-                </div>
-                <div class="mt-1 text-xs text-slate-500">Fecha de inicio de actividad</div>
-            </div>
-
-            <div class="app-card p-5 text-center">
-                <div class="flex flex-col items-center gap-2 text-sm text-slate-500">
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-sky-50 text-sky-600">
-                        <i class="fas fa-clock"></i>
-                    </span>
-                    <span>Última venta registrada</span>
-                </div>
-                <div class="mt-3 text-lg font-semibold text-slate-900">
-                    {{ $ultimaVenta ? $ultimaVenta->format('d/m/Y H:i') : 'Sin ventas' }}
-                </div>
-                <div class="mt-1 text-xs text-slate-500">Última actualización real</div>
-            </div>
-        </div>
-
-        <div class="rounded-[28px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-6 text-white shadow-xl">
-            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div>
-                    <p class="text-sm text-slate-200">Resumen operativo</p>
-                    <h3 class="text-2xl font-semibold">Todo listo para vender hoy</h3>
-                    <p class="mt-2 text-sm text-slate-200">Controlá ventas, stock y usuarios desde un mismo lugar.</p>
-                    <div class="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-200">
-                        <div class="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-                            <p class="uppercase tracking-wide text-[10px] text-slate-300">Primera venta</p>
-                            <p class="mt-1 text-sm font-semibold">
-                                {{ $primeraVenta ? $primeraVenta->format('d/m/Y H:i') : 'Sin ventas' }}
-                            </p>
-                        </div>
-                        <div class="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-                            <p class="uppercase tracking-wide text-[10px] text-slate-300">Última venta</p>
-                            <p class="mt-1 text-sm font-semibold">
-                                {{ $ultimaVenta ? $ultimaVenta->format('d/m/Y H:i') : 'Sin ventas' }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    <a href="{{ route('ventas.create') }}" class="app-btn-ghost bg-white/10 text-white hover:bg-white/20">
-                        <i class="fas fa-plus-circle"></i>
-                        Nueva venta
-                    </a>
-                    <a href="{{ route('productos.create') }}" class="app-btn-ghost bg-white/10 text-white hover:bg-white/20">
-                        <i class="fas fa-box-open"></i>
-                        Nuevo producto
-                    </a>
-                </div>
-            </div>
-            <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div class="rounded-xl bg-white/10 p-4">
-                    <p class="text-xs uppercase tracking-wide text-slate-200">Ticket promedio</p>
-                    <p class="mt-2 text-2xl font-semibold">$ {{ number_format($ticketPromedio, 2, ',', '.') }}</p>
-                </div>
-                <div class="rounded-xl bg-white/10 p-4">
-                    <p class="text-xs uppercase tracking-wide text-slate-200">Productos con stock bajo</p>
-                    <p class="mt-2 text-2xl font-semibold">{{ $stockBajoCount }}</p>
-                </div>
-                <div class="rounded-xl bg-white/10 p-4">
-                    <p class="text-xs uppercase tracking-wide text-slate-200">Usuarios activos</p>
-                    <p class="mt-2 text-2xl font-semibold">{{ $usuarios->count() }}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="app-card p-5">
-            <div class="flex items-center justify-between">
-                <h4 class="text-sm font-semibold text-slate-900">Automatización</h4>
-                <span class="text-xs text-slate-400">Workflows</span>
-            </div>
-            <p class="mt-3 text-xs text-slate-500">Alertas y reportes diarios activos con envío por WhatsApp al administrador.</p>
-            <div class="mt-4 space-y-2 text-xs text-slate-600">
-                <div class="flex items-center justify-between rounded-xl border border-slate-200/70 px-3 py-2">
-                    <span>Alertas de stock (WhatsApp admin)</span>
-                    <span class="app-chip bg-emerald-50 text-emerald-700">Activo</span>
-                </div>
-                <div class="flex items-center justify-between rounded-xl border border-slate-200/70 px-3 py-2">
-                    <span>Reporte diario (WhatsApp admin)</span>
-                    <span class="app-chip bg-emerald-50 text-emerald-700">Activo</span>
-                </div>
-            </div>
-            <button class="app-btn-primary mt-4" type="button">
-                <i class="fas fa-bolt"></i>
-                Configurar alertas
-            </button>
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div class="app-card p-5">
-                <div class="flex items-center justify-between text-sm text-slate-500">
-                    <span>Ventas (según filtro)</span>
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-                        <i class="fas fa-shopping-bag"></i>
-                    </span>
-                </div>
-                <div class="mt-3 text-3xl font-semibold text-slate-900">{{ $ventasFiltradas }}</div>
-                <div class="text-xs text-slate-500 mt-1">Cantidad total</div>
-            </div>
-
-            <div class="app-card p-5">
-                <div class="flex items-center justify-between text-sm text-slate-500">
-                    <span>Total $ (según filtro)</span>
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-purple-50 text-purple-600">
                         <i class="fas fa-coins"></i>
                     </span>
+                    <span>Total vendido del período</span>
                 </div>
-                <div class="mt-3 text-3xl font-semibold text-slate-900">
-                    $ {{ number_format($totalFiltrado, 2, ',', '.') }}
-                </div>
-                <div class="text-xs text-slate-500 mt-1">Ingresos del período</div>
-            </div>
-
-            <div class="app-card p-5">
-                <div class="flex items-center justify-between text-sm text-slate-500">
-                    <span>Ventas hoy</span>
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
-                        <i class="fas fa-calendar-day"></i>
-                    </span>
-                </div>
-                <div class="mt-3 text-3xl font-semibold text-slate-900">{{ $ventasHoy }}</div>
-                <div class="text-xs text-slate-500 mt-1">Solo ventas del día</div>
-            </div>
-
-            <div class="app-card p-5">
-                <div class="flex items-center justify-between text-sm text-slate-500">
-                    <span>Ingresos hoy</span>
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-sky-50 text-sky-600">
-                        <i class="fas fa-wallet"></i>
-                    </span>
-                </div>
-                <div class="mt-3 text-3xl font-semibold text-slate-900">
-                    $ {{ number_format($ingresosHoy, 2, ',', '.') }}
-                </div>
-                <div class="text-xs text-slate-500 mt-1">Solo ingresos del día</div>
+                <div class="mt-3 text-3xl font-semibold text-slate-900">$ {{ number_format($totalFiltrado, 2, ',', '.') }}</div>
+                <div class="mt-1 text-xs text-slate-500">Monto acumulado en el período</div>
             </div>
         </div>
 
-        <div class="app-card p-5">
-            <div class="flex items-center justify-between">
-                <h4 class="text-sm font-semibold text-slate-900">Insights avanzados</h4>
-                <span class="text-xs text-slate-400">Comparativas</span>
-            </div>
-            <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div class="rounded-xl border border-slate-200/70 p-4">
-                    <p class="text-xs text-slate-500">Promedio diario</p>
-                    <p class="mt-2 text-xl font-semibold text-slate-900">$ {{ number_format($promedioDiario, 2, ',', '.') }}</p>
-                    <p class="text-xs text-slate-500 mt-1">Basado en período filtrado.</p>
-                </div>
-                <div class="rounded-xl border border-slate-200/70 p-4">
-                    <p class="text-xs text-slate-500">Variación vs promedio</p>
-                    <div class="mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold {{ $variacionBadge }}">
-                        <i class="fas {{ $variacionIcono }}"></i>
-                        {{ number_format($variacionHoy, 1, ',', '.') }}%
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div class="rounded-[28px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-6 text-white shadow-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold">Ventas por día</h3>
+                        <p class="text-xs text-slate-200">Tendencia de operaciones del período.</p>
                     </div>
-                    <p class="text-xs text-slate-500 mt-2">Comparación con ingresos de hoy.</p>
+                    <div class="app-chip bg-white/10 text-slate-100">Tendencia</div>
                 </div>
-                <div class="rounded-xl border border-slate-200/70 p-4">
-                    <p class="text-xs text-slate-500">Producto estrella</p>
-                    <p class="mt-2 text-sm font-semibold text-slate-900">
-                        {{ $topProductos->first()->producto_nombre ?? 'Sin datos aún' }}
-                    </p>
-                    <p class="text-xs text-slate-500 mt-1">Top ventas del período.</p>
+                <div class="mt-4 h-56 rounded-2xl bg-white/95 p-4 text-slate-900">
+                    <canvas id="chartVentasDia" height="180"></canvas>
+                </div>
+            </div>
+
+            <div class="rounded-[28px] bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-6 text-white shadow-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold">Métodos de pago</h3>
+                        <p class="text-xs text-slate-200">Cómo prefieren pagar tus clientes.</p>
+                    </div>
+                    <div class="app-chip bg-white/10 text-slate-100">Resumen</div>
+                </div>
+                <div class="mt-4 h-56 rounded-2xl bg-white/95 p-4 text-slate-900">
+                    <canvas id="chartMetodo" height="180"></canvas>
                 </div>
             </div>
         </div>
@@ -343,46 +170,9 @@
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div class="app-card p-5">
                 <div class="flex items-center justify-between mb-3">
-                    <div class="font-semibold text-slate-900">Stock bajo (≤ 5)</div>
-                    <div class="text-xs text-slate-500">Top 10</div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="app-table">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Categoría</th>
-                                <th class="text-right">Stock</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200/70">
-                            @forelse($stockBajo as $p)
-                                <tr>
-                                    <td class="font-semibold text-slate-900">{{ $p->nombre }}</td>
-                                    <td>{{ optional($p->categoria)->nombre ?? '-' }}</td>
-                                    <td class="text-right">
-                                        <span class="app-chip bg-rose-50 text-rose-700">
-                                            {{ $p->stock }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="px-6 py-4 text-sm text-slate-500">No hay productos con stock bajo.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="app-card p-5">
-                <div class="flex items-center justify-between mb-3">
                     <div class="font-semibold text-slate-900">Top productos vendidos</div>
-                    <div class="text-xs text-slate-500">Según filtro</div>
+                    <div class="text-xs text-slate-500">Según tu período</div>
                 </div>
-
                 <div class="overflow-x-auto">
                     <table class="app-table">
                         <thead>
@@ -410,12 +200,43 @@
                     </table>
                 </div>
             </div>
+
+            <div class="app-card p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="font-semibold text-slate-900">Stock bajo</div>
+                    <div class="text-xs text-slate-500">Productos con reposición urgente</div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="app-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th class="text-right">Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200/70">
+                            @forelse($stockBajo as $producto)
+                                <tr>
+                                    <td class="font-semibold text-slate-900">{{ $producto->nombre }}</td>
+                                    <td class="text-sm text-slate-500">{{ $producto->categoria?->nombre ?? 'Sin categoría' }}</td>
+                                    <td class="text-right font-semibold text-rose-600">{{ $producto->stock }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="px-6 py-4 text-sm text-slate-500">Sin alertas de stock por ahora.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         @if($esAdmin)
             <div class="app-card p-5">
                 <div class="flex items-center justify-between mb-3">
-                    <div class="font-semibold text-slate-900">Ranking de usuarios</div>
+                    <div class="font-semibold text-slate-900">Ranking de ventas por usuario</div>
                     <div class="text-xs text-slate-500">Solo administrador</div>
                 </div>
 
@@ -454,8 +275,6 @@
         const ventasDiaTotal  = @json($ventasPorDia->pluck('total'));
         const metodoLabels    = @json($ventasPorMetodo->pluck('metodo_pago'));
         const metodoCant      = @json($ventasPorMetodo->pluck('cantidad'));
-        const stockLabels     = @json($stockPorProducto->pluck('nombre'));
-        const stockCant       = @json($stockPorProducto->pluck('stock'));
 
         const baseGrid = {
             color: 'rgba(148, 163, 184, 0.2)'
@@ -503,56 +322,6 @@
                         label: 'Cantidad',
                         data: metodoCant,
                         backgroundColor: 'rgba(59, 130, 246, 0.6)',
-                        borderRadius: 8,
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { grid: baseGrid },
-                    y: { grid: baseGrid }
-                }
-            }
-        });
-
-        new Chart(document.getElementById('chartMetodoPie'), {
-            type: 'doughnut',
-            data: {
-                labels: metodoLabels,
-                datasets: [
-                    {
-                        data: metodoCant,
-                        backgroundColor: [
-                            'rgba(59, 130, 246, 0.7)',
-                            'rgba(14, 165, 233, 0.7)',
-                            'rgba(16, 185, 129, 0.7)',
-                            'rgba(249, 115, 22, 0.7)'
-                        ]
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
-
-        new Chart(document.getElementById('chartStockProducto'), {
-            type: 'bar',
-            data: {
-                labels: stockLabels,
-                datasets: [
-                    {
-                        label: 'Stock',
-                        data: stockCant,
-                        backgroundColor: 'rgba(99, 102, 241, 0.7)',
                         borderRadius: 8,
                     }
                 ]

@@ -26,7 +26,7 @@
                     </x-nav-link>
 
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        Panel analítico
+                        Estadísticas
                     </x-nav-link>
 
                     <x-nav-link :href="url('/productos')" :active="request()->is('productos*')">
@@ -100,7 +100,7 @@
             </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                Panel analítico
+                Estadísticas
             </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="url('/productos')" :active="request()->is('productos*')">

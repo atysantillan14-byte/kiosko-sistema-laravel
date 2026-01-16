@@ -17,7 +17,7 @@
         <a href="{{ route('dashboard') }}"
            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('dashboard') ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50' }}">
             <i class="fas fa-chart-line w-5"></i>
-            <span>Panel analítico</span>
+            <span>Estadísticas</span>
         </a>
 
         <a href="{{ route('categorias.index') }}"
