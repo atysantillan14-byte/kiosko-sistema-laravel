@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class UsuarioController extends Controller
@@ -36,5 +37,16 @@ class UsuarioController extends Controller
         ]);
 
         return redirect()->route('usuarios.index')->with('success', 'Usuario creado.');
+    }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        if ($user->id === Auth::id()) {
+            return redirect()->route('usuarios.index')->with('error', 'No podés eliminar tu propio usuario.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('usuarios.index')->with('success', 'Usuario eliminado.');
     }
 }

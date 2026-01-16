@@ -44,6 +44,12 @@
                     <x-nav-link :href="route('proveedores.index')" :active="request()->is('proveedores*')">
                         Proveedores
                     </x-nav-link>
+
+                    @if ((auth()->user()->role ?? null) === 'admin')
+                        <x-nav-link :href="route('usuarios.index')" :active="request()->is('usuarios*')">
+                            Usuarios
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -112,6 +118,12 @@
             <x-responsive-nav-link :href="route('proveedores.index')" :active="request()->is('proveedores*')">
                 Proveedores
             </x-responsive-nav-link>
+
+            @if ((auth()->user()->role ?? null) === 'admin')
+                <x-responsive-nav-link :href="route('usuarios.index')" :active="request()->is('usuarios*')">
+                    Usuarios
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <div class="border-t border-slate-200/70 px-4 py-3">

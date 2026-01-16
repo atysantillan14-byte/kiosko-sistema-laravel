@@ -15,6 +15,12 @@
             </div>
         @endif
 
+        @if (session('error'))
+            <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+                {{ session('error') }}
+            </div>
+        @endif
+
         @if ($errors->any())
             <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
                 <div class="font-semibold">Revisá los datos antes de continuar</div>
@@ -78,6 +84,7 @@
                                 <th>Email</th>
                                 <th>Rol</th>
                                 <th>Alta</th>
+                                <th class="w-32 text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200/70">
@@ -91,10 +98,25 @@
                                         </span>
                                     </td>
                                     <td>{{ $usuario->created_at?->format('d/m/Y') }}</td>
+                                    <td class="text-right">
+                                        <form method="POST" action="{{ route('usuarios.destroy', $usuario) }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button
+                                                class="inline-flex items-center gap-2 rounded-full border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                                type="submit"
+                                                @disabled($usuario->id === auth()->id())
+                                                onclick="return confirm('¿Querés eliminar este usuario?')"
+                                            >
+                                                <i class="fas fa-trash-alt"></i>
+                                                Eliminar
+                                            </button>
+                                        </form>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td class="px-6 py-10 text-center text-sm text-slate-500" colspan="4">
+                                    <td class="px-6 py-10 text-center text-sm text-slate-500" colspan="5">
                                         <div class="flex flex-col items-center gap-2">
                                             <i class="fas fa-users text-2xl text-slate-300"></i>
                                             No hay usuarios registrados.
