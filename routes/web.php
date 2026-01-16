@@ -17,7 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('categorias', CategoriaController::class);
     Route::resource('productos', ProductoController::class);
     Route::resource('ventas', VentaController::class);
-    Route::get('/proveedores', [ProveedorController::class, 'index'])->name('proveedores.index');
+    Route::resource('proveedores', ProveedorController::class)->except(['show']);
 });
 
 Route::middleware('auth')->group(function () {
