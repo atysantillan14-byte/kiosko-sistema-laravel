@@ -18,7 +18,7 @@
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                     <h3 class="text-sm font-semibold text-slate-900">Filtros de período</h3>
-                    <p class="text-xs text-slate-500">Filtrá por fechas, turno u horas para revisar tus ventas.</p>
+                    <p class="text-xs text-slate-500">Filtrá por fechas, turno u horas para revisar las ventas del período.</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
                     <span class="app-chip bg-slate-100 text-slate-600">
