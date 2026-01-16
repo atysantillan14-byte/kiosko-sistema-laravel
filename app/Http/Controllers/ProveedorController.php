@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Proveedor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
@@ -12,7 +13,7 @@ class ProveedorController extends Controller
 {
     public function index(): View
     {
-        if (! Schema::hasTable('proveedores')) {
+        if (! $this->ensureProveedoresTable()) {
             $proveedores = collect();
 
             return view('proveedores.index', compact('proveedores'))
@@ -46,7 +47,7 @@ class ProveedorController extends Controller
 
         $data['activo'] = $request->boolean('activo');
 
-        if (! Schema::hasTable('proveedores')) {
+        if (! $this->ensureProveedoresTable()) {
             return back()
                 ->withInput()
                 ->with('error', 'La tabla de proveedores no está disponible. Ejecutá las migraciones para crearla.');
@@ -89,5 +90,29 @@ class ProveedorController extends Controller
         $proveedor->delete();
 
         return redirect()->route('proveedores.index')->with('success', 'Proveedor eliminado.');
+    }
+
+    private function ensureProveedoresTable(): bool
+    {
+        if (Schema::hasTable('proveedores')) {
+            return true;
+        }
+
+        Schema::create('proveedores', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre');
+            $table->string('contacto')->nullable();
+            $table->string('telefono', 50)->nullable();
+            $table->string('email')->nullable();
+            $table->string('direccion')->nullable();
+            $table->string('condiciones_pago')->nullable();
+            $table->text('productos')->nullable();
+            $table->unsignedInteger('cantidad')->nullable();
+            $table->text('notas')->nullable();
+            $table->boolean('activo')->default(true);
+            $table->timestamps();
+        });
+
+        return Schema::hasTable('proveedores');
     }
 }
