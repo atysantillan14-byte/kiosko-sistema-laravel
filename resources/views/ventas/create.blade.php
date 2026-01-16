@@ -257,6 +257,10 @@
             if (match) {
                 productoSelect.value = match.value;
                 actualizarProductoSeleccionado();
+                if (!permitirParcial) {
+                    productoSearch.value = etiquetaProducto(match);
+                    productoSuggestions.innerHTML = '';
+                }
                 return true;
             }
 
