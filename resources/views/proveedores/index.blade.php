@@ -62,7 +62,7 @@
                                                 <li>
                                                     {{ $detalle['nombre'] ?? 'Producto' }}
                                                     <span class="text-xs text-slate-500">
-                                                        {{ isset($detalle['cantidad']) ? $detalle['cantidad'] . ' uds' : '' }}
+                                                        {{ isset($detalle['cantidad']) ? $detalle['cantidad'] : '' }}
                                                     </span>
                                                 </li>
                                             @endforeach
