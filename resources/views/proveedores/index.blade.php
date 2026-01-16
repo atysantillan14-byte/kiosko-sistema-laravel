@@ -21,23 +21,27 @@
                         Aquí podrás cargar proveedores, registrar condiciones de pago y controlar entregas.
                     </p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/70 bg-slate-50/80 px-4 py-3 text-sm text-slate-600">
+                <div class="inline-flex items-center gap-2 rounded-2xl border border-slate-200/70 bg-slate-50/80 px-4 py-3 text-sm text-slate-600">
+                    <span class="inline-flex h-2 w-2 rounded-full bg-blue-500/70"></span>
                     Próximamente disponible
                 </div>
             </div>
 
-            <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div class="app-card-soft p-4">
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Contactos centralizados</p>
-                    <p class="mt-2 text-sm text-slate-600">Acceso rápido a teléfonos, mails y responsables.</p>
-                </div>
-                <div class="app-card-soft p-4">
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Calendario de entregas</p>
-                    <p class="mt-2 text-sm text-slate-600">Seguimiento de abastecimiento en tiempo real.</p>
-                </div>
-                <div class="app-card-soft p-4">
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Condiciones y acuerdos</p>
-                    <p class="mt-2 text-sm text-slate-600">Notas rápidas para negociar mejor stock.</p>
+            <div class="mt-8">
+                <p class="text-sm font-semibold text-slate-700">Qué vas a poder hacer</p>
+                <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div class="app-card-soft p-4">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Contactos centralizados</p>
+                        <p class="mt-2 text-sm text-slate-600">Acceso rápido a teléfonos, mails y responsables.</p>
+                    </div>
+                    <div class="app-card-soft p-4">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Calendario de entregas</p>
+                        <p class="mt-2 text-sm text-slate-600">Seguimiento de abastecimiento en tiempo real.</p>
+                    </div>
+                    <div class="app-card-soft p-4">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Condiciones y acuerdos</p>
+                        <p class="mt-2 text-sm text-slate-600">Notas rápidas para negociar mejor stock.</p>
+                    </div>
                 </div>
             </div>
         </div>
