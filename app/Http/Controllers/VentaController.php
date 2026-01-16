@@ -70,6 +70,7 @@ class VentaController extends Controller
         if ($rangoInicio && $rangoFin) {
             $diasPromedio = $rangoInicio->diffInDays($rangoFin) + 1;
         }
+        $promedioDiario = $diasPromedio > 0 ? $totalDinero / $diasPromedio : 0;
 
         $ventas = $ventasQuery
             ->orderByDesc('id')
@@ -80,7 +81,7 @@ class VentaController extends Controller
             'ventas',
             'cantidadVentas',
             'totalDinero',
-            'diasPromedio',
+            'promedioDiario',
             'desde',
             'hasta',
             'buscar',
@@ -297,6 +298,7 @@ class VentaController extends Controller
         if ($rangoInicio && $rangoFin) {
             $diasPromedio = Carbon::parse($rangoInicio)->diffInDays(Carbon::parse($rangoFin)) + 1;
         }
+        $promedioDiario = $diasPromedio > 0 ? $totalNeto / $diasPromedio : 0;
 
         $rangos = [
             'desde' => $desde,
@@ -374,7 +376,7 @@ class VentaController extends Controller
             'totalDescuentos' => $totalDescuentos,
             'totalNeto' => $totalNeto,
             'ticketPromedio' => $ticketPromedio,
-            'diasPromedio' => $diasPromedio,
+            'promedioDiario' => $promedioDiario,
             'desglosePagos' => $desglosePagos,
             'efectivoVentas' => $efectivoVentas,
             'efectivoEsperado' => $efectivoEsperado,
