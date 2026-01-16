@@ -17,7 +17,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('categorias', CategoriaController::class);
     Route::resource('productos', ProductoController::class);
     Route::resource('ventas', VentaController::class);
-    Route::resource('proveedores', ProveedorController::class)->except(['show']);
+    Route::resource('proveedores', ProveedorController::class)
+        ->parameters(['proveedores' => 'proveedor'])
+        ->except(['show']);
 });
 
 Route::middleware('auth')->group(function () {
