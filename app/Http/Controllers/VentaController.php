@@ -209,6 +209,128 @@ class VentaController extends Controller
         return view('ventas.show', compact('venta'));
     }
 
+    public function cierre(Request $request)
+    {
+        $userId = Auth::id();
+        $turno = $request->query('turno');
+        $desde = $request->query('desde');
+        $hasta = $request->query('hasta');
+        $horaDesde = $request->query('hora_desde');
+        $horaHasta = $request->query('hora_hasta');
+
+        if ($turno) {
+            if ($turno === 'manana') { $horaDesde = '06:00'; $horaHasta = '13:59'; }
+            if ($turno === 'tarde') { $horaDesde = '14:00'; $horaHasta = '21:59'; }
+            if ($turno === 'noche') { $horaDesde = '22:00'; $horaHasta = '23:59'; }
+        }
+
+        $ventasQuery = Venta::query()
+            ->with('detalles')
+            ->where('estado', '!=', 'anulada')
+            ->where('user_id', $userId);
+
+        if ($desde) {
+            $ventasQuery->whereDate('created_at', '>=', $desde);
+        }
+        if ($hasta) {
+            $ventasQuery->whereDate('created_at', '<=', $hasta);
+        }
+
+        if ($horaDesde && $horaHasta) {
+            $ventasQuery->whereRaw("TIME(created_at) BETWEEN ? AND ?", [$horaDesde, $horaHasta]);
+        }
+
+        $ventas = (clone $ventasQuery)->get();
+
+        $anuladasQuery = Venta::query()
+            ->where('estado', 'anulada')
+            ->where('user_id', $userId);
+
+        if ($desde) {
+            $anuladasQuery->whereDate('created_at', '>=', $desde);
+        }
+        if ($hasta) {
+            $anuladasQuery->whereDate('created_at', '<=', $hasta);
+        }
+        if ($horaDesde && $horaHasta) {
+            $anuladasQuery->whereRaw("TIME(created_at) BETWEEN ? AND ?", [$horaDesde, $horaHasta]);
+        }
+
+        $cantidadVentas = $ventas->count();
+        $totalBruto = $ventas->sum(fn ($venta) => $venta->detalles->sum('subtotal'));
+        $totalNeto = $ventas->sum('total');
+        $totalDescuentos = max(0, $totalBruto - $totalNeto);
+        $ticketPromedio = $cantidadVentas > 0 ? $totalNeto / $cantidadVentas : 0;
+
+        $rangos = [
+            'desde' => $desde,
+            'hasta' => $hasta,
+            'hora_desde' => $horaDesde,
+            'hora_hasta' => $horaHasta,
+            'turno' => $turno,
+        ];
+
+        $metodosPago = $ventas->flatMap(function ($venta) {
+            $metodos = [];
+
+            if ($venta->metodo_pago === 'mixto') {
+                if ($venta->metodo_pago_primario) {
+                    $metodos[] = [
+                        'metodo' => $venta->metodo_pago_primario,
+                        'monto' => (float) $venta->monto_primario,
+                    ];
+                }
+                if ($venta->metodo_pago_secundario) {
+                    $metodos[] = [
+                        'metodo' => $venta->metodo_pago_secundario,
+                        'monto' => (float) $venta->monto_secundario,
+                    ];
+                }
+            } else {
+                $metodos[] = [
+                    'metodo' => $venta->metodo_pago,
+                    'monto' => (float) $venta->total,
+                ];
+            }
+
+            return $metodos;
+        });
+
+        $desglosePagos = $metodosPago
+            ->groupBy('metodo')
+            ->map(function ($items, $metodo) {
+                return [
+                    'metodo' => $metodo,
+                    'monto' => $items->sum('monto'),
+                    'transacciones' => $items->count(),
+                ];
+            })
+            ->sortByDesc('monto')
+            ->values();
+
+        $efectivoVentas = $metodosPago
+            ->where('metodo', 'efectivo')
+            ->sum('monto');
+
+        $efectivoEsperado = $efectivoVentas;
+
+        return view('ventas.cierre', [
+            'rangos' => $rangos,
+            'rangoInicio' => $ventas->min('created_at'),
+            'rangoFin' => $ventas->max('created_at'),
+            'cantidadVentas' => $cantidadVentas,
+            'totalBruto' => $totalBruto,
+            'totalDescuentos' => $totalDescuentos,
+            'totalNeto' => $totalNeto,
+            'ticketPromedio' => $ticketPromedio,
+            'desglosePagos' => $desglosePagos,
+            'efectivoVentas' => $efectivoVentas,
+            'efectivoEsperado' => $efectivoEsperado,
+            'anulacionesCantidad' => $anuladasQuery->count(),
+            'anulacionesTotal' => $anuladasQuery->sum('total'),
+        ]);
+    }
+
     public function edit(Venta $venta)
     {
         $this->authorizeVentaEdicion($venta);

@@ -16,6 +16,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('categorias', CategoriaController::class);
     Route::resource('productos', ProductoController::class);
+    Route::get('ventas/cierre', [VentaController::class, 'cierre'])->name('ventas.cierre');
     Route::resource('ventas', VentaController::class);
     Route::resource('proveedores', ProveedorController::class)
         ->parameters(['proveedores' => 'proveedor'])

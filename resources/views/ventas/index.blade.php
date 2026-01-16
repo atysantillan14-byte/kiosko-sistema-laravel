@@ -6,10 +6,16 @@
                 <p class="app-subtitle">Indicadores clave y control de filtros para el período seleccionado.</p>
             </div>
 
-            <a href="{{ route('ventas.create') }}" class="app-btn-primary">
-                <i class="fas fa-plus"></i>
-                Nueva venta
-            </a>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('ventas.cierre') }}" class="app-btn-secondary">
+                    <i class="fas fa-cash-register"></i>
+                    Cierre de caja
+                </a>
+                <a href="{{ route('ventas.create') }}" class="app-btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Nueva venta
+                </a>
+            </div>
         </div>
     </x-slot>
 
