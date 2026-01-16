@@ -94,6 +94,12 @@ class ProveedorController extends Controller
         $data['activo'] = $request->boolean('activo');
         $data['productos_detalle'] = $this->sanitizeProductosDetalle($request->input('productos_detalle', []));
 
+        if (! $this->ensureProveedoresTable()) {
+            return back()
+                ->withInput()
+                ->with('error', 'La tabla de proveedores no está disponible. Ejecutá las migraciones para crearla.');
+        }
+
         $proveedor->update($data);
 
         return redirect()->route('proveedores.index')->with('success', 'Proveedor actualizado.');
@@ -109,6 +115,8 @@ class ProveedorController extends Controller
     private function ensureProveedoresTable(): bool
     {
         if (Schema::hasTable('proveedores')) {
+            $this->ensureProveedoresColumns();
+
             return true;
         }
 
@@ -132,6 +140,63 @@ class ProveedorController extends Controller
         });
 
         return Schema::hasTable('proveedores');
+    }
+
+    private function ensureProveedoresColumns(): void
+    {
+        Schema::table('proveedores', function (Blueprint $table) {
+            if (! Schema::hasColumn('proveedores', 'contacto')) {
+                $table->string('contacto')->nullable()->after('nombre');
+            }
+
+            if (! Schema::hasColumn('proveedores', 'telefono')) {
+                $table->string('telefono', 50)->nullable()->after('contacto');
+            }
+
+            if (! Schema::hasColumn('proveedores', 'email')) {
+                $table->string('email')->nullable()->after('telefono');
+            }
+
+            if (! Schema::hasColumn('proveedores', 'direccion')) {
+                $table->string('direccion')->nullable()->after('email');
+            }
+
+            if (! Schema::hasColumn('proveedores', 'condiciones_pago')) {
+                $table->string('condiciones_pago')->nullable()->after('direccion');
+            }
+
+            if (! Schema::hasColumn('proveedores', 'productos')) {
+                $table->text('productos')->nullable()->after('condiciones_pago');
+            }
+
+            if (! Schema::hasColumn('proveedores', 'productos_detalle')) {
+                $table->json('productos_detalle')->nullable()->after('productos');
+            }
+
+            if (! Schema::hasColumn('proveedores', 'cantidad')) {
+                $table->unsignedInteger('cantidad')->nullable()->after('productos_detalle');
+            }
+
+            if (! Schema::hasColumn('proveedores', 'hora')) {
+                $table->string('hora', 5)->nullable()->after('cantidad');
+            }
+
+            if (! Schema::hasColumn('proveedores', 'pago')) {
+                $table->decimal('pago', 10, 2)->nullable()->after('hora');
+            }
+
+            if (! Schema::hasColumn('proveedores', 'deuda')) {
+                $table->decimal('deuda', 10, 2)->nullable()->after('pago');
+            }
+
+            if (! Schema::hasColumn('proveedores', 'notas')) {
+                $table->text('notas')->nullable()->after('deuda');
+            }
+
+            if (! Schema::hasColumn('proveedores', 'activo')) {
+                $table->boolean('activo')->default(true)->after('notas');
+            }
+        });
     }
 
     private function sanitizeProductosDetalle(array $productosDetalle): ?array
