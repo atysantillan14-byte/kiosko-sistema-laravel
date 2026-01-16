@@ -9,7 +9,7 @@
             <div class="flex items-center gap-8">
                 <a href="{{ route('home') }}" class="flex items-center gap-3">
                     @if($kioskoLogo)
-                        <img src="{{ $kioskoLogo }}" alt="Logo" class="h-10 w-10 rounded-2xl object-cover shadow-sm ring-1 ring-slate-200/80">
+                        <img src="{{ $kioskoLogo }}" alt="Logo de {{ $kioskoNombre }}" class="h-10 w-10 rounded-2xl object-cover shadow-sm ring-1 ring-slate-200/80">
                     @else
                         <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-500 text-white shadow-sm">
                             <i class="fas fa-store text-lg"></i>
@@ -17,7 +17,6 @@
                     @endif
                     <div class="leading-tight">
                         <div class="text-sm font-semibold text-slate-900">{{ $kioskoNombre }}</div>
-                        <div class="text-xs text-slate-500">SaaS de gestión</div>
                     </div>
                 </a>
 
