@@ -23,6 +23,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('ventas', VentaController::class);
     Route::post('proveedores/{proveedor}/acciones', [ProveedorController::class, 'storeAccion'])
         ->name('proveedores.acciones.store');
+    Route::delete('proveedores/{proveedor}/acciones/{accion}', [ProveedorController::class, 'destroyAccion'])
+        ->whereNumber('accion')
+        ->name('proveedores.acciones.destroy');
     Route::resource('proveedores', ProveedorController::class)
         ->parameters(['proveedores' => 'proveedor']);
 });

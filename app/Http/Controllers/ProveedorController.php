@@ -263,6 +263,27 @@ class ProveedorController extends Controller
         return redirect()->route('proveedores.index')->with('success', 'Proveedor eliminado.');
     }
 
+    public function destroyAccion(Proveedor $proveedor, int $accion): RedirectResponse
+    {
+        $acciones = $proveedor->acciones ?? [];
+
+        if (! array_key_exists($accion, $acciones)) {
+            return redirect()
+                ->route('proveedores.show', $proveedor)
+                ->with('error', 'La acción que querés eliminar no existe.');
+        }
+
+        unset($acciones[$accion]);
+
+        $proveedor->update([
+            'acciones' => $this->sanitizeAcciones(array_values($acciones)),
+        ]);
+
+        return redirect()
+            ->route('proveedores.show', $proveedor)
+            ->with('success', 'Acción eliminada correctamente.');
+    }
+
     private function ensureProveedoresTable(): bool
     {
         if (Schema::hasTable('proveedores')) {
