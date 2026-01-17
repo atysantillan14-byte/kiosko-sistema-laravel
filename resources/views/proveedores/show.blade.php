@@ -292,11 +292,6 @@
                             @endforeach
                         </div>
                     </div>
-                    <div>
-                        <label class="app-label">Monto</label>
-                        <p class="text-xs text-slate-500">Ingresá el precio total una vez que cargues los productos.</p>
-                        <input type="number" name="monto" value="{{ old('monto') }}" class="app-input" min="0" step="0.01" placeholder="0.00" required>
-                    </div>
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                         <div class="rounded-xl border border-slate-200/70 bg-white p-3">
                             <label class="app-label">Pago productos</label>
@@ -326,7 +321,6 @@
                                         <th>Fecha</th>
                                         <th>Tipo</th>
                                         <th>Detalle</th>
-                                        <th>Monto</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-200/70">
@@ -336,22 +330,41 @@
                                                 ? \Illuminate\Support\Carbon::parse($accion['fecha'])->format('d/m/Y')
                                                 : 'Sin fecha';
                                             $horaAccion = $accion['hora'] ?: 'Sin hora';
-                                            $montoTexto = $accion['monto'] !== null
-                                                ? '$' . number_format($accion['monto'], 2, ',', '.')
-                                                : 'Sin monto';
                                             $cantidadTexto = $accion['cantidad'] ?? null;
                                             $detalles = [];
+                                            $tipoAccion = strtolower($accion['tipo'] ?? '');
                                             if (!empty($accion['productos'])) {
                                                 $detalles[] = 'Productos: ' . $accion['productos'];
                                             }
                                             if ($cantidadTexto !== null && $cantidadTexto !== '') {
                                                 $detalles[] = 'Cantidad: ' . $cantidadTexto;
                                             }
+                                            if ($accion['monto'] !== null) {
+                                                $montoFormato = '$' . number_format($accion['monto'], 2, ',', '.');
+                                                if (str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'deuda')) {
+                                                    $detalles[] = 'Pago deuda: ' . $montoFormato;
+                                                } elseif (str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'producto')) {
+                                                    $detalles[] = 'Pago productos: ' . $montoFormato;
+                                                } elseif (str_starts_with($tipoAccion, 'pago')) {
+                                                    $detalles[] = 'Pago: ' . $montoFormato;
+                                                } elseif (str_contains($tipoAccion, 'producto')) {
+                                                    $detalles[] = 'Compra productos: ' . $montoFormato;
+                                                }
+                                            }
                                             if (array_key_exists('deuda_pendiente', $accion) && $accion['deuda_pendiente'] !== null && $accion['deuda_pendiente'] !== '') {
                                                 $detalles[] = 'Deuda: $' . number_format((float) $accion['deuda_pendiente'], 2, ',', '.');
                                             }
                                             if (!empty($accion['notas'])) {
                                                 $detalles[] = 'Notas: ' . $accion['notas'];
+                                            }
+                                            if (empty($detalles)) {
+                                                if (str_contains($tipoAccion, 'producto') && ! str_starts_with($tipoAccion, 'pago')) {
+                                                    $detalles[] = 'Compra de productos';
+                                                } elseif (str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'deuda')) {
+                                                    $detalles[] = 'Pago de deuda';
+                                                } elseif (str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'producto')) {
+                                                    $detalles[] = 'Pago de productos';
+                                                }
                                             }
                                         @endphp
                                         <tr>
@@ -367,9 +380,6 @@
                                                 <div class="text-sm text-slate-700">
                                                     {{ $detalles ? implode(' · ', $detalles) : 'Sin detalles adicionales' }}
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <span class="text-sm text-slate-700">{{ $montoTexto }}</span>
                                             </td>
                                         </tr>
                                     @endforeach
