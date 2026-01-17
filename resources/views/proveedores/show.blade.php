@@ -218,27 +218,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-4 rounded-2xl border border-slate-200/70 bg-white p-4">
-                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Productos del proveedor</div>
-                    <div class="mt-3 text-sm text-slate-700">
-                        @if ($productosBaseDetalle->isNotEmpty())
-                            <ul class="space-y-1">
-                                @foreach ($productosBaseDetalle as $detalle)
-                                    <li>
-                                        {{ $detalle['nombre'] ?? 'Producto' }}
-                                        @if (isset($detalle['cantidad']) && $detalle['cantidad'] !== '')
-                                            <span class="text-xs text-slate-500">({{ $detalle['cantidad'] }})</span>
-                                        @endif
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @elseif ($productosBaseTexto)
-                            {{ $productosBaseTexto }}
-                        @else
-                            <span class="text-xs text-slate-500">Sin productos registrados.</span>
-                        @endif
-                    </div>
-                </div>
                 <form class="mt-5 space-y-4 rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4" method="POST" action="{{ route('proveedores.acciones.store', $proveedor) }}">
                     @csrf
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
@@ -321,6 +300,7 @@
                                         <th>Fecha</th>
                                         <th>Tipo</th>
                                         <th>Detalle</th>
+                                        <th class="text-right">Monto</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-200/70">
@@ -333,26 +313,14 @@
                                             $cantidadTexto = $accion['cantidad'] ?? null;
                                             $detalles = [];
                                             $tipoAccion = strtolower($accion['tipo'] ?? '');
-                                            if (!empty($accion['productos'])) {
+                                            if (str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'deuda')) {
+                                                $detalles[] = 'Deuda pendiente pagada';
+                                            }
+                                            if (! empty($accion['productos'])) {
                                                 $detalles[] = 'Productos: ' . $accion['productos'];
                                             }
                                             if ($cantidadTexto !== null && $cantidadTexto !== '') {
                                                 $detalles[] = 'Cantidad: ' . $cantidadTexto;
-                                            }
-                                            if ($accion['monto'] !== null) {
-                                                $montoFormato = '$' . number_format($accion['monto'], 2, ',', '.');
-                                                if (str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'deuda')) {
-                                                    $detalles[] = 'Pago deuda: ' . $montoFormato;
-                                                } elseif (str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'producto')) {
-                                                    $detalles[] = 'Pago productos: ' . $montoFormato;
-                                                } elseif (str_starts_with($tipoAccion, 'pago')) {
-                                                    $detalles[] = 'Pago: ' . $montoFormato;
-                                                } elseif (str_contains($tipoAccion, 'producto')) {
-                                                    $detalles[] = 'Compra productos: ' . $montoFormato;
-                                                }
-                                            }
-                                            if (array_key_exists('deuda_pendiente', $accion) && $accion['deuda_pendiente'] !== null && $accion['deuda_pendiente'] !== '') {
-                                                $detalles[] = 'Deuda: $' . number_format((float) $accion['deuda_pendiente'], 2, ',', '.');
                                             }
                                             if (!empty($accion['notas'])) {
                                                 $detalles[] = 'Notas: ' . $accion['notas'];
@@ -361,11 +329,14 @@
                                                 if (str_contains($tipoAccion, 'producto') && ! str_starts_with($tipoAccion, 'pago')) {
                                                     $detalles[] = 'Compra de productos';
                                                 } elseif (str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'deuda')) {
-                                                    $detalles[] = 'Pago de deuda';
+                                                    $detalles[] = 'Deuda pendiente pagada';
                                                 } elseif (str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'producto')) {
                                                     $detalles[] = 'Pago de productos';
+                                                } elseif (str_starts_with($tipoAccion, 'pago')) {
+                                                    $detalles[] = 'Pago registrado';
                                                 }
                                             }
+                                            $montoAccion = $accion['monto'] ?? null;
                                         @endphp
                                         <tr>
                                             <td class="font-semibold text-slate-900">#{{ $loop->iteration }}</td>
@@ -380,6 +351,9 @@
                                                 <div class="text-sm text-slate-700">
                                                     {{ $detalles ? implode(' · ', $detalles) : 'Sin detalles adicionales' }}
                                                 </div>
+                                            </td>
+                                            <td class="text-right text-sm text-slate-700">
+                                                {{ $montoAccion !== null ? '$' . number_format($montoAccion, 2, ',', '.') : '—' }}
                                             </td>
                                         </tr>
                                     @endforeach
