@@ -152,6 +152,16 @@
         $deudaPendienteActualMonto = $deudaPendienteActual !== null
             ? (float) $deudaPendienteActual['deuda_pendiente']
             : null;
+        $deudaPendienteReferencia = $accionesTimeline
+            ->filter(function ($accion) {
+                return ($accion['deuda_pendiente'] ?? null) !== null && $accion['deuda_pendiente'] !== '';
+            })
+            ->last();
+        $deudaPendienteReferenciaMonto = $deudaPendienteReferencia !== null
+            ? (float) $deudaPendienteReferencia['deuda_pendiente']
+            : null;
+        $deudaPendienteReferenciaTimestamp = $deudaPendienteReferencia['timestamp'] ?? null;
+        $deudaPendienteReferenciaIndice = $deudaPendienteReferencia['accion_index'] ?? null;
         $productosCantidadTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['cantidad'] ?? 0)) + $productosBaseCantidad;
         $productosMontoTotal = $accionesProductosCalculo->sum(fn ($accion) => $resolveDeuda($accion));
         $deudaAccionesTotal = $accionesCalculo
@@ -164,10 +174,28 @@
                 return (float) ($accion['deuda_pendiente'] ?? $accion['monto'] ?? 0);
             });
         $pagosDeudaTotal = $accionesCalculo
-            ->filter(function ($accion) {
+            ->filter(function ($accion) use ($deudaPendienteReferenciaTimestamp, $deudaPendienteReferenciaIndice) {
                 $tipo = strtolower($accion['tipo'] ?? '');
 
-                return str_starts_with($tipo, 'pago') && ($tipo === 'pago' || str_contains($tipo, 'deuda'));
+                if (! (str_starts_with($tipo, 'pago') && ($tipo === 'pago' || str_contains($tipo, 'deuda')))) {
+                    return false;
+                }
+
+                if (! $deudaPendienteReferenciaTimestamp) {
+                    return true;
+                }
+
+                $accionTimestamp = $accion['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1);
+
+                if ($accionTimestamp->greaterThan($deudaPendienteReferenciaTimestamp)) {
+                    return true;
+                }
+
+                if ($accionTimestamp->equalTo($deudaPendienteReferenciaTimestamp) && $deudaPendienteReferenciaIndice !== null) {
+                    return ($accion['accion_index'] ?? -1) > $deudaPendienteReferenciaIndice;
+                }
+
+                return false;
             })
             ->sum(fn ($accion) => $resolvePago($accion));
         $pagosTotal = $pagosAccionesTotal + $pagosBase;
@@ -175,7 +203,10 @@
             ? ($deudaBase >= $deudaAccionesTotal ? $deudaBase : $deudaBase + $deudaAccionesTotal)
             : $deudaBase;
         $deudaBaseAjustada = $deudaRegistrada > 0 ? $deudaRegistrada : $productosMontoTotal;
-        $deudaActual = $deudaBaseAjustada - $pagosDeudaTotal;
+        $deudaBaseReferencia = $deudaPendienteReferenciaMonto !== null
+            ? $deudaPendienteReferenciaMonto
+            : $deudaBaseAjustada;
+        $deudaActual = $deudaBaseReferencia - $pagosDeudaTotal;
         $deudaActualCalculada = max($deudaActual, 0);
         $deudaActualDisplay = $deudaPendienteActualMonto !== null
             ? max($deudaPendienteActualMonto, 0)
