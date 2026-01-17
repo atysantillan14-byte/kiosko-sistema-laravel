@@ -194,6 +194,10 @@
                             <input type="time" name="hora" value="{{ old('hora', now()->format('H:i')) }}" class="app-input">
                         </div>
                         <div>
+                            <label class="app-label">Próxima visita</label>
+                            <input type="date" name="proxima_visita" value="{{ old('proxima_visita', $proveedor->proxima_visita?->format('Y-m-d')) }}" class="app-input">
+                        </div>
+                        <div>
                             <label class="app-label">Tipo</label>
                             <select name="tipo" class="app-input">
                                 @foreach (['Pago deuda', 'Productos', 'Visita', 'Nota', 'Otro'] as $tipo)
@@ -201,10 +205,10 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div>
-                            <label class="app-label">Monto</label>
-                            <input type="number" name="monto" value="{{ old('monto') }}" class="app-input" min="0" step="0.01" placeholder="0.00">
-                        </div>
+                    </div>
+                    <div>
+                        <label class="app-label">Monto</label>
+                        <input type="number" name="monto" value="{{ old('monto') }}" class="app-input" min="0" step="0.01" placeholder="0.00">
                     </div>
                     @php
                         $productosDetalle = old('productos_detalle', [['nombre' => '', 'cantidad' => '']]);
@@ -235,18 +239,14 @@
                             @endforeach
                         </div>
                     </div>
-                    <div class="rounded-xl border border-slate-200/70 bg-white p-3">
-                        <label class="app-label">Pago productos</label>
-                        <input type="number" name="monto_productos" value="{{ old('monto_productos') }}" class="app-input" min="0" step="0.01" placeholder="0.00">
-                    </div>
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-                        <div>
-                            <label class="app-label">Notas</label>
-                            <input name="notas" value="{{ old('notas') }}" class="app-input" placeholder="Detalle de pago o entrega">
+                        <div class="rounded-xl border border-slate-200/70 bg-white p-3">
+                            <label class="app-label">Pago productos</label>
+                            <input type="number" name="monto_productos" value="{{ old('monto_productos') }}" class="app-input" min="0" step="0.01" placeholder="0.00">
                         </div>
-                        <div>
-                            <label class="app-label">Productos (nota rápida)</label>
-                            <input name="productos" value="{{ old('productos') }}" class="app-input" placeholder="Detalle adicional si aplica">
+                        <div class="rounded-xl border border-slate-200/70 bg-white p-3">
+                            <label class="app-label">Deuda pendiente</label>
+                            <input type="number" name="deuda_pendiente" value="{{ old('deuda_pendiente') }}" class="app-input" min="0" step="0.01" placeholder="0.00">
                         </div>
                     </div>
                     <div class="flex justify-end">

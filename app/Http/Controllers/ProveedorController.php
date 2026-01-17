@@ -110,6 +110,7 @@ class ProveedorController extends Controller
             'tipo' => ['nullable', 'string', 'max:100'],
             'fecha' => ['nullable', 'date'],
             'hora' => ['nullable', 'date_format:H:i'],
+            'proxima_visita' => ['nullable', 'date'],
             'productos' => ['nullable', 'string', 'max:1000'],
             'productos_detalle' => ['nullable', 'array'],
             'productos_detalle.*.nombre' => ['nullable', 'string', 'max:255'],
@@ -117,6 +118,7 @@ class ProveedorController extends Controller
             'cantidad' => ['nullable', 'integer', 'min:0'],
             'monto' => ['nullable', 'numeric', 'min:0'],
             'monto_productos' => ['nullable', 'numeric', 'min:0'],
+            'deuda_pendiente' => ['nullable', 'numeric', 'min:0'],
             'notas' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -183,6 +185,12 @@ class ProveedorController extends Controller
         $updates = [
             'acciones' => $this->sanitizeAcciones($accionesActuales),
         ];
+        if (filled($data['proxima_visita'] ?? null)) {
+            $updates['proxima_visita'] = $data['proxima_visita'];
+        }
+        if (filled($data['deuda_pendiente'] ?? null)) {
+            $updates['deuda'] = $data['deuda_pendiente'];
+        }
 
         $proveedor->update($updates);
 
