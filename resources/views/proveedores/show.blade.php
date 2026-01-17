@@ -114,8 +114,28 @@
         $productosBaseTexto = $productosBaseTexto ?: ($proveedor->productos ?? null);
 
         $pagosAccionesTotal = $accionesTimeline->sum(fn ($accion) => $resolvePago($accion));
+        $ultimoPagoDeuda = $accionesTimeline
+            ->filter(function ($accion) {
+                $tipo = strtolower($accion['tipo'] ?? '');
+
+                return str_starts_with($tipo, 'pago') && ($tipo === 'pago' || str_contains($tipo, 'deuda'));
+            })
+            ->last();
+        $ultimoPagoDeudaTimestamp = $ultimoPagoDeuda['timestamp'] ?? null;
         $deudaPendienteActual = $accionesTimeline
-            ->filter(fn ($accion) => $accion['deuda_pendiente'] !== null && $accion['deuda_pendiente'] !== '')
+            ->filter(function ($accion) use ($ultimoPagoDeudaTimestamp) {
+                if ($accion['deuda_pendiente'] === null || $accion['deuda_pendiente'] === '') {
+                    return false;
+                }
+
+                if (! $ultimoPagoDeudaTimestamp) {
+                    return true;
+                }
+
+                $accionTimestamp = $accion['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1);
+
+                return $accionTimestamp->greaterThan($ultimoPagoDeudaTimestamp);
+            })
             ->last();
         $deudaPendienteActualMonto = $deudaPendienteActual !== null
             ? (float) $deudaPendienteActual['deuda_pendiente']
