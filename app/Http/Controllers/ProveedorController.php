@@ -111,10 +111,37 @@ class ProveedorController extends Controller
             'fecha' => ['nullable', 'date'],
             'hora' => ['nullable', 'date_format:H:i'],
             'productos' => ['nullable', 'string', 'max:1000'],
+            'productos_detalle' => ['nullable', 'array'],
+            'productos_detalle.*.nombre' => ['nullable', 'string', 'max:255'],
+            'productos_detalle.*.cantidad' => ['nullable', 'integer', 'min:0'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
             'monto' => ['nullable', 'numeric', 'min:0'],
             'notas' => ['nullable', 'string', 'max:1000'],
         ]);
+
+        $productosDetalle = $this->sanitizeProductosDetalle($request->input('productos_detalle', []));
+        $productosDetalleResumen = null;
+        $cantidadDetalle = null;
+
+        if ($productosDetalle) {
+            $productosDetalleResumen = collect($productosDetalle)
+                ->map(function ($item) {
+                    $nombre = $item['nombre'] ?? null;
+                    $cantidad = $item['cantidad'] ?? null;
+
+                    if ($nombre && $cantidad !== null) {
+                        return sprintf('%s (%s)', $nombre, $cantidad);
+                    }
+
+                    return $nombre ?: null;
+                })
+                ->filter()
+                ->implode(', ');
+
+            $cantidadDetalle = collect($productosDetalle)
+                ->map(fn ($item) => (int) ($item['cantidad'] ?? 0))
+                ->sum();
+        }
 
         $fecha = filled($data['fecha'] ?? null)
             ? Carbon::parse($data['fecha'])->toDateString()
@@ -127,8 +154,9 @@ class ProveedorController extends Controller
             'fecha' => $fecha,
             'hora' => $hora,
             'tipo' => filled($data['tipo'] ?? null) ? $data['tipo'] : 'Acción',
-            'productos' => isset($data['productos']) ? trim((string) $data['productos']) : null,
-            'cantidad' => $data['cantidad'] ?? null,
+            'productos' => $productosDetalleResumen
+                ?? (isset($data['productos']) ? trim((string) $data['productos']) : null),
+            'cantidad' => $productosDetalle ? ($cantidadDetalle ?: null) : ($data['cantidad'] ?? null),
             'monto' => $data['monto'] ?? null,
             'notas' => isset($data['notas']) ? trim((string) $data['notas']) : null,
         ];
@@ -140,14 +168,16 @@ class ProveedorController extends Controller
         ];
 
         $tipo = strtolower((string) ($accion['tipo'] ?? ''));
-        if ($tipo === 'pago' && $accion['monto'] !== null) {
+        $esPago = str_starts_with($tipo, 'pago');
+        $esPagoDeuda = $tipo === 'pago' || str_contains($tipo, 'deuda');
+        if ($esPago && $accion['monto'] !== null) {
             $monto = (float) $accion['monto'];
             $pagoActual = (float) ($proveedor->pago ?? 0);
             $deudaActual = (float) ($proveedor->deuda ?? 0);
 
             $updates['pago'] = $pagoActual + $monto;
 
-            if ($deudaActual > 0) {
+            if ($deudaActual > 0 && $esPagoDeuda) {
                 $updates['deuda'] = max($deudaActual - $monto, 0);
             }
         }
