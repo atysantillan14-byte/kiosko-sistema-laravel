@@ -163,28 +163,13 @@ class ProveedorController extends Controller
                 ?? (isset($data['productos']) ? trim((string) $data['productos']) : null),
             'cantidad' => $productosDetalle ? ($cantidadDetalle ?: null) : ($data['cantidad'] ?? null),
             'monto' => $data['monto'] ?? null,
+            'monto_productos' => $data['monto_productos'] ?? null,
             'deuda_pendiente' => $data['deuda_pendiente'] ?? null,
             'notas' => isset($data['notas']) ? trim((string) $data['notas']) : null,
         ];
-        $montoProductos = $data['monto_productos'] ?? null;
-        $accionPagoProductos = null;
-        if ($montoProductos !== null) {
-            $accionPagoProductos = [
-                'fecha' => $fecha,
-                'hora' => $hora,
-                'tipo' => 'Pago productos',
-                'productos' => null,
-                'cantidad' => null,
-                'monto' => $montoProductos,
-                'notas' => null,
-            ];
-        }
 
         $accionesActuales = $proveedor->acciones ?? [];
         $accionesActuales[] = $accion;
-        if ($accionPagoProductos) {
-            $accionesActuales[] = $accionPagoProductos;
-        }
         $updates = [
             'acciones' => $this->sanitizeAcciones($accionesActuales),
         ];

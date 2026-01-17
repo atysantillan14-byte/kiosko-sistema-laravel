@@ -33,6 +33,7 @@
                     'productos' => $accion['productos'] ?? null,
                     'cantidad' => $accion['cantidad'] ?? null,
                     'monto' => $accion['monto'] ?? null,
+                    'monto_productos' => $accion['monto_productos'] ?? null,
                     'deuda_pendiente' => $accion['deuda_pendiente'] ?? null,
                     'notas' => $accion['notas'] ?? null,
                     'timestamp' => $timestamp,
@@ -110,10 +111,10 @@
             ->filter(function ($accion) {
                 $tipo = strtolower($accion['tipo'] ?? '');
 
-                return str_starts_with($tipo, 'pago') && str_contains($tipo, 'producto');
+                return str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago');
             })
-            ->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
-        $pagosTotal = $pagosAccionesTotal + $pagosBase;
+            ->sum(fn ($accion) => (float) ($accion['monto_productos'] ?? 0));
+        $pagosTotal = $pagosAccionesTotal + $pagosProductosTotal + $pagosBase;
         $deudaBaseCalculo = $accionDeudaReferencia ? (float) $accionDeudaReferencia['deuda_pendiente'] : $deudaBase;
         $deudaActual = $deudaBaseCalculo + ($productosMontoTotal - $pagosDeudaTotal - $pagosProductosTotal);
         $deudaActualDisplay = max($deudaActual, 0);
@@ -127,6 +128,7 @@
                 'productos' => null,
                 'cantidad' => null,
                 'monto' => $pagosBase,
+                'monto_productos' => null,
                 'notas' => 'Pago registrado previamente.',
             ]);
         }
@@ -140,6 +142,7 @@
                 'productos' => null,
                 'cantidad' => null,
                 'monto' => $deudaBase,
+                'monto_productos' => null,
                 'notas' => 'Deuda registrada previamente.',
             ]);
         }
@@ -153,6 +156,7 @@
                 'productos' => $productosBaseTexto,
                 'cantidad' => $productosBaseCantidad ?: null,
                 'monto' => null,
+                'monto_productos' => null,
                 'notas' => 'Productos registrados previamente.',
             ]);
         }
@@ -330,13 +334,12 @@
                                                     $detalles[] = 'Compra de productos';
                                                 } elseif (str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'deuda')) {
                                                     $detalles[] = 'Deuda pendiente pagada';
-                                                } elseif (str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'producto')) {
-                                                    $detalles[] = 'Pago de productos';
                                                 } elseif (str_starts_with($tipoAccion, 'pago')) {
                                                     $detalles[] = 'Pago registrado';
                                                 }
                                             }
                                             $montoAccion = $accion['monto'] ?? null;
+                                            $montoProductosAccion = $accion['monto_productos'] ?? null;
                                         @endphp
                                         <tr>
                                             <td class="font-semibold text-slate-900">#{{ $loop->iteration }}</td>
@@ -353,7 +356,11 @@
                                                 </div>
                                             </td>
                                             <td class="text-right text-sm text-slate-700">
-                                                {{ $montoAccion !== null ? '$' . number_format($montoAccion, 2, ',', '.') : '—' }}
+                                                {{ $montoAccion !== null
+                                                    ? '$' . number_format($montoAccion, 2, ',', '.')
+                                                    : ($montoProductosAccion !== null
+                                                        ? '$' . number_format($montoProductosAccion, 2, ',', '.')
+                                                        : '—') }}
                                             </td>
                                         </tr>
                                     @endforeach
