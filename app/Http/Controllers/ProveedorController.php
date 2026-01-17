@@ -52,6 +52,7 @@ class ProveedorController extends Controller
             'acciones.*.cantidad' => ['nullable', 'integer', 'min:0'],
             'acciones.*.monto' => ['nullable', 'numeric', 'min:0'],
             'acciones.*.notas' => ['nullable', 'string', 'max:1000'],
+            'fecha_visita' => ['required', 'date'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
             'hora' => ['nullable', 'date_format:H:i'],
             'proxima_visita' => ['nullable', 'date'],
@@ -61,9 +62,26 @@ class ProveedorController extends Controller
             'activo' => ['nullable', 'boolean'],
         ]);
 
+        $fechaVisita = $data['fecha_visita'] ?? null;
+        unset($data['fecha_visita']);
+
         $data['activo'] = $request->boolean('activo');
         $data['productos_detalle'] = $this->sanitizeProductosDetalle($request->input('productos_detalle', []));
-        $data['acciones'] = $this->sanitizeAcciones($request->input('acciones', []));
+        $acciones = $this->sanitizeAcciones($request->input('acciones', [])) ?? [];
+
+        if ($fechaVisita) {
+            $acciones[] = [
+                'fecha' => Carbon::parse($fechaVisita)->toDateString(),
+                'hora' => null,
+                'tipo' => 'Visita inicial',
+                'productos' => null,
+                'cantidad' => null,
+                'monto' => null,
+                'notas' => 'Alta de proveedor.',
+            ];
+        }
+
+        $data['acciones'] = $this->sanitizeAcciones($acciones);
 
         if (! $this->ensureProveedoresTable()) {
             return back()
@@ -117,9 +135,24 @@ class ProveedorController extends Controller
 
         $accionesActuales = $proveedor->acciones ?? [];
         $accionesActuales[] = $accion;
-        $proveedor->update([
+        $updates = [
             'acciones' => $this->sanitizeAcciones($accionesActuales),
-        ]);
+        ];
+
+        $tipo = strtolower((string) ($accion['tipo'] ?? ''));
+        if ($tipo === 'pago' && $accion['monto'] !== null) {
+            $monto = (float) $accion['monto'];
+            $pagoActual = (float) ($proveedor->pago ?? 0);
+            $deudaActual = (float) ($proveedor->deuda ?? 0);
+
+            $updates['pago'] = $pagoActual + $monto;
+
+            if ($deudaActual > 0) {
+                $updates['deuda'] = max($deudaActual - $monto, 0);
+            }
+        }
+
+        $proveedor->update($updates);
 
         return redirect()
             ->route('proveedores.show', $proveedor)
