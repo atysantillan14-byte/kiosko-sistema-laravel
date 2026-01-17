@@ -46,9 +46,15 @@
             ->filter(fn ($accion) => str_starts_with(strtolower($accion['tipo'] ?? ''), 'pago'))
             ->values();
         $accionesPagosDeuda = $accionesPagos
-            ->filter(fn ($accion) => in_array(strtolower($accion['tipo'] ?? ''), ['pago', 'pago deuda'], true))
+            ->filter(function ($accion) {
+                $tipo = strtolower($accion['tipo'] ?? '');
+
+                return $tipo === 'pago' || str_contains($tipo, 'deuda');
+            })
             ->values();
-        $accionesProductos = $accionesTimeline->where('tipo', 'Productos')->values();
+        $accionesProductos = $accionesTimeline
+            ->filter(fn ($accion) => str_contains(strtolower($accion['tipo'] ?? ''), 'producto'))
+            ->values();
         $accionesOtros = $accionesTimeline
             ->reject(function ($accion) {
                 $tipo = strtolower($accion['tipo'] ?? '');
@@ -57,8 +63,26 @@
             })
             ->values();
 
+        $productosBaseDetalle = collect($proveedor->productos_detalle ?? []);
+        $productosBaseCantidad = $productosBaseDetalle->sum(fn ($item) => (float) ($item['cantidad'] ?? 0));
+        $productosBaseCantidad = $productosBaseCantidad > 0 ? $productosBaseCantidad : (float) ($proveedor->cantidad ?? 0);
+        $productosBaseTexto = $productosBaseDetalle
+            ->map(function ($item) {
+                $nombre = $item['nombre'] ?? null;
+                $cantidad = $item['cantidad'] ?? null;
+
+                if ($nombre && $cantidad !== null) {
+                    return sprintf('%s (%s)', $nombre, $cantidad);
+                }
+
+                return $nombre ?: null;
+            })
+            ->filter()
+            ->implode(', ');
+        $productosBaseTexto = $productosBaseTexto ?: ($proveedor->productos ?? null);
+
         $pagosAccionesTotal = $accionesPagos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
-        $productosCantidadTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['cantidad'] ?? 0));
+        $productosCantidadTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['cantidad'] ?? 0)) + $productosBaseCantidad;
         $productosMontoTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
         $pagosDeudaTotal = $accionesPagosDeuda->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
         $pagosTotal = $pagosAccionesTotal + $pagosBase;
@@ -87,6 +111,19 @@
                 'cantidad' => null,
                 'monto' => $deudaBase,
                 'notas' => 'Deuda registrada previamente.',
+            ]);
+        }
+
+        $accionesProductosDisplay = $accionesProductos->values();
+        if ($productosBaseCantidad > 0 || $productosBaseTexto) {
+            $accionesProductosDisplay->push([
+                'fecha' => $fechaBase,
+                'hora' => $horaBase,
+                'tipo' => 'Productos',
+                'productos' => $productosBaseTexto,
+                'cantidad' => $productosBaseCantidad ?: null,
+                'monto' => null,
+                'notas' => 'Productos registrados previamente.',
             ]);
         }
     @endphp
@@ -242,7 +279,7 @@
                     </div>
                     <div class="space-y-3">
                         <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Productos</div>
-                        @forelse ($accionesProductos as $accion)
+                        @forelse ($accionesProductosDisplay as $accion)
                             @php
                                 $fechaAccion = isset($accion['fecha']) && $accion['fecha']
                                     ? \Illuminate\Support\Carbon::parse($accion['fecha'])->format('d/m/Y')
