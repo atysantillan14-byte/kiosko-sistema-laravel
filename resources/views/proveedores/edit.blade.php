@@ -109,9 +109,13 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
                         <div>
-                            <label class="app-label">Hora de entrega</label>
+                            <label class="app-label">Próxima visita</label>
+                            <input type="date" name="proxima_visita" value="{{ old('proxima_visita', optional($proveedor->proxima_visita)->format('Y-m-d')) }}" class="app-input">
+                        </div>
+                        <div>
+                            <label class="app-label">Hora estimada</label>
                             <input type="time" name="hora" value="{{ old('hora', $proveedor->hora) }}" class="app-input">
                         </div>
                         <div>

@@ -45,6 +45,7 @@ class ProveedorController extends Controller
             'productos_detalle.*.cantidad' => ['nullable', 'integer', 'min:0'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
             'hora' => ['nullable', 'date_format:H:i'],
+            'proxima_visita' => ['nullable', 'date'],
             'pago' => ['nullable', 'numeric', 'min:0'],
             'deuda' => ['nullable', 'numeric', 'min:0'],
             'notas' => ['nullable', 'string'],
@@ -70,6 +71,11 @@ class ProveedorController extends Controller
         return view('proveedores.edit', compact('proveedor'));
     }
 
+    public function show(Proveedor $proveedor): View
+    {
+        return view('proveedores.show', compact('proveedor'));
+    }
+
     public function update(Request $request, Proveedor $proveedor): RedirectResponse
     {
         $data = $request->validate([
@@ -85,6 +91,7 @@ class ProveedorController extends Controller
             'productos_detalle.*.cantidad' => ['nullable', 'integer', 'min:0'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
             'hora' => ['nullable', 'date_format:H:i'],
+            'proxima_visita' => ['nullable', 'date'],
             'pago' => ['nullable', 'numeric', 'min:0'],
             'deuda' => ['nullable', 'numeric', 'min:0'],
             'notas' => ['nullable', 'string'],
@@ -132,6 +139,7 @@ class ProveedorController extends Controller
             $table->json('productos_detalle')->nullable();
             $table->unsignedInteger('cantidad')->nullable();
             $table->string('hora', 5)->nullable();
+            $table->date('proxima_visita')->nullable();
             $table->decimal('pago', 10, 2)->nullable();
             $table->decimal('deuda', 10, 2)->nullable();
             $table->text('notas')->nullable();
@@ -181,8 +189,12 @@ class ProveedorController extends Controller
                 $table->string('hora', 5)->nullable()->after('cantidad');
             }
 
+            if (! Schema::hasColumn('proveedores', 'proxima_visita')) {
+                $table->date('proxima_visita')->nullable()->after('hora');
+            }
+
             if (! Schema::hasColumn('proveedores', 'pago')) {
-                $table->decimal('pago', 10, 2)->nullable()->after('hora');
+                $table->decimal('pago', 10, 2)->nullable()->after('proxima_visita');
             }
 
             if (! Schema::hasColumn('proveedores', 'deuda')) {
