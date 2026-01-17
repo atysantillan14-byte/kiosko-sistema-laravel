@@ -116,6 +116,7 @@
         $pagosTotal = $pagosAccionesTotal + $pagosBase;
         $deudaBaseCalculo = $accionDeudaReferencia ? (float) $accionDeudaReferencia['deuda_pendiente'] : $deudaBase;
         $deudaActual = $deudaBaseCalculo + ($productosMontoTotal - $pagosDeudaTotal - $pagosProductosTotal);
+        $deudaActualDisplay = max($deudaActual, 0);
 
         $accionesPagosDisplay = $accionesPagos->values();
         if ($pagosBase > 0) {
@@ -155,6 +156,22 @@
                 'notas' => 'Productos registrados previamente.',
             ]);
         }
+
+        $accionesDisplay = collect([$accionesPagosDisplay, $accionesProductosDisplay, $accionesOtrosDisplay])
+            ->flatten(1)
+            ->map(function ($accion) {
+                $fecha = $accion['fecha'] ?? null;
+                $hora = $accion['hora'] ?? null;
+                $timestamp = $fecha
+                    ? \Illuminate\Support\Carbon::parse($fecha . ($hora ? ' ' . $hora : ' 00:00'))
+                    : null;
+
+                return array_merge($accion, ['timestamp' => $timestamp]);
+            })
+            ->sortBy(function ($accion) {
+                return $accion['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1);
+            })
+            ->values();
     @endphp
 
     <div class="app-page space-y-6">
@@ -194,11 +211,9 @@
                             <div class="mt-1 font-semibold text-slate-900">{{ $productosCantidadTotal }} unidades</div>
                         </div>
                         <div>
-                            <div class="text-xs uppercase text-slate-400">
-                                {{ $deudaActual >= 0 ? 'Deuda actual' : 'Saldo a favor' }}
-                            </div>
-                            <div class="mt-1 font-semibold {{ $deudaActual >= 0 ? 'text-rose-600' : 'text-emerald-600' }}">
-                                ${{ number_format(abs($deudaActual), 2, ',', '.') }}
+                            <div class="text-xs uppercase text-slate-400">Deuda actual</div>
+                            <div class="mt-1 font-semibold {{ $deudaActualDisplay > 0 ? 'text-rose-600' : 'text-slate-900' }}">
+                                ${{ number_format($deudaActualDisplay, 2, ',', '.') }}
                             </div>
                         </div>
                     </div>
@@ -274,84 +289,9 @@
                         <button class="app-btn-primary px-4 py-2 text-xs" type="submit">Agregar acción</button>
                     </div>
                 </form>
-                <div class="mt-5 grid gap-4 lg:grid-cols-2">
-                    <div class="space-y-3">
-                        <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Pagos</div>
-                        @forelse ($accionesPagosDisplay as $accion)
-                            @php
-                                $fechaAccion = isset($accion['fecha']) && $accion['fecha']
-                                    ? \Illuminate\Support\Carbon::parse($accion['fecha'])->format('d/m/Y')
-                                    : 'Sin fecha';
-                                $horaAccion = $accion['hora'] ?: 'Sin hora';
-                                $montoTexto = $accion['monto'] !== null
-                                    ? '$' . number_format($accion['monto'], 2, ',', '.')
-                                    : null;
-                                $tipoPago = $accion['tipo'] ?? 'Pago';
-                            @endphp
-                            <div class="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4">
-                                <div class="flex flex-wrap items-center justify-between gap-3">
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ $tipoPago }}</div>
-                                    <span class="text-xs font-semibold text-slate-500">{{ $fechaAccion }} · {{ $horaAccion }}</span>
-                                </div>
-                                <div class="mt-1 text-xs text-slate-500">
-                                    @if ($montoTexto)
-                                        Monto: {{ $montoTexto }}
-                                    @else
-                                        Monto: Sin monto
-                                    @endif
-                                </div>
-                                @if (!empty($accion['notas']))
-                                    <div class="mt-2 text-xs text-slate-500">{{ $accion['notas'] }}</div>
-                                @endif
-                            </div>
-                        @empty
-                            <div class="rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">
-                                Aún no hay pagos registrados para este proveedor.
-                            </div>
-                        @endforelse
-                    </div>
-                    <div class="space-y-3">
-                        <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Productos</div>
-                        @forelse ($accionesProductosDisplay as $accion)
-                            @php
-                                $fechaAccion = isset($accion['fecha']) && $accion['fecha']
-                                    ? \Illuminate\Support\Carbon::parse($accion['fecha'])->format('d/m/Y')
-                                    : 'Sin fecha';
-                                $horaAccion = $accion['hora'] ?: 'Sin hora';
-                                $montoTexto = $accion['monto'] !== null
-                                    ? '$' . number_format($accion['monto'], 2, ',', '.')
-                                    : null;
-                            @endphp
-                            <div class="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4">
-                                <div class="flex flex-wrap items-center justify-between gap-3">
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Productos</div>
-                                    <span class="text-xs font-semibold text-slate-500">{{ $fechaAccion }} · {{ $horaAccion }}</span>
-                                </div>
-                                @if (!empty($accion['productos']))
-                                    <div class="mt-2 text-sm text-slate-900">
-                                        <span class="font-semibold">Productos:</span>
-                                        {{ $accion['productos'] }}
-                                    </div>
-                                @endif
-                                <div class="mt-1 text-xs text-slate-500">
-                                    Cantidad: {{ $accion['cantidad'] ?? 'Sin cantidad' }}
-                                    @if ($montoTexto)
-                                        · Monto: {{ $montoTexto }}
-                                    @endif
-                                </div>
-                                @if (!empty($accion['notas']))
-                                    <div class="mt-2 text-xs text-slate-500">{{ $accion['notas'] }}</div>
-                                @endif
-                            </div>
-                        @empty
-                            <div class="rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">
-                                Aún no hay entregas de productos registradas para este proveedor.
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
-                <div class="mt-6 space-y-3">
-                    @forelse ($accionesOtrosDisplay as $accion)
+                <div class="mt-5 space-y-3">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Acciones</div>
+                    @forelse ($accionesDisplay as $accion)
                         @php
                             $fechaAccion = isset($accion['fecha']) && $accion['fecha']
                                 ? \Illuminate\Support\Carbon::parse($accion['fecha'])->format('d/m/Y')
@@ -360,6 +300,14 @@
                             $montoTexto = $accion['monto'] !== null
                                 ? '$' . number_format($accion['monto'], 2, ',', '.')
                                 : null;
+                            $cantidadTexto = $accion['cantidad'] ?? null;
+                            $detalles = [];
+                            if ($cantidadTexto !== null && $cantidadTexto !== '') {
+                                $detalles[] = 'Cantidad: ' . $cantidadTexto;
+                            }
+                            if ($montoTexto) {
+                                $detalles[] = 'Monto: ' . $montoTexto;
+                            }
                         @endphp
                         <div class="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4">
                             <div class="flex flex-wrap items-center justify-between gap-3">
@@ -375,10 +323,7 @@
                                 </div>
                             @endif
                             <div class="mt-1 text-xs text-slate-500">
-                                Cantidad: {{ $accion['cantidad'] ?? 'Sin cantidad' }}
-                                @if ($montoTexto)
-                                    · Monto: {{ $montoTexto }}
-                                @endif
+                                {{ $detalles ? implode(' · ', $detalles) : 'Sin detalles adicionales' }}
                             </div>
                             @if (!empty($accion['notas']))
                                 <div class="mt-2 text-xs text-slate-500">{{ $accion['notas'] }}</div>
@@ -386,7 +331,7 @@
                         </div>
                     @empty
                         <div class="rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">
-                            Aún no hay acciones adicionales registradas para este proveedor.
+                            Aún no hay acciones registradas para este proveedor.
                         </div>
                     @endforelse
                 </div>
