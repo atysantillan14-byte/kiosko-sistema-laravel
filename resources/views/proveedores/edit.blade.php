@@ -68,6 +68,44 @@
                     </div>
 
                     @php
+                        $accionesDetalle = old('acciones', $proveedor->acciones ?? [['fecha' => '', 'productos' => '', 'cantidad' => '', 'notas' => '']]);
+                    @endphp
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-4">
+                            <div>
+                                <label class="app-label">Acciones del proveedor</label>
+                                <p class="text-xs text-slate-500">Sumá cada visita o entrega como una acción con sus productos y notas.</p>
+                            </div>
+                            <button type="button" class="app-btn-secondary px-3 py-2 text-xs" data-add-accion>Agregar acción</button>
+                        </div>
+                        <div class="space-y-3" data-acciones-list>
+                            @foreach ($accionesDetalle as $index => $accion)
+                                <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200/70 bg-slate-50/60 p-3 md:grid-cols-[1fr,2fr,1fr,2fr,auto]" data-accion-row>
+                                    <div>
+                                        <label class="app-label">Fecha</label>
+                                        <input type="date" name="acciones[{{ $index }}][fecha]" value="{{ $accion['fecha'] ?? '' }}" class="app-input">
+                                    </div>
+                                    <div>
+                                        <label class="app-label">Productos</label>
+                                        <input name="acciones[{{ $index }}][productos]" value="{{ $accion['productos'] ?? '' }}" class="app-input" placeholder="Ej: Papas, bebidas, golosinas">
+                                    </div>
+                                    <div>
+                                        <label class="app-label">Cantidad</label>
+                                        <input type="number" name="acciones[{{ $index }}][cantidad]" value="{{ $accion['cantidad'] ?? '' }}" class="app-input" min="0" placeholder="0">
+                                    </div>
+                                    <div>
+                                        <label class="app-label">Notas</label>
+                                        <input name="acciones[{{ $index }}][notas]" value="{{ $accion['notas'] ?? '' }}" class="app-input" placeholder="Entrega, pagos, pendientes">
+                                    </div>
+                                    <div class="flex items-end">
+                                        <button type="button" class="app-btn-secondary px-3 py-2 text-xs" data-remove-accion>Quitar</button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    @php
                         $productosDetalle = old('productos_detalle', $proveedor->productos_detalle ?? [['nombre' => '', 'cantidad' => '']]);
                     @endphp
                     <div class="space-y-4">
@@ -151,61 +189,122 @@
         document.addEventListener('DOMContentLoaded', () => {
             const list = document.querySelector('[data-productos-list]');
             const addButton = document.querySelector('[data-add-producto]');
+            const accionesList = document.querySelector('[data-acciones-list]');
+            const addAccionButton = document.querySelector('[data-add-accion]');
 
-            if (!list || !addButton) {
-                return;
+            if (list && addButton) {
+                const buildRow = (index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'grid grid-cols-1 gap-3 rounded-xl border border-slate-200/70 bg-slate-50/60 p-3 md:grid-cols-[2fr,1fr,auto]';
+                    wrapper.setAttribute('data-producto-row', '');
+                    wrapper.innerHTML = `
+                        <div>
+                            <label class="app-label">Producto</label>
+                            <input name="productos_detalle[${index}][nombre]" class="app-input" placeholder="Ej: Papas, bebidas">
+                        </div>
+                        <div>
+                            <label class="app-label">Cantidad</label>
+                            <input type="number" name="productos_detalle[${index}][cantidad]" class="app-input" min="0" placeholder="0">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="button" class="app-btn-secondary px-3 py-2 text-xs" data-remove-producto>Quitar</button>
+                        </div>
+                    `;
+                    return wrapper;
+                };
+
+                const refreshRemoveButtons = () => {
+                    list.querySelectorAll('[data-remove-producto]').forEach((button) => {
+                        button.onclick = () => {
+                            if (list.children.length > 1) {
+                                button.closest('[data-producto-row]').remove();
+                            } else {
+                                const inputs = list.querySelectorAll('input');
+                                inputs.forEach((input) => {
+                                    input.value = '';
+                                });
+                            }
+                        };
+                    });
+                };
+
+                const getNextIndex = () => {
+                    const indices = Array.from(list.querySelectorAll('input[name^="productos_detalle"]'))
+                        .map((input) => input.name.match(/productos_detalle\[(\d+)\]/))
+                        .filter(Boolean)
+                        .map((match) => Number.parseInt(match[1], 10));
+                    return indices.length ? Math.max(...indices) + 1 : list.children.length;
+                };
+
+                addButton.addEventListener('click', () => {
+                    const index = getNextIndex();
+                    list.appendChild(buildRow(index));
+                    refreshRemoveButtons();
+                });
+
+                refreshRemoveButtons();
             }
 
-            const buildRow = (index) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'grid grid-cols-1 gap-3 rounded-xl border border-slate-200/70 bg-slate-50/60 p-3 md:grid-cols-[2fr,1fr,auto]';
-                wrapper.setAttribute('data-producto-row', '');
-                wrapper.innerHTML = `
-                    <div>
-                        <label class="app-label">Producto</label>
-                        <input name="productos_detalle[${index}][nombre]" class="app-input" placeholder="Ej: Papas, bebidas">
-                    </div>
-                    <div>
-                        <label class="app-label">Cantidad</label>
-                        <input type="number" name="productos_detalle[${index}][cantidad]" class="app-input" min="0" placeholder="0">
-                    </div>
-                    <div class="flex items-end">
-                        <button type="button" class="app-btn-secondary px-3 py-2 text-xs" data-remove-producto>Quitar</button>
-                    </div>
-                `;
-                return wrapper;
-            };
+            if (accionesList && addAccionButton) {
+                const buildAccionRow = (index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'grid grid-cols-1 gap-3 rounded-xl border border-slate-200/70 bg-slate-50/60 p-3 md:grid-cols-[1fr,2fr,1fr,2fr,auto]';
+                    wrapper.setAttribute('data-accion-row', '');
+                    wrapper.innerHTML = `
+                        <div>
+                            <label class="app-label">Fecha</label>
+                            <input type="date" name="acciones[${index}][fecha]" class="app-input">
+                        </div>
+                        <div>
+                            <label class="app-label">Productos</label>
+                            <input name="acciones[${index}][productos]" class="app-input" placeholder="Ej: Papas, bebidas, golosinas">
+                        </div>
+                        <div>
+                            <label class="app-label">Cantidad</label>
+                            <input type="number" name="acciones[${index}][cantidad]" class="app-input" min="0" placeholder="0">
+                        </div>
+                        <div>
+                            <label class="app-label">Notas</label>
+                            <input name="acciones[${index}][notas]" class="app-input" placeholder="Entrega, pagos, pendientes">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="button" class="app-btn-secondary px-3 py-2 text-xs" data-remove-accion>Quitar</button>
+                        </div>
+                    `;
+                    return wrapper;
+                };
 
-            const refreshRemoveButtons = () => {
-                list.querySelectorAll('[data-remove-producto]').forEach((button) => {
-                    button.onclick = () => {
-                        if (list.children.length > 1) {
-                            button.closest('[data-producto-row]').remove();
-                        } else {
-                            const inputs = list.querySelectorAll('input');
-                            inputs.forEach((input) => {
-                                input.value = '';
-                            });
-                        }
-                    };
+                const refreshAccionRemoveButtons = () => {
+                    accionesList.querySelectorAll('[data-remove-accion]').forEach((button) => {
+                        button.onclick = () => {
+                            if (accionesList.children.length > 1) {
+                                button.closest('[data-accion-row]').remove();
+                            } else {
+                                const inputs = accionesList.querySelectorAll('input');
+                                inputs.forEach((input) => {
+                                    input.value = '';
+                                });
+                            }
+                        };
+                    });
+                };
+
+                const getNextAccionIndex = () => {
+                    const indices = Array.from(accionesList.querySelectorAll('input[name^="acciones"]'))
+                        .map((input) => input.name.match(/acciones\[(\d+)\]/))
+                        .filter(Boolean)
+                        .map((match) => Number.parseInt(match[1], 10));
+                    return indices.length ? Math.max(...indices) + 1 : accionesList.children.length;
+                };
+
+                addAccionButton.addEventListener('click', () => {
+                    const index = getNextAccionIndex();
+                    accionesList.appendChild(buildAccionRow(index));
+                    refreshAccionRemoveButtons();
                 });
-            };
 
-            const getNextIndex = () => {
-                const indices = Array.from(list.querySelectorAll('input[name^="productos_detalle"]'))
-                    .map((input) => input.name.match(/productos_detalle\[(\d+)\]/))
-                    .filter(Boolean)
-                    .map((match) => Number.parseInt(match[1], 10));
-                return indices.length ? Math.max(...indices) + 1 : list.children.length;
-            };
-
-            addButton.addEventListener('click', () => {
-                const index = getNextIndex();
-                list.appendChild(buildRow(index));
-                refreshRemoveButtons();
-            });
-
-            refreshRemoveButtons();
+                refreshAccionRemoveButtons();
+            }
         });
     </script>
 </x-app-layout>

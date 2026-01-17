@@ -18,6 +18,7 @@
         $horaTexto = $proveedor->hora ?: 'Sin hora';
         $pagoTexto = $proveedor->pago !== null ? '$' . number_format($proveedor->pago, 2, ',', '.') : 'Sin pago registrado';
         $deudaTexto = $proveedor->deuda !== null ? '$' . number_format($proveedor->deuda, 2, ',', '.') : 'Sin deuda pendiente';
+        $acciones = $proveedor->acciones ?? [];
     @endphp
 
     <div class="app-page space-y-6">
@@ -56,26 +57,38 @@
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Acciones registradas</h3>
-                        <p class="mt-2 text-sm text-slate-600">Gestioná pagos, deudas y próximas visitas desde un único lugar.</p>
+                        <p class="mt-2 text-sm text-slate-600">Registrá cada visita como una acción con productos y detalles.</p>
                     </div>
                     <a href="{{ route('proveedores.edit', $proveedor) }}" class="app-btn-secondary px-3 py-2 text-xs">Editar acciones</a>
                 </div>
-                <div class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
-                    <div class="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4">
-                        <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Pago</div>
-                        <div class="mt-2 text-base font-semibold text-slate-900">{{ $pagoTexto }}</div>
-                        <p class="mt-1 text-xs text-slate-500">Registrá nuevos pagos y conciliaciones.</p>
-                    </div>
-                    <div class="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4">
-                        <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Deuda pendiente</div>
-                        <div class="mt-2 text-base font-semibold text-slate-900">{{ $deudaTexto }}</div>
-                        <p class="mt-1 text-xs text-slate-500">Marcá cuando se abone lo adeudado.</p>
-                    </div>
-                    <div class="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4">
-                        <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Próxima visita</div>
-                        <div class="mt-2 text-base font-semibold text-slate-900">{{ $fechaVisitaTexto }}</div>
-                        <p class="mt-1 text-xs text-slate-500">Hora estimada: {{ $horaTexto }}.</p>
-                    </div>
+                <div class="mt-5 space-y-3">
+                    @forelse ($acciones as $accion)
+                        @php
+                            $fechaAccion = isset($accion['fecha']) && $accion['fecha']
+                                ? \Illuminate\Support\Carbon::parse($accion['fecha'])->format('d/m/Y')
+                                : 'Sin fecha';
+                        @endphp
+                        <div class="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4">
+                            <div class="flex flex-wrap items-center justify-between gap-3">
+                                <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Acción</div>
+                                <span class="text-xs font-semibold text-slate-500">{{ $fechaAccion }}</span>
+                            </div>
+                            <div class="mt-2 text-sm text-slate-900">
+                                <span class="font-semibold">Productos:</span>
+                                {{ $accion['productos'] ?? 'Sin productos registrados' }}
+                            </div>
+                            <div class="mt-1 text-xs text-slate-500">
+                                Cantidad: {{ $accion['cantidad'] ?? 'Sin cantidad' }}
+                            </div>
+                            @if (!empty($accion['notas']))
+                                <div class="mt-2 text-xs text-slate-500">{{ $accion['notas'] }}</div>
+                            @endif
+                        </div>
+                    @empty
+                        <div class="rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">
+                            Aún no hay acciones registradas para este proveedor.
+                        </div>
+                    @endforelse
                 </div>
             </div>
             <div class="app-card p-6">
