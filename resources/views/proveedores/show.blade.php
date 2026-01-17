@@ -7,7 +7,7 @@
             </div>
             <div class="flex flex-wrap gap-2">
                 <a href="{{ route('proveedores.index') }}" class="app-btn-secondary">Volver</a>
-                <a href="{{ route('proveedores.edit', $proveedor) }}" class="app-btn-primary">Editar acciones</a>
+                <a href="{{ route('proveedores.edit', $proveedor) }}" class="app-btn-primary">Editar proveedor</a>
             </div>
         </div>
     </x-slot>
@@ -197,7 +197,7 @@
                         <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Acciones registradas</h3>
                         <p class="mt-2 text-sm text-slate-600">Registrá cada visita como una acción con productos y detalles.</p>
                     </div>
-                    <a href="{{ route('proveedores.edit', $proveedor) }}" class="app-btn-secondary px-3 py-2 text-xs">Editar acciones</a>
+                    <a href="{{ route('proveedores.edit', $proveedor) }}" class="app-btn-secondary px-3 py-2 text-xs">Editar proveedor</a>
                 </div>
                 <div class="mt-4 rounded-2xl border border-slate-200/70 bg-white p-4">
                     <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Resumen</div>
@@ -216,6 +216,27 @@
                                 ${{ number_format($deudaActualDisplay, 2, ',', '.') }}
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="mt-4 rounded-2xl border border-slate-200/70 bg-white p-4">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Productos del proveedor</div>
+                    <div class="mt-3 text-sm text-slate-700">
+                        @if ($productosBaseDetalle->isNotEmpty())
+                            <ul class="space-y-1">
+                                @foreach ($productosBaseDetalle as $detalle)
+                                    <li>
+                                        {{ $detalle['nombre'] ?? 'Producto' }}
+                                        @if (isset($detalle['cantidad']) && $detalle['cantidad'] !== '')
+                                            <span class="text-xs text-slate-500">({{ $detalle['cantidad'] }})</span>
+                                        @endif
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @elseif ($productosBaseTexto)
+                            {{ $productosBaseTexto }}
+                        @else
+                            <span class="text-xs text-slate-500">Sin productos registrados.</span>
+                        @endif
                     </div>
                 </div>
                 <form class="mt-5 space-y-4 rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4" method="POST" action="{{ route('proveedores.acciones.store', $proveedor) }}">
@@ -291,49 +312,70 @@
                 </form>
                 <div class="mt-5 space-y-3">
                     <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Acciones</div>
-                    @forelse ($accionesDisplay as $accion)
-                        @php
-                            $fechaAccion = isset($accion['fecha']) && $accion['fecha']
-                                ? \Illuminate\Support\Carbon::parse($accion['fecha'])->format('d/m/Y')
-                                : 'Sin fecha';
-                            $horaAccion = $accion['hora'] ?: 'Sin hora';
-                            $montoTexto = $accion['monto'] !== null
-                                ? '$' . number_format($accion['monto'], 2, ',', '.')
-                                : null;
-                            $cantidadTexto = $accion['cantidad'] ?? null;
-                            $detalles = [];
-                            if ($cantidadTexto !== null && $cantidadTexto !== '') {
-                                $detalles[] = 'Cantidad: ' . $cantidadTexto;
-                            }
-                            if ($montoTexto) {
-                                $detalles[] = 'Monto: ' . $montoTexto;
-                            }
-                        @endphp
-                        <div class="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4">
-                            <div class="flex flex-wrap items-center justify-between gap-3">
-                                <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                                    {{ $accion['tipo'] ?? 'Acción' }}
-                                </div>
-                                <span class="text-xs font-semibold text-slate-500">{{ $fechaAccion }} · {{ $horaAccion }}</span>
-                            </div>
-                            @if (!empty($accion['productos']))
-                                <div class="mt-2 text-sm text-slate-900">
-                                    <span class="font-semibold">Productos:</span>
-                                    {{ $accion['productos'] }}
-                                </div>
-                            @endif
-                            <div class="mt-1 text-xs text-slate-500">
-                                {{ $detalles ? implode(' · ', $detalles) : 'Sin detalles adicionales' }}
-                            </div>
-                            @if (!empty($accion['notas']))
-                                <div class="mt-2 text-xs text-slate-500">{{ $accion['notas'] }}</div>
-                            @endif
-                        </div>
-                    @empty
+                    @if ($accionesDisplay->isEmpty())
                         <div class="rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">
                             Aún no hay acciones registradas para este proveedor.
                         </div>
-                    @endforelse
+                    @else
+                        <div class="overflow-x-auto rounded-2xl border border-slate-200/70">
+                            <table class="app-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Detalle</th>
+                                        <th>Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200/70">
+                                    @foreach ($accionesDisplay as $accion)
+                                        @php
+                                            $fechaAccion = isset($accion['fecha']) && $accion['fecha']
+                                                ? \Illuminate\Support\Carbon::parse($accion['fecha'])->format('d/m/Y')
+                                                : 'Sin fecha';
+                                            $horaAccion = $accion['hora'] ?: 'Sin hora';
+                                            $montoTexto = $accion['monto'] !== null
+                                                ? '$' . number_format($accion['monto'], 2, ',', '.')
+                                                : 'Sin monto';
+                                            $cantidadTexto = $accion['cantidad'] ?? null;
+                                            $detalles = [];
+                                            if (!empty($accion['productos'])) {
+                                                $detalles[] = 'Productos: ' . $accion['productos'];
+                                            }
+                                            if ($cantidadTexto !== null && $cantidadTexto !== '') {
+                                                $detalles[] = 'Cantidad: ' . $cantidadTexto;
+                                            }
+                                            if (array_key_exists('deuda_pendiente', $accion) && $accion['deuda_pendiente'] !== null && $accion['deuda_pendiente'] !== '') {
+                                                $detalles[] = 'Deuda: $' . number_format((float) $accion['deuda_pendiente'], 2, ',', '.');
+                                            }
+                                            if (!empty($accion['notas'])) {
+                                                $detalles[] = 'Notas: ' . $accion['notas'];
+                                            }
+                                        @endphp
+                                        <tr>
+                                            <td class="font-semibold text-slate-900">#{{ $loop->iteration }}</td>
+                                            <td>
+                                                <div class="text-sm text-slate-700">{{ $fechaAccion }}</div>
+                                                <div class="mt-1 text-xs text-slate-500">{{ $horaAccion }}</div>
+                                            </td>
+                                            <td>
+                                                <span class="text-sm text-slate-700">{{ $accion['tipo'] ?? 'Acción' }}</span>
+                                            </td>
+                                            <td>
+                                                <div class="text-sm text-slate-700">
+                                                    {{ $detalles ? implode(' · ', $detalles) : 'Sin detalles adicionales' }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="text-sm text-slate-700">{{ $montoTexto }}</span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
