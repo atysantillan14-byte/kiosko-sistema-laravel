@@ -116,6 +116,7 @@ class ProveedorController extends Controller
             'productos_detalle.*.cantidad' => ['nullable', 'integer', 'min:0'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
             'monto' => ['nullable', 'numeric', 'min:0'],
+            'monto_productos' => ['nullable', 'numeric', 'min:0'],
             'notas' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -160,27 +161,28 @@ class ProveedorController extends Controller
             'monto' => $data['monto'] ?? null,
             'notas' => isset($data['notas']) ? trim((string) $data['notas']) : null,
         ];
+        $montoProductos = $data['monto_productos'] ?? null;
+        $accionPagoProductos = null;
+        if ($montoProductos !== null) {
+            $accionPagoProductos = [
+                'fecha' => $fecha,
+                'hora' => $hora,
+                'tipo' => 'Pago productos',
+                'productos' => null,
+                'cantidad' => null,
+                'monto' => $montoProductos,
+                'notas' => null,
+            ];
+        }
 
         $accionesActuales = $proveedor->acciones ?? [];
         $accionesActuales[] = $accion;
+        if ($accionPagoProductos) {
+            $accionesActuales[] = $accionPagoProductos;
+        }
         $updates = [
             'acciones' => $this->sanitizeAcciones($accionesActuales),
         ];
-
-        $tipo = strtolower((string) ($accion['tipo'] ?? ''));
-        $esPago = str_starts_with($tipo, 'pago');
-        $esPagoDeuda = $tipo === 'pago' || str_contains($tipo, 'deuda');
-        if ($esPago && $accion['monto'] !== null) {
-            $monto = (float) $accion['monto'];
-            $pagoActual = (float) ($proveedor->pago ?? 0);
-            $deudaActual = (float) ($proveedor->deuda ?? 0);
-
-            $updates['pago'] = $pagoActual + $monto;
-
-            if ($deudaActual > 0 && $esPagoDeuda) {
-                $updates['deuda'] = max($deudaActual - $monto, 0);
-            }
-        }
 
         $proveedor->update($updates);
 

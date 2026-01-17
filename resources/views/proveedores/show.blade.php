@@ -52,6 +52,13 @@
                 return $tipo === 'pago' || str_contains($tipo, 'deuda');
             })
             ->values();
+        $accionesPagosProductos = $accionesPagos
+            ->filter(function ($accion) {
+                $tipo = strtolower($accion['tipo'] ?? '');
+
+                return str_contains($tipo, 'producto');
+            })
+            ->values();
         $accionesProductos = $accionesTimeline
             ->filter(fn ($accion) => str_contains(strtolower($accion['tipo'] ?? ''), 'producto'))
             ->values();
@@ -85,8 +92,9 @@
         $productosCantidadTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['cantidad'] ?? 0)) + $productosBaseCantidad;
         $productosMontoTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
         $pagosDeudaTotal = $accionesPagosDeuda->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+        $pagosProductosTotal = $accionesPagosProductos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
         $pagosTotal = $pagosAccionesTotal + $pagosBase;
-        $deudaActual = $deudaBase + ($productosMontoTotal - $pagosDeudaTotal);
+        $deudaActual = $deudaBase + ($productosMontoTotal - $pagosDeudaTotal - $pagosProductosTotal);
 
         $accionesPagosDisplay = $accionesPagos->values();
         if ($pagosBase > 0) {
@@ -188,7 +196,7 @@
                         <div>
                             <label class="app-label">Tipo</label>
                             <select name="tipo" class="app-input">
-                                @foreach (['Pago deuda', 'Pago productos', 'Productos', 'Visita', 'Nota', 'Otro'] as $tipo)
+                                @foreach (['Pago deuda', 'Productos', 'Visita', 'Nota', 'Otro'] as $tipo)
                                     <option value="{{ $tipo }}" @selected(old('tipo') === $tipo)>{{ $tipo }}</option>
                                 @endforeach
                             </select>
@@ -226,6 +234,10 @@
                                 </div>
                             @endforeach
                         </div>
+                    </div>
+                    <div class="rounded-xl border border-slate-200/70 bg-white p-3">
+                        <label class="app-label">Pago productos</label>
+                        <input type="number" name="monto_productos" value="{{ old('monto_productos') }}" class="app-input" min="0" step="0.01" placeholder="0.00">
                     </div>
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                         <div>
