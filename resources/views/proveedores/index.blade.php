@@ -73,7 +73,7 @@
                                     $tipo = strtolower($accion['tipo'] ?? '');
 
                                     if (str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago')) {
-                                        return (float) ($accion['monto'] ?? $accion['deuda_pendiente'] ?? 0);
+                                        return (float) ($accion['deuda_pendiente'] ?? $accion['monto'] ?? 0);
                                     }
 
                                     return 0;

@@ -18,7 +18,7 @@
         $fechaBase = $proveedor->created_at ? $proveedor->created_at->format('Y-m-d') : null;
         $horaBase = $proveedor->created_at ? $proveedor->created_at->format('H:i') : null;
         $accionesTimeline = $acciones
-            ->map(function ($accion) {
+            ->map(function ($accion, $index) {
                 $fecha = $accion['fecha'] ?? null;
                 $hora = $accion['hora'] ?? null;
                 $timestamp = $fecha
@@ -26,6 +26,7 @@
                     : null;
 
                 return [
+                    'accion_index' => $index,
                     'fecha' => $fecha,
                     'hora' => $hora,
                     'tipo' => $accion['tipo'] ?? 'Acción',
@@ -63,7 +64,7 @@
             $tipo = strtolower($accion['tipo'] ?? '');
 
             if (str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago')) {
-                return (float) ($accion['monto'] ?? $accion['deuda_pendiente'] ?? 0);
+                return (float) ($accion['deuda_pendiente'] ?? $accion['monto'] ?? 0);
             }
 
             return 0;
@@ -324,6 +325,7 @@
                                         <th>Tipo</th>
                                         <th>Detalle</th>
                                         <th class="text-right">Monto</th>
+                                        <th class="text-right">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-200/70">
@@ -391,6 +393,19 @@
                                                 {{ $montoDisplay !== null
                                                     ? '$' . number_format($montoDisplay, 2, ',', '.')
                                                     : '—' }}
+                                            </td>
+                                            <td class="text-right">
+                                                @if (isset($accion['accion_index']))
+                                                    <form method="POST" action="{{ route('proveedores.acciones.destroy', [$proveedor, $accion['accion_index']]) }}" onsubmit="return confirm('¿Eliminar esta acción?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="app-btn-danger px-3 py-1.5 text-xs">
+                                                            Eliminar
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <span class="text-xs text-slate-400">—</span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
