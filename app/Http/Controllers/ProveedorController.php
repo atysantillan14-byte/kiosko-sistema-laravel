@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 class ProveedorController extends Controller
@@ -43,6 +44,11 @@ class ProveedorController extends Controller
             'productos_detalle' => ['nullable', 'array'],
             'productos_detalle.*.nombre' => ['nullable', 'string', 'max:255'],
             'productos_detalle.*.cantidad' => ['nullable', 'integer', 'min:0'],
+            'acciones' => ['nullable', 'array'],
+            'acciones.*.fecha' => ['nullable', 'date'],
+            'acciones.*.productos' => ['nullable', 'string', 'max:1000'],
+            'acciones.*.cantidad' => ['nullable', 'integer', 'min:0'],
+            'acciones.*.notas' => ['nullable', 'string', 'max:1000'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
             'hora' => ['nullable', 'date_format:H:i'],
             'proxima_visita' => ['nullable', 'date'],
@@ -54,6 +60,7 @@ class ProveedorController extends Controller
 
         $data['activo'] = $request->boolean('activo');
         $data['productos_detalle'] = $this->sanitizeProductosDetalle($request->input('productos_detalle', []));
+        $data['acciones'] = $this->sanitizeAcciones($request->input('acciones', []));
 
         if (! $this->ensureProveedoresTable()) {
             return back()
@@ -89,6 +96,11 @@ class ProveedorController extends Controller
             'productos_detalle' => ['nullable', 'array'],
             'productos_detalle.*.nombre' => ['nullable', 'string', 'max:255'],
             'productos_detalle.*.cantidad' => ['nullable', 'integer', 'min:0'],
+            'acciones' => ['nullable', 'array'],
+            'acciones.*.fecha' => ['nullable', 'date'],
+            'acciones.*.productos' => ['nullable', 'string', 'max:1000'],
+            'acciones.*.cantidad' => ['nullable', 'integer', 'min:0'],
+            'acciones.*.notas' => ['nullable', 'string', 'max:1000'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
             'hora' => ['nullable', 'date_format:H:i'],
             'proxima_visita' => ['nullable', 'date'],
@@ -100,6 +112,7 @@ class ProveedorController extends Controller
 
         $data['activo'] = $request->boolean('activo');
         $data['productos_detalle'] = $this->sanitizeProductosDetalle($request->input('productos_detalle', []));
+        $data['acciones'] = $this->sanitizeAcciones($request->input('acciones', []));
 
         if (! $this->ensureProveedoresTable()) {
             return back()
@@ -137,6 +150,7 @@ class ProveedorController extends Controller
             $table->string('condiciones_pago')->nullable();
             $table->text('productos')->nullable();
             $table->json('productos_detalle')->nullable();
+            $table->json('acciones')->nullable();
             $table->unsignedInteger('cantidad')->nullable();
             $table->string('hora', 5)->nullable();
             $table->date('proxima_visita')->nullable();
@@ -181,8 +195,12 @@ class ProveedorController extends Controller
                 $table->json('productos_detalle')->nullable()->after('productos');
             }
 
+            if (! Schema::hasColumn('proveedores', 'acciones')) {
+                $table->json('acciones')->nullable()->after('productos_detalle');
+            }
+
             if (! Schema::hasColumn('proveedores', 'cantidad')) {
-                $table->unsignedInteger('cantidad')->nullable()->after('productos_detalle');
+                $table->unsignedInteger('cantidad')->nullable()->after('acciones');
             }
 
             if (! Schema::hasColumn('proveedores', 'hora')) {
@@ -222,6 +240,30 @@ class ProveedorController extends Controller
             })
             ->filter(function ($item) {
                 return filled($item['nombre']) || $item['cantidad'] !== null;
+            })
+            ->values()
+            ->all();
+
+        return $items !== [] ? $items : null;
+    }
+
+    private function sanitizeAcciones(array $acciones): ?array
+    {
+        $items = collect($acciones)
+            ->map(function ($item) {
+                $fecha = isset($item['fecha']) && filled($item['fecha'])
+                    ? Carbon::parse($item['fecha'])->toDateString()
+                    : null;
+
+                return [
+                    'fecha' => $fecha,
+                    'productos' => isset($item['productos']) ? trim((string) $item['productos']) : null,
+                    'cantidad' => isset($item['cantidad']) && $item['cantidad'] !== '' ? (int) $item['cantidad'] : null,
+                    'notas' => isset($item['notas']) ? trim((string) $item['notas']) : null,
+                ];
+            })
+            ->filter(function ($item) {
+                return filled($item['fecha']) || filled($item['productos']) || $item['cantidad'] !== null || filled($item['notas']);
             })
             ->values()
             ->all();
