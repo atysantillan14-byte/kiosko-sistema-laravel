@@ -115,15 +115,20 @@
                                         return str_starts_with($tipo, 'pago') && ($tipo === 'pago' || str_contains($tipo, 'deuda'));
                                     })
                                     ->sum(fn ($accion) => $resolvePago($accion));
-                                $pagosProductosTotal = $accionesTimeline
+                                $deudaAccionesTotal = $accionesTimeline
                                     ->filter(function ($accion) {
                                         $tipo = strtolower($accion['tipo'] ?? '');
 
                                         return str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago');
                                     })
-                                    ->sum(fn ($accion) => (float) ($accion['monto_productos'] ?? 0));
-                                $deudaBaseAjustada = $deudaBase > 0 ? $deudaBase : $productosMontoTotal;
-                                $deudaActual = $deudaBaseAjustada - $pagosDeudaTotal - $pagosProductosTotal;
+                                    ->sum(function ($accion) {
+                                        return (float) ($accion['deuda_pendiente'] ?? $accion['monto'] ?? 0);
+                                    });
+                                $deudaRegistrada = $deudaAccionesTotal > 0
+                                    ? ($deudaBase >= $deudaAccionesTotal ? $deudaBase : $deudaBase + $deudaAccionesTotal)
+                                    : $deudaBase;
+                                $deudaBaseAjustada = $deudaRegistrada > 0 ? $deudaRegistrada : $productosMontoTotal;
+                                $deudaActual = $deudaBaseAjustada - $pagosDeudaTotal;
                                 $deudaActualDisplay = max($deudaActual, 0);
                             @endphp
                             <tr>
@@ -171,9 +176,6 @@
                                     <div class="flex justify-end gap-2">
                                         <a class="app-btn-secondary px-3 py-1.5 text-xs" href="{{ route('proveedores.show', $proveedor) }}">
                                             Acciones
-                                        </a>
-                                        <a class="app-btn-secondary px-3 py-1.5 text-xs" href="{{ route('proveedores.edit', $proveedor) }}">
-                                            Editar
                                         </a>
                                         <form method="POST" action="{{ route('proveedores.destroy', $proveedor) }}" onsubmit="return confirm('¿Eliminar este proveedor?');">
                                             @csrf
