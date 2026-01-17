@@ -22,8 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('ventas/cierres/{cierreCaja}', [VentaController::class, 'cierresShow'])->name('ventas.cierres.show');
     Route::resource('ventas', VentaController::class);
     Route::resource('proveedores', ProveedorController::class)
-        ->parameters(['proveedores' => 'proveedor'])
-        ->except(['show']);
+        ->parameters(['proveedores' => 'proveedor']);
 });
 
 Route::middleware('auth')->group(function () {
