@@ -96,7 +96,11 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <div>
+                            <label class="app-label">Fecha de visita</label>
+                            <input type="date" name="fecha_visita" value="{{ old('fecha_visita', now()->format('Y-m-d')) }}" class="app-input" required>
+                        </div>
                         <div>
                             <label class="app-label">Próxima visita</label>
                             <input type="date" name="proxima_visita" value="{{ old('proxima_visita', now()->format('Y-m-d')) }}" class="app-input">
@@ -105,6 +109,9 @@
                             <label class="app-label">Hora estimada</label>
                             <input type="time" name="hora" value="{{ old('hora', now()->format('H:i')) }}" class="app-input">
                         </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
                             <label class="app-label">Pago realizado</label>
                             <input type="number" name="pago" value="{{ old('pago') }}" class="app-input" min="0" step="0.01" placeholder="0.00">
