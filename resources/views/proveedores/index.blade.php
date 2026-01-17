@@ -31,8 +31,7 @@
                             <th>Proveedor</th>
                             <th>Contacto</th>
                             <th>Condiciones</th>
-                            <th>Productos</th>
-                            <th>Pagos</th>
+                            <th>Último pago</th>
                             <th>Próxima visita</th>
                             <th>Estado</th>
                             <th class="text-right">Acciones</th>
@@ -41,12 +40,56 @@
                     <tbody class="divide-y divide-slate-200/70">
                         @forelse($proveedores as $proveedor)
                             @php
-                                $accionesPagos = collect($proveedor->acciones ?? [])
-                                    ->filter(function ($accion) {
-                                        return str_starts_with(strtolower($accion['tipo'] ?? ''), 'pago');
+                                $accionesTimeline = collect($proveedor->acciones ?? [])
+                                    ->map(function ($accion) {
+                                        $fecha = $accion['fecha'] ?? null;
+                                        $hora = $accion['hora'] ?? null;
+                                        $timestamp = $fecha
+                                            ? \Illuminate\Support\Carbon::parse($fecha . ($hora ? ' ' . $hora : ' 00:00'))
+                                            : null;
+
+                                        return array_merge($accion, ['timestamp' => $timestamp]);
                                     })
-                                    ->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
-                                $pagosTotal = (float) ($proveedor->pago ?? 0) + $accionesPagos;
+                                    ->sortBy(function ($accion) {
+                                        return $accion['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1);
+                                    })
+                                    ->values();
+                                $pagosAcciones = $accionesTimeline
+                                    ->filter(fn ($accion) => str_starts_with(strtolower($accion['tipo'] ?? ''), 'pago'))
+                                    ->values();
+                                $pagosBase = (float) ($proveedor->pago ?? 0);
+                                $pagosDisplay = $pagosAcciones->map(fn ($accion) => [
+                                    'timestamp' => $accion['timestamp'],
+                                    'monto' => (float) ($accion['monto'] ?? 0),
+                                ]);
+                                if ($pagosBase > 0 && $proveedor->created_at) {
+                                    $pagosDisplay = $pagosDisplay->push([
+                                        'timestamp' => $proveedor->created_at,
+                                        'monto' => $pagosBase,
+                                    ]);
+                                }
+                                $ultimoPago = $pagosDisplay
+                                    ->sortBy(fn ($pago) => $pago['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1))
+                                    ->last();
+                                $ultimoPagoMonto = $ultimoPago['monto'] ?? null;
+
+                                $deudaBase = (float) ($proveedor->deuda ?? 0);
+                                $deudasDisplay = $accionesTimeline
+                                    ->filter(fn ($accion) => $accion['deuda_pendiente'] !== null)
+                                    ->map(fn ($accion) => [
+                                        'timestamp' => $accion['timestamp'],
+                                        'monto' => (float) ($accion['deuda_pendiente'] ?? 0),
+                                    ]);
+                                if ($deudaBase > 0 && $proveedor->created_at) {
+                                    $deudasDisplay = $deudasDisplay->push([
+                                        'timestamp' => $proveedor->created_at,
+                                        'monto' => $deudaBase,
+                                    ]);
+                                }
+                                $ultimaDeuda = $deudasDisplay
+                                    ->sortBy(fn ($deuda) => $deuda['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1))
+                                    ->last();
+                                $ultimaDeudaMonto = $ultimaDeuda['monto'] ?? null;
                             @endphp
                             <tr>
                                 <td>
@@ -66,32 +109,11 @@
                                     <div class="mt-1 text-xs text-slate-500">{{ $proveedor->direccion ?: 'Sin dirección' }}</div>
                                 </td>
                                 <td>
-                                    @if ($proveedor->productos_detalle)
-                                        <ul class="space-y-1 text-sm text-slate-700">
-                                            @foreach ($proveedor->productos_detalle as $detalle)
-                                                <li>
-                                                    {{ $detalle['nombre'] ?? 'Producto' }}
-                                                    <span class="text-xs text-slate-500">
-                                                        {{ isset($detalle['cantidad']) ? $detalle['cantidad'] : '' }}
-                                                    </span>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    @else
-                                        <div class="text-sm text-slate-700">
-                                            {{ $proveedor->productos ?: 'Sin productos registrados' }}
-                                        </div>
-                                        <div class="mt-1 text-xs text-slate-500">
-                                            {{ $proveedor->cantidad !== null ? $proveedor->cantidad . ' unidades' : 'Sin cantidad' }}
-                                        </div>
-                                    @endif
-                                </td>
-                                <td>
                                     <div class="text-sm text-slate-700">
-                                        {{ $pagosTotal > 0 ? '$' . number_format($pagosTotal, 2, ',', '.') : 'Sin pago' }}
+                                        {{ $ultimoPagoMonto !== null && $ultimoPagoMonto > 0 ? '$' . number_format($ultimoPagoMonto, 2, ',', '.') : 'Sin pago' }}
                                     </div>
                                     <div class="mt-1 text-xs text-slate-500">
-                                        {{ ($proveedor->deuda ?? 0) > 0 ? 'Debe $' . number_format($proveedor->deuda, 2, ',', '.') : 'Sin deuda' }}
+                                        {{ $ultimaDeudaMonto !== null && $ultimaDeudaMonto > 0 ? 'Debe $' . number_format($ultimaDeudaMonto, 2, ',', '.') : 'Sin deuda' }}
                                     </div>
                                 </td>
                                 <td>
@@ -113,7 +135,7 @@
                                 <td>
                                     <div class="flex justify-end gap-2">
                                         <a class="app-btn-secondary px-3 py-1.5 text-xs" href="{{ route('proveedores.show', $proveedor) }}">
-                                            Ver
+                                            Acciones
                                         </a>
                                         <a class="app-btn-secondary px-3 py-1.5 text-xs" href="{{ route('proveedores.edit', $proveedor) }}">
                                             Editar
@@ -130,7 +152,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td class="px-6 py-10 text-center text-sm text-slate-500" colspan="8">
+                                <td class="px-6 py-10 text-center text-sm text-slate-500" colspan="7">
                                     <div class="flex flex-col items-center gap-2">
                                         <i class="fas fa-truck text-2xl text-slate-300"></i>
                                         Todavía no registraste proveedores.
