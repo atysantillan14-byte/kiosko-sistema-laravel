@@ -40,7 +40,10 @@
                 ];
             })
             ->sortBy(function ($accion) {
-                return $accion['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1);
+                return [
+                    $accion['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1),
+                    $accion['accion_index'] ?? 0,
+                ];
             })
             ->values();
 
@@ -122,8 +125,9 @@
             })
             ->last();
         $ultimoPagoDeudaTimestamp = $ultimoPagoDeuda['timestamp'] ?? null;
+        $ultimoPagoDeudaIndice = $ultimoPagoDeuda['accion_index'] ?? null;
         $deudaPendienteActual = $accionesTimeline
-            ->filter(function ($accion) use ($ultimoPagoDeudaTimestamp) {
+            ->filter(function ($accion) use ($ultimoPagoDeudaTimestamp, $ultimoPagoDeudaIndice) {
                 if ($accion['deuda_pendiente'] === null || $accion['deuda_pendiente'] === '') {
                     return false;
                 }
@@ -134,7 +138,15 @@
 
                 $accionTimestamp = $accion['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1);
 
-                return $accionTimestamp->greaterThan($ultimoPagoDeudaTimestamp);
+                if ($accionTimestamp->greaterThan($ultimoPagoDeudaTimestamp)) {
+                    return true;
+                }
+
+                if ($accionTimestamp->equalTo($ultimoPagoDeudaTimestamp) && $ultimoPagoDeudaIndice !== null) {
+                    return ($accion['accion_index'] ?? -1) > $ultimoPagoDeudaIndice;
+                }
+
+                return false;
             })
             ->last();
         $deudaPendienteActualMonto = $deudaPendienteActual !== null
