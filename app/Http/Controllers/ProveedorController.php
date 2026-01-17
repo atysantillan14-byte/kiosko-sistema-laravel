@@ -160,6 +160,7 @@ class ProveedorController extends Controller
         $tipoAccion = strtolower((string) ($data['tipo'] ?? ''));
         $monto = $data['monto'] ?? null;
         $montoProductos = $data['monto_productos'] ?? null;
+        $deudaPendienteInput = $data['deuda_pendiente'] ?? null;
         $esPagoDeuda = str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'deuda');
 
         if (str_starts_with($tipoAccion, 'pago') && $monto === null && $montoProductos !== null) {
@@ -167,7 +168,11 @@ class ProveedorController extends Controller
             $montoProductos = null;
         }
 
-        $deudaPendienteAccion = $esPagoDeuda ? null : ($data['deuda_pendiente'] ?? null);
+        if ($esPagoDeuda && $monto === null && $deudaPendienteInput !== null) {
+            $monto = $deudaPendienteInput;
+        }
+
+        $deudaPendienteAccion = $esPagoDeuda ? null : $deudaPendienteInput;
         $productosTexto = $esPagoDeuda
             ? null
             : ($productosDetalleResumen
