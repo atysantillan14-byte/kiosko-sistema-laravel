@@ -45,6 +45,30 @@
             ->values();
 
         $accionesCalculo = $accionesTimeline;
+        $resolvePago = function ($accion) {
+            $tipo = strtolower($accion['tipo'] ?? '');
+            $monto = $accion['monto'] ?? null;
+            $montoProductos = $accion['monto_productos'] ?? null;
+
+            if (str_starts_with($tipo, 'pago')) {
+                return (float) ($monto ?? $montoProductos ?? 0);
+            }
+
+            if (str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago')) {
+                return (float) ($montoProductos ?? 0);
+            }
+
+            return 0;
+        };
+        $resolveDeuda = function ($accion) {
+            $tipo = strtolower($accion['tipo'] ?? '');
+
+            if (str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago')) {
+                return (float) ($accion['monto'] ?? $accion['deuda_pendiente'] ?? 0);
+            }
+
+            return 0;
+        };
 
         $accionesPagos = $accionesTimeline
             ->filter(fn ($accion) => str_starts_with(strtolower($accion['tipo'] ?? ''), 'pago'))
@@ -89,16 +113,16 @@
             ->implode(', ');
         $productosBaseTexto = $productosBaseTexto ?: ($proveedor->productos ?? null);
 
-        $pagosAccionesTotal = $accionesPagos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+        $pagosAccionesTotal = $accionesTimeline->sum(fn ($accion) => $resolvePago($accion));
         $productosCantidadTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['cantidad'] ?? 0)) + $productosBaseCantidad;
-        $productosMontoTotal = $accionesProductosCalculo->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+        $productosMontoTotal = $accionesProductosCalculo->sum(fn ($accion) => $resolveDeuda($accion));
         $pagosDeudaTotal = $accionesCalculo
             ->filter(function ($accion) {
                 $tipo = strtolower($accion['tipo'] ?? '');
 
                 return str_starts_with($tipo, 'pago') && ($tipo === 'pago' || str_contains($tipo, 'deuda'));
             })
-            ->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+            ->sum(fn ($accion) => $resolvePago($accion));
         $pagosProductosTotal = $accionesCalculo
             ->filter(function ($accion) {
                 $tipo = strtolower($accion['tipo'] ?? '');
@@ -106,8 +130,9 @@
                 return str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago');
             })
             ->sum(fn ($accion) => (float) ($accion['monto_productos'] ?? 0));
-        $pagosTotal = $pagosAccionesTotal + $pagosProductosTotal + $pagosBase;
-        $deudaActual = $deudaBase + ($productosMontoTotal - $pagosDeudaTotal - $pagosProductosTotal);
+        $pagosTotal = $pagosAccionesTotal + $pagosBase;
+        $deudaBaseAjustada = $deudaBase > 0 ? $deudaBase : $productosMontoTotal;
+        $deudaActual = $deudaBaseAjustada - $pagosDeudaTotal - $pagosProductosTotal;
         $deudaActualDisplay = max($deudaActual, 0);
 
         $accionesPagosDisplay = $accionesPagos->values();
@@ -335,6 +360,15 @@
                                             }
                                             $montoAccion = $accion['monto'] ?? null;
                                             $montoProductosAccion = $accion['monto_productos'] ?? null;
+                                            $montoDisplay = null;
+
+                                            if (str_starts_with($tipoAccion, 'pago')) {
+                                                $montoDisplay = $montoAccion ?? $montoProductosAccion;
+                                            } elseif (str_contains($tipoAccion, 'producto') && ! str_starts_with($tipoAccion, 'pago')) {
+                                                $montoDisplay = $montoProductosAccion;
+                                            } else {
+                                                $montoDisplay = $montoAccion;
+                                            }
                                         @endphp
                                         <tr>
                                             <td class="font-semibold text-slate-900">#{{ $loop->iteration }}</td>
@@ -351,13 +385,9 @@
                                                 </div>
                                             </td>
                                             <td class="text-right text-sm text-slate-700">
-                                                {{ $montoAccion !== null
-                                                    ? '$' . number_format($montoAccion, 2, ',', '.')
-                                                    : ($montoProductosAccion !== null
-                                                        ? '$' . number_format($montoProductosAccion, 2, ',', '.')
-                                                        : ($deudaPendienteAccion !== null
-                                                            ? '$' . number_format($deudaPendienteAccion, 2, ',', '.')
-                                                            : '—')) }}
+                                                {{ $montoDisplay !== null
+                                                    ? '$' . number_format($montoDisplay, 2, ',', '.')
+                                                    : '—' }}
                                             </td>
                                         </tr>
                                     @endforeach
