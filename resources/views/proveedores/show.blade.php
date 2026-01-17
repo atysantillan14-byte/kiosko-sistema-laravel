@@ -14,6 +14,10 @@
 
     @php
         $acciones = collect($proveedor->acciones ?? []);
+        $pagosBase = (float) ($proveedor->pago ?? 0);
+        $deudaBase = (float) ($proveedor->deuda ?? 0);
+        $fechaBase = $proveedor->created_at ? $proveedor->created_at->format('Y-m-d') : null;
+        $horaBase = $proveedor->created_at ? $proveedor->created_at->format('H:i') : null;
         $accionesTimeline = $acciones
             ->map(function ($accion) {
                 $fecha = $accion['fecha'] ?? null;
@@ -46,9 +50,36 @@
             })
             ->values();
 
-        $pagosTotal = $accionesPagos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+        $pagosAccionesTotal = $accionesPagos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
         $productosTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
-        $deudaActual = $productosTotal - $pagosTotal;
+        $pagosTotal = $pagosAccionesTotal + $pagosBase;
+        $deudaActual = $deudaBase + ($productosTotal - $pagosAccionesTotal);
+
+        $accionesPagosDisplay = $accionesPagos->values();
+        if ($pagosBase > 0) {
+            $accionesPagosDisplay->push([
+                'fecha' => $fechaBase,
+                'hora' => $horaBase,
+                'tipo' => 'Pago inicial',
+                'productos' => null,
+                'cantidad' => null,
+                'monto' => $pagosBase,
+                'notas' => 'Pago registrado previamente.',
+            ]);
+        }
+
+        $accionesOtrosDisplay = $accionesOtros->values();
+        if ($deudaBase > 0) {
+            $accionesOtrosDisplay->push([
+                'fecha' => $fechaBase,
+                'hora' => $horaBase,
+                'tipo' => 'Deuda inicial',
+                'productos' => null,
+                'cantidad' => null,
+                'monto' => $deudaBase,
+                'notas' => 'Deuda registrada previamente.',
+            ]);
+        }
     @endphp
 
     <div class="app-page space-y-6">
@@ -142,7 +173,7 @@
                 <div class="mt-5 grid gap-4 lg:grid-cols-2">
                     <div class="space-y-3">
                         <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Pagos</div>
-                        @forelse ($accionesPagos as $accion)
+                        @forelse ($accionesPagosDisplay as $accion)
                             @php
                                 $fechaAccion = isset($accion['fecha']) && $accion['fecha']
                                     ? \Illuminate\Support\Carbon::parse($accion['fecha'])->format('d/m/Y')
@@ -215,7 +246,7 @@
                     </div>
                 </div>
                 <div class="mt-6 space-y-3">
-                    @forelse ($accionesOtros as $accion)
+                    @forelse ($accionesOtrosDisplay as $accion)
                         @php
                             $fechaAccion = isset($accion['fecha']) && $accion['fecha']
                                 ? \Illuminate\Support\Carbon::parse($accion['fecha'])->format('d/m/Y')
