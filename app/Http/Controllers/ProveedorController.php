@@ -9,6 +9,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
+use Illuminate\Validation\ValidationException;
 
 class ProveedorController extends Controller
 {
@@ -62,6 +63,8 @@ class ProveedorController extends Controller
             'activo' => ['nullable', 'boolean'],
         ]);
 
+        $this->ensureAccionesConMonto($request->input('acciones', []));
+
         $fechaVisita = $data['fecha_visita'] ?? null;
         unset($data['fecha_visita']);
 
@@ -76,7 +79,7 @@ class ProveedorController extends Controller
                 'tipo' => 'Visita inicial',
                 'productos' => null,
                 'cantidad' => null,
-                'monto' => null,
+                'monto' => 0,
                 'notas' => 'Alta de proveedor.',
             ];
         }
@@ -116,7 +119,7 @@ class ProveedorController extends Controller
             'productos_detalle.*.nombre' => ['nullable', 'string', 'max:255'],
             'productos_detalle.*.cantidad' => ['nullable', 'integer', 'min:0'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
-            'monto' => ['nullable', 'numeric', 'min:0'],
+            'monto' => ['required', 'numeric', 'min:0'],
             'monto_productos' => ['nullable', 'numeric', 'min:0'],
             'deuda_pendiente' => ['nullable', 'numeric', 'min:0'],
             'notas' => ['nullable', 'string', 'max:1000'],
@@ -229,6 +232,8 @@ class ProveedorController extends Controller
             'notas' => ['nullable', 'string'],
             'activo' => ['nullable', 'boolean'],
         ]);
+
+        $this->ensureAccionesConMonto($request->input('acciones', []));
 
         $data['activo'] = $request->boolean('activo');
         $data['productos_detalle'] = $this->sanitizeProductosDetalle($request->input('productos_detalle', []));
@@ -406,5 +411,29 @@ class ProveedorController extends Controller
             ->all();
 
         return $items !== [] ? $items : null;
+    }
+
+    private function ensureAccionesConMonto(array $acciones): void
+    {
+        $accionesSinMonto = collect($acciones)
+            ->filter(function ($accion) {
+                $hasData = filled($accion['fecha'] ?? null)
+                    || filled($accion['hora'] ?? null)
+                    || filled($accion['tipo'] ?? null)
+                    || filled($accion['productos'] ?? null)
+                    || ($accion['cantidad'] ?? null) !== null
+                    || ($accion['deuda_pendiente'] ?? null) !== null
+                    || filled($accion['notas'] ?? null);
+
+                $monto = $accion['monto'] ?? null;
+
+                return $hasData && ($monto === null || $monto === '');
+            });
+
+        if ($accionesSinMonto->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'acciones' => 'Cada acción debe tener un monto antes de guardar.',
+            ]);
+        }
     }
 }

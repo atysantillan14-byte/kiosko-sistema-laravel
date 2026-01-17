@@ -263,10 +263,6 @@
                             </select>
                         </div>
                     </div>
-                    <div>
-                        <label class="app-label">Monto</label>
-                        <input type="number" name="monto" value="{{ old('monto') }}" class="app-input" min="0" step="0.01" placeholder="0.00">
-                    </div>
                     @php
                         $productosDetalle = old('productos_detalle', [['nombre' => '', 'cantidad' => '']]);
                     @endphp
@@ -295,6 +291,11 @@
                                 </div>
                             @endforeach
                         </div>
+                    </div>
+                    <div>
+                        <label class="app-label">Monto</label>
+                        <p class="text-xs text-slate-500">Ingresá el precio total una vez que cargues los productos.</p>
+                        <input type="number" name="monto" value="{{ old('monto') }}" class="app-input" min="0" step="0.01" placeholder="0.00" required>
                     </div>
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                         <div class="rounded-xl border border-slate-200/70 bg-white p-3">
