@@ -57,6 +57,13 @@
                                 $pagosAcciones = $accionesTimeline
                                     ->filter(fn ($accion) => str_starts_with(strtolower($accion['tipo'] ?? ''), 'pago'))
                                     ->values();
+                                $accionesProductos = $accionesTimeline
+                                    ->filter(function ($accion) {
+                                        $tipo = strtolower($accion['tipo'] ?? '');
+
+                                        return str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago');
+                                    })
+                                    ->values();
                                 $pagosBase = (float) ($proveedor->pago ?? 0);
                                 $pagosDisplay = $pagosAcciones->map(fn ($accion) => [
                                     'timestamp' => $accion['timestamp'],
@@ -74,22 +81,24 @@
                                 $ultimoPagoMonto = $ultimoPago['monto'] ?? null;
 
                                 $deudaBase = (float) ($proveedor->deuda ?? 0);
-                                $deudasDisplay = $accionesTimeline
-                                    ->filter(fn ($accion) => ($accion['deuda_pendiente'] ?? null) !== null)
-                                    ->map(fn ($accion) => [
-                                        'timestamp' => $accion['timestamp'],
-                                        'monto' => (float) ($accion['deuda_pendiente'] ?? 0),
-                                    ]);
-                                if ($deudaBase > 0 && $proveedor->created_at) {
-                                    $deudasDisplay = $deudasDisplay->push([
-                                        'timestamp' => $proveedor->created_at,
-                                        'monto' => $deudaBase,
-                                    ]);
-                                }
-                                $ultimaDeuda = $deudasDisplay
-                                    ->sortBy(fn ($deuda) => $deuda['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1))
-                                    ->last();
-                                $ultimaDeudaMonto = $ultimaDeuda['monto'] ?? null;
+                                $productosMontoTotal = $accionesProductos
+                                    ->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+                                $pagosDeudaTotal = $accionesTimeline
+                                    ->filter(function ($accion) {
+                                        $tipo = strtolower($accion['tipo'] ?? '');
+
+                                        return str_starts_with($tipo, 'pago') && ($tipo === 'pago' || str_contains($tipo, 'deuda'));
+                                    })
+                                    ->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+                                $pagosProductosTotal = $accionesTimeline
+                                    ->filter(function ($accion) {
+                                        $tipo = strtolower($accion['tipo'] ?? '');
+
+                                        return str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago');
+                                    })
+                                    ->sum(fn ($accion) => (float) ($accion['monto_productos'] ?? 0));
+                                $deudaActual = $deudaBase + ($productosMontoTotal - $pagosDeudaTotal - $pagosProductosTotal);
+                                $deudaActualDisplay = max($deudaActual, 0);
                             @endphp
                             <tr>
                                 <td>
@@ -113,7 +122,7 @@
                                         {{ $ultimoPagoMonto !== null && $ultimoPagoMonto > 0 ? '$' . number_format($ultimoPagoMonto, 2, ',', '.') : 'Sin pago' }}
                                     </div>
                                     <div class="mt-1 text-xs text-slate-500">
-                                        {{ $ultimaDeudaMonto !== null && $ultimaDeudaMonto > 0 ? 'Debe $' . number_format($ultimaDeudaMonto, 2, ',', '.') : 'Sin deuda' }}
+                                        {{ $deudaActualDisplay > 0 ? 'Debe $' . number_format($deudaActualDisplay, 2, ',', '.') : 'Sin deuda' }}
                                     </div>
                                 </td>
                                 <td>
