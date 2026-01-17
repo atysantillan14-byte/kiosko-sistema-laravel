@@ -114,6 +114,12 @@
         $productosBaseTexto = $productosBaseTexto ?: ($proveedor->productos ?? null);
 
         $pagosAccionesTotal = $accionesTimeline->sum(fn ($accion) => $resolvePago($accion));
+        $deudaPendienteActual = $accionesTimeline
+            ->filter(fn ($accion) => $accion['deuda_pendiente'] !== null && $accion['deuda_pendiente'] !== '')
+            ->last();
+        $deudaPendienteActualMonto = $deudaPendienteActual !== null
+            ? (float) $deudaPendienteActual['deuda_pendiente']
+            : null;
         $productosCantidadTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['cantidad'] ?? 0)) + $productosBaseCantidad;
         $productosMontoTotal = $accionesProductosCalculo->sum(fn ($accion) => $resolveDeuda($accion));
         $deudaAccionesTotal = $accionesCalculo
@@ -138,7 +144,10 @@
             : $deudaBase;
         $deudaBaseAjustada = $deudaRegistrada > 0 ? $deudaRegistrada : $productosMontoTotal;
         $deudaActual = $deudaBaseAjustada - $pagosDeudaTotal;
-        $deudaActualDisplay = max($deudaActual, 0);
+        $deudaActualCalculada = max($deudaActual, 0);
+        $deudaActualDisplay = $deudaPendienteActualMonto !== null
+            ? max($deudaPendienteActualMonto, 0)
+            : $deudaActualCalculada;
 
         $accionesPagosDisplay = $accionesPagos->values();
         if ($pagosBase > 0) {
@@ -260,7 +269,7 @@
                         <div>
                             <label class="app-label">Tipo</label>
                             <select name="tipo" class="app-input">
-                                @foreach (['Pago deuda', 'Productos', 'Visita', 'Nota', 'Otro'] as $tipo)
+                                @foreach (['Pago deuda', 'Productos', 'Visita'] as $tipo)
                                     <option value="{{ $tipo }}" @selected(old('tipo') === $tipo)>{{ $tipo }}</option>
                                 @endforeach
                             </select>

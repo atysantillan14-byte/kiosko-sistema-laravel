@@ -106,6 +106,12 @@
                                 $ultimoPagoMonto = $ultimoPago['monto'] ?? null;
 
                                 $deudaBase = (float) ($proveedor->deuda ?? 0);
+                                $deudaPendienteActual = $accionesTimeline
+                                    ->filter(fn ($accion) => ($accion['deuda_pendiente'] ?? null) !== null && $accion['deuda_pendiente'] !== '')
+                                    ->last();
+                                $deudaPendienteActualMonto = $deudaPendienteActual !== null
+                                    ? (float) $deudaPendienteActual['deuda_pendiente']
+                                    : null;
                                 $productosMontoTotal = $accionesProductos
                                     ->sum(fn ($accion) => $resolveDeuda($accion));
                                 $pagosDeudaTotal = $accionesTimeline
@@ -129,7 +135,10 @@
                                     : $deudaBase;
                                 $deudaBaseAjustada = $deudaRegistrada > 0 ? $deudaRegistrada : $productosMontoTotal;
                                 $deudaActual = $deudaBaseAjustada - $pagosDeudaTotal;
-                                $deudaActualDisplay = max($deudaActual, 0);
+                                $deudaActualCalculada = max($deudaActual, 0);
+                                $deudaActualDisplay = $deudaPendienteActualMonto !== null
+                                    ? max($deudaPendienteActualMonto, 0)
+                                    : $deudaActualCalculada;
                             @endphp
                             <tr>
                                 <td>
