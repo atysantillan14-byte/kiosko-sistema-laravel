@@ -33,6 +33,7 @@
                     'productos' => $accion['productos'] ?? null,
                     'cantidad' => $accion['cantidad'] ?? null,
                     'monto' => $accion['monto'] ?? null,
+                    'deuda_pendiente' => $accion['deuda_pendiente'] ?? null,
                     'notas' => $accion['notas'] ?? null,
                     'timestamp' => $timestamp,
                 ];
@@ -42,25 +43,32 @@
             })
             ->values();
 
+        $accionDeudaReferencia = $accionesTimeline
+            ->filter(fn ($accion) => $accion['deuda_pendiente'] !== null && $accion['timestamp'])
+            ->last();
+        $accionesCalculo = $accionDeudaReferencia && $accionDeudaReferencia['timestamp']
+            ? $accionesTimeline->filter(function ($accion) use ($accionDeudaReferencia) {
+                return $accion['timestamp']
+                    && $accion['timestamp']->greaterThan($accionDeudaReferencia['timestamp']);
+            })
+            : $accionesTimeline;
+
         $accionesPagos = $accionesTimeline
             ->filter(fn ($accion) => str_starts_with(strtolower($accion['tipo'] ?? ''), 'pago'))
             ->values();
-        $accionesPagosDeuda = $accionesPagos
-            ->filter(function ($accion) {
-                $tipo = strtolower($accion['tipo'] ?? '');
-
-                return $tipo === 'pago' || str_contains($tipo, 'deuda');
-            })
-            ->values();
-        $accionesPagosProductos = $accionesPagos
-            ->filter(function ($accion) {
-                $tipo = strtolower($accion['tipo'] ?? '');
-
-                return str_contains($tipo, 'producto');
-            })
-            ->values();
         $accionesProductos = $accionesTimeline
-            ->filter(fn ($accion) => str_contains(strtolower($accion['tipo'] ?? ''), 'producto'))
+            ->filter(function ($accion) {
+                $tipo = strtolower($accion['tipo'] ?? '');
+
+                return str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago');
+            })
+            ->values();
+        $accionesProductosCalculo = $accionesCalculo
+            ->filter(function ($accion) {
+                $tipo = strtolower($accion['tipo'] ?? '');
+
+                return str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago');
+            })
             ->values();
         $accionesOtros = $accionesTimeline
             ->reject(function ($accion) {
@@ -90,11 +98,24 @@
 
         $pagosAccionesTotal = $accionesPagos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
         $productosCantidadTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['cantidad'] ?? 0)) + $productosBaseCantidad;
-        $productosMontoTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
-        $pagosDeudaTotal = $accionesPagosDeuda->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
-        $pagosProductosTotal = $accionesPagosProductos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+        $productosMontoTotal = $accionesProductosCalculo->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+        $pagosDeudaTotal = $accionesCalculo
+            ->filter(function ($accion) {
+                $tipo = strtolower($accion['tipo'] ?? '');
+
+                return str_starts_with($tipo, 'pago') && ($tipo === 'pago' || str_contains($tipo, 'deuda'));
+            })
+            ->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+        $pagosProductosTotal = $accionesCalculo
+            ->filter(function ($accion) {
+                $tipo = strtolower($accion['tipo'] ?? '');
+
+                return str_starts_with($tipo, 'pago') && str_contains($tipo, 'producto');
+            })
+            ->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
         $pagosTotal = $pagosAccionesTotal + $pagosBase;
-        $deudaActual = $deudaBase + ($productosMontoTotal - $pagosDeudaTotal - $pagosProductosTotal);
+        $deudaBaseCalculo = $accionDeudaReferencia ? (float) $accionDeudaReferencia['deuda_pendiente'] : $deudaBase;
+        $deudaActual = $deudaBaseCalculo + ($productosMontoTotal - $pagosDeudaTotal - $pagosProductosTotal);
 
         $accionesPagosDisplay = $accionesPagos->values();
         if ($pagosBase > 0) {

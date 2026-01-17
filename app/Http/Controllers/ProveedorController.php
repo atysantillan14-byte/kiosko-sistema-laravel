@@ -161,6 +161,7 @@ class ProveedorController extends Controller
                 ?? (isset($data['productos']) ? trim((string) $data['productos']) : null),
             'cantidad' => $productosDetalle ? ($cantidadDetalle ?: null) : ($data['cantidad'] ?? null),
             'monto' => $data['monto'] ?? null,
+            'deuda_pendiente' => $data['deuda_pendiente'] ?? null,
             'notas' => isset($data['notas']) ? trim((string) $data['notas']) : null,
         ];
         $montoProductos = $data['monto_productos'] ?? null;
@@ -385,6 +386,9 @@ class ProveedorController extends Controller
                     'productos' => isset($item['productos']) ? trim((string) $item['productos']) : null,
                     'cantidad' => isset($item['cantidad']) && $item['cantidad'] !== '' ? (int) $item['cantidad'] : null,
                     'monto' => isset($item['monto']) && $item['monto'] !== '' ? (float) $item['monto'] : null,
+                    'deuda_pendiente' => isset($item['deuda_pendiente']) && $item['deuda_pendiente'] !== ''
+                        ? (float) $item['deuda_pendiente']
+                        : null,
                     'notas' => isset($item['notas']) ? trim((string) $item['notas']) : null,
                 ];
             })
@@ -395,6 +399,7 @@ class ProveedorController extends Controller
                     || filled($item['productos'])
                     || $item['cantidad'] !== null
                     || $item['monto'] !== null
+                    || $item['deuda_pendiente'] !== null
                     || filled($item['notas']);
             })
             ->values()

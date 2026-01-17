@@ -40,6 +40,14 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200/70">
                         @forelse($proveedores as $proveedor)
+                            @php
+                                $accionesPagos = collect($proveedor->acciones ?? [])
+                                    ->filter(function ($accion) {
+                                        return str_starts_with(strtolower($accion['tipo'] ?? ''), 'pago');
+                                    })
+                                    ->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+                                $pagosTotal = (float) ($proveedor->pago ?? 0) + $accionesPagos;
+                            @endphp
                             <tr>
                                 <td>
                                     <a class="font-semibold text-slate-900 transition hover:text-blue-600" href="{{ route('proveedores.show', $proveedor) }}">
@@ -80,7 +88,7 @@
                                 </td>
                                 <td>
                                     <div class="text-sm text-slate-700">
-                                        {{ $proveedor->pago !== null ? '$' . number_format($proveedor->pago, 2, ',', '.') : 'Sin pago' }}
+                                        {{ $pagosTotal > 0 ? '$' . number_format($pagosTotal, 2, ',', '.') : 'Sin pago' }}
                                     </div>
                                     <div class="mt-1 text-xs text-slate-500">
                                         {{ ($proveedor->deuda ?? 0) > 0 ? 'Debe $' . number_format($proveedor->deuda, 2, ',', '.') : 'Sin deuda' }}
