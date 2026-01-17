@@ -55,7 +55,7 @@
             }
 
             if (str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago')) {
-                return (float) ($montoProductos ?? 0);
+                return (float) ($montoProductos ?? $monto ?? 0);
             }
 
             return 0;
@@ -129,7 +129,7 @@
 
                 return str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago');
             })
-            ->sum(fn ($accion) => (float) ($accion['monto_productos'] ?? 0));
+            ->sum(fn ($accion) => (float) ($accion['monto_productos'] ?? $accion['monto'] ?? 0));
         $pagosTotal = $pagosAccionesTotal + $pagosBase;
         $deudaBaseAjustada = $deudaBase > 0 ? $deudaBase : $productosMontoTotal;
         $deudaActual = $deudaBaseAjustada - $pagosDeudaTotal - $pagosProductosTotal;
@@ -365,7 +365,7 @@
                                             if (str_starts_with($tipoAccion, 'pago')) {
                                                 $montoDisplay = $montoAccion ?? $montoProductosAccion;
                                             } elseif (str_contains($tipoAccion, 'producto') && ! str_starts_with($tipoAccion, 'pago')) {
-                                                $montoDisplay = $montoProductosAccion;
+                                                $montoDisplay = $montoProductosAccion ?? $montoAccion;
                                             } else {
                                                 $montoDisplay = $montoAccion;
                                             }

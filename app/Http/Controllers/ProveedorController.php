@@ -51,6 +51,8 @@ class ProveedorController extends Controller
             'acciones.*.productos' => ['nullable', 'string', 'max:1000'],
             'acciones.*.cantidad' => ['nullable', 'integer', 'min:0'],
             'acciones.*.monto' => ['nullable', 'numeric', 'min:0'],
+            'acciones.*.monto_productos' => ['nullable', 'numeric', 'min:0'],
+            'acciones.*.deuda_pendiente' => ['nullable', 'numeric', 'min:0'],
             'acciones.*.notas' => ['nullable', 'string', 'max:1000'],
             'fecha_visita' => ['required', 'date'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
@@ -158,9 +160,22 @@ class ProveedorController extends Controller
         $tipoAccion = strtolower((string) ($data['tipo'] ?? ''));
         $monto = $data['monto'] ?? null;
         $montoProductos = $data['monto_productos'] ?? null;
+        $esPagoDeuda = str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'deuda');
 
         if (str_starts_with($tipoAccion, 'pago') && $monto === null && $montoProductos !== null) {
             $monto = $montoProductos;
+            $montoProductos = null;
+        }
+
+        $deudaPendienteAccion = $esPagoDeuda ? null : ($data['deuda_pendiente'] ?? null);
+        $productosTexto = $esPagoDeuda
+            ? null
+            : ($productosDetalleResumen
+                ?? (isset($data['productos']) ? trim((string) $data['productos']) : null));
+        $cantidadAccion = $esPagoDeuda
+            ? null
+            : ($productosDetalle ? ($cantidadDetalle ?: null) : ($data['cantidad'] ?? null));
+        if ($esPagoDeuda) {
             $montoProductos = null;
         }
 
@@ -168,12 +183,11 @@ class ProveedorController extends Controller
             'fecha' => $fecha,
             'hora' => $hora,
             'tipo' => filled($data['tipo'] ?? null) ? $data['tipo'] : 'Acción',
-            'productos' => $productosDetalleResumen
-                ?? (isset($data['productos']) ? trim((string) $data['productos']) : null),
-            'cantidad' => $productosDetalle ? ($cantidadDetalle ?: null) : ($data['cantidad'] ?? null),
+            'productos' => $productosTexto,
+            'cantidad' => $cantidadAccion,
             'monto' => $monto,
             'monto_productos' => $montoProductos,
-            'deuda_pendiente' => $data['deuda_pendiente'] ?? null,
+            'deuda_pendiente' => $deudaPendienteAccion,
             'notas' => isset($data['notas']) ? trim((string) $data['notas']) : null,
         ];
 
@@ -185,8 +199,8 @@ class ProveedorController extends Controller
         if (filled($data['proxima_visita'] ?? null)) {
             $updates['proxima_visita'] = $data['proxima_visita'];
         }
-        if (filled($data['deuda_pendiente'] ?? null)) {
-            $updates['deuda'] = (float) ($proveedor->deuda ?? 0) + (float) $data['deuda_pendiente'];
+        if (filled($deudaPendienteAccion)) {
+            $updates['deuda'] = (float) ($proveedor->deuda ?? 0) + (float) $deudaPendienteAccion;
         }
 
         $proveedor->update($updates);
@@ -216,6 +230,8 @@ class ProveedorController extends Controller
             'acciones.*.productos' => ['nullable', 'string', 'max:1000'],
             'acciones.*.cantidad' => ['nullable', 'integer', 'min:0'],
             'acciones.*.monto' => ['nullable', 'numeric', 'min:0'],
+            'acciones.*.monto_productos' => ['nullable', 'numeric', 'min:0'],
+            'acciones.*.deuda_pendiente' => ['nullable', 'numeric', 'min:0'],
             'acciones.*.notas' => ['nullable', 'string', 'max:1000'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
             'hora' => ['nullable', 'date_format:H:i'],
@@ -384,6 +400,9 @@ class ProveedorController extends Controller
                     'productos' => isset($item['productos']) ? trim((string) $item['productos']) : null,
                     'cantidad' => isset($item['cantidad']) && $item['cantidad'] !== '' ? (int) $item['cantidad'] : null,
                     'monto' => isset($item['monto']) && $item['monto'] !== '' ? (float) $item['monto'] : null,
+                    'monto_productos' => isset($item['monto_productos']) && $item['monto_productos'] !== ''
+                        ? (float) $item['monto_productos']
+                        : null,
                     'deuda_pendiente' => isset($item['deuda_pendiente']) && $item['deuda_pendiente'] !== ''
                         ? (float) $item['deuda_pendiente']
                         : null,
@@ -397,6 +416,7 @@ class ProveedorController extends Controller
                     || filled($item['productos'])
                     || $item['cantidad'] !== null
                     || $item['monto'] !== null
+                    || $item['monto_productos'] !== null
                     || $item['deuda_pendiente'] !== null
                     || filled($item['notas']);
             })
