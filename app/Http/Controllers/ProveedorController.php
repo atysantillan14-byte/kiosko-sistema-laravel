@@ -177,7 +177,7 @@ class ProveedorController extends Controller
             $updates['proxima_visita'] = $data['proxima_visita'];
         }
         if (filled($data['deuda_pendiente'] ?? null)) {
-            $updates['deuda'] = $data['deuda_pendiente'];
+            $updates['deuda'] = (float) ($proveedor->deuda ?? 0) + (float) $data['deuda_pendiente'];
         }
 
         $proveedor->update($updates);

@@ -44,15 +44,7 @@
             })
             ->values();
 
-        $accionDeudaReferencia = $accionesTimeline
-            ->filter(fn ($accion) => $accion['deuda_pendiente'] !== null && $accion['timestamp'])
-            ->last();
-        $accionesCalculo = $accionDeudaReferencia && $accionDeudaReferencia['timestamp']
-            ? $accionesTimeline->filter(function ($accion) use ($accionDeudaReferencia) {
-                return $accion['timestamp']
-                    && $accion['timestamp']->greaterThan($accionDeudaReferencia['timestamp']);
-            })
-            : $accionesTimeline;
+        $accionesCalculo = $accionesTimeline;
 
         $accionesPagos = $accionesTimeline
             ->filter(fn ($accion) => str_starts_with(strtolower($accion['tipo'] ?? ''), 'pago'))
@@ -115,8 +107,7 @@
             })
             ->sum(fn ($accion) => (float) ($accion['monto_productos'] ?? 0));
         $pagosTotal = $pagosAccionesTotal + $pagosProductosTotal + $pagosBase;
-        $deudaBaseCalculo = $accionDeudaReferencia ? (float) $accionDeudaReferencia['deuda_pendiente'] : $deudaBase;
-        $deudaActual = $deudaBaseCalculo + ($productosMontoTotal - $pagosDeudaTotal - $pagosProductosTotal);
+        $deudaActual = $deudaBase + ($productosMontoTotal - $pagosDeudaTotal - $pagosProductosTotal);
         $deudaActualDisplay = max($deudaActual, 0);
 
         $accionesPagosDisplay = $accionesPagos->values();
@@ -340,6 +331,7 @@
                                             }
                                             $montoAccion = $accion['monto'] ?? null;
                                             $montoProductosAccion = $accion['monto_productos'] ?? null;
+                                            $deudaPendienteAccion = $accion['deuda_pendiente'] ?? null;
                                         @endphp
                                         <tr>
                                             <td class="font-semibold text-slate-900">#{{ $loop->iteration }}</td>
@@ -360,7 +352,9 @@
                                                     ? '$' . number_format($montoAccion, 2, ',', '.')
                                                     : ($montoProductosAccion !== null
                                                         ? '$' . number_format($montoProductosAccion, 2, ',', '.')
-                                                        : '—') }}
+                                                        : ($deudaPendienteAccion !== null
+                                                            ? '$' . number_format($deudaPendienteAccion, 2, ',', '.')
+                                                            : '—')) }}
                                             </td>
                                         </tr>
                                     @endforeach
