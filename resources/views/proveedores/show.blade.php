@@ -117,41 +117,6 @@
         $productosBaseTexto = $productosBaseTexto ?: ($proveedor->productos ?? null);
 
         $pagosAccionesTotal = $accionesTimeline->sum(fn ($accion) => $resolvePago($accion));
-        $ultimoPagoDeuda = $accionesTimeline
-            ->filter(function ($accion) {
-                $tipo = strtolower($accion['tipo'] ?? '');
-
-                return str_starts_with($tipo, 'pago') && ($tipo === 'pago' || str_contains($tipo, 'deuda'));
-            })
-            ->last();
-        $ultimoPagoDeudaTimestamp = $ultimoPagoDeuda['timestamp'] ?? null;
-        $ultimoPagoDeudaIndice = $ultimoPagoDeuda['accion_index'] ?? null;
-        $deudaPendienteActual = $accionesTimeline
-            ->filter(function ($accion) use ($ultimoPagoDeudaTimestamp, $ultimoPagoDeudaIndice) {
-                if ($accion['deuda_pendiente'] === null || $accion['deuda_pendiente'] === '') {
-                    return false;
-                }
-
-                if (! $ultimoPagoDeudaTimestamp) {
-                    return true;
-                }
-
-                $accionTimestamp = $accion['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1);
-
-                if ($accionTimestamp->greaterThan($ultimoPagoDeudaTimestamp)) {
-                    return true;
-                }
-
-                if ($accionTimestamp->equalTo($ultimoPagoDeudaTimestamp) && $ultimoPagoDeudaIndice !== null) {
-                    return ($accion['accion_index'] ?? -1) > $ultimoPagoDeudaIndice;
-                }
-
-                return false;
-            })
-            ->values();
-        $deudaPendienteActualMonto = $deudaPendienteActual->isNotEmpty()
-            ? $deudaPendienteActual->sum(fn ($accion) => (float) $accion['deuda_pendiente'])
-            : null;
         $deudaPendienteReferencia = $accionesTimeline
             ->filter(function ($accion) {
                 return ($accion['deuda_pendiente'] ?? null) !== null && $accion['deuda_pendiente'] !== '';
@@ -160,8 +125,6 @@
         $deudaPendienteReferenciaMonto = $deudaPendienteReferencia !== null
             ? (float) $deudaPendienteReferencia['deuda_pendiente']
             : null;
-        $deudaPendienteReferenciaTimestamp = $deudaPendienteReferencia['timestamp'] ?? null;
-        $deudaPendienteReferenciaIndice = $deudaPendienteReferencia['accion_index'] ?? null;
         $productosCantidadTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['cantidad'] ?? 0)) + $productosBaseCantidad;
         $productosMontoTotal = $accionesProductosCalculo->sum(fn ($accion) => $resolveDeuda($accion));
         $deudaAccionesTotal = $accionesCalculo
@@ -174,28 +137,10 @@
                 return (float) ($accion['deuda_pendiente'] ?? $accion['monto'] ?? 0);
             });
         $pagosDeudaTotal = $accionesCalculo
-            ->filter(function ($accion) use ($deudaPendienteReferenciaTimestamp, $deudaPendienteReferenciaIndice) {
+            ->filter(function ($accion) {
                 $tipo = strtolower($accion['tipo'] ?? '');
 
-                if (! (str_starts_with($tipo, 'pago') && ($tipo === 'pago' || str_contains($tipo, 'deuda')))) {
-                    return false;
-                }
-
-                if (! $deudaPendienteReferenciaTimestamp) {
-                    return true;
-                }
-
-                $accionTimestamp = $accion['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1);
-
-                if ($accionTimestamp->greaterThan($deudaPendienteReferenciaTimestamp)) {
-                    return true;
-                }
-
-                if ($accionTimestamp->equalTo($deudaPendienteReferenciaTimestamp) && $deudaPendienteReferenciaIndice !== null) {
-                    return ($accion['accion_index'] ?? -1) > $deudaPendienteReferenciaIndice;
-                }
-
-                return false;
+                return str_starts_with($tipo, 'pago') && ($tipo === 'pago' || str_contains($tipo, 'deuda'));
             })
             ->sum(fn ($accion) => $resolvePago($accion));
         $pagosTotal = $pagosAccionesTotal + $pagosBase;
@@ -206,11 +151,9 @@
         $deudaBaseReferencia = $deudaPendienteReferenciaMonto !== null
             ? $deudaPendienteReferenciaMonto
             : $deudaBaseAjustada;
-        $deudaActual = $deudaBaseReferencia - $pagosDeudaTotal;
+        $deudaActual = ($deudaBase + $deudaAccionesTotal) - $pagosDeudaTotal;
         $deudaActualCalculada = max($deudaActual, 0);
-        $deudaActualDisplay = $deudaPendienteActualMonto !== null
-            ? max($deudaPendienteActualMonto, 0)
-            : $deudaActualCalculada;
+        $deudaActualDisplay = $deudaActualCalculada;
 
         $accionesPagosDisplay = $accionesPagos->values();
         if ($pagosBase > 0) {
