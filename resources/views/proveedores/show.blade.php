@@ -148,9 +148,9 @@
 
                 return false;
             })
-            ->last();
-        $deudaPendienteActualMonto = $deudaPendienteActual !== null
-            ? (float) $deudaPendienteActual['deuda_pendiente']
+            ->values();
+        $deudaPendienteActualMonto = $deudaPendienteActual->isNotEmpty()
+            ? $deudaPendienteActual->sum(fn ($accion) => (float) $accion['deuda_pendiente'])
             : null;
         $deudaPendienteReferencia = $accionesTimeline
             ->filter(function ($accion) {
