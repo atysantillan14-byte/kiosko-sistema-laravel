@@ -83,7 +83,7 @@
                                         {{ $proveedor->pago !== null ? '$' . number_format($proveedor->pago, 2, ',', '.') : 'Sin pago' }}
                                     </div>
                                     <div class="mt-1 text-xs text-slate-500">
-                                        {{ $proveedor->deuda !== null ? 'Debe $' . number_format($proveedor->deuda, 2, ',', '.') : 'Sin deuda' }}
+                                        {{ ($proveedor->deuda ?? 0) > 0 ? 'Debe $' . number_format($proveedor->deuda, 2, ',', '.') : 'Sin deuda' }}
                                     </div>
                                 </td>
                                 <td>
