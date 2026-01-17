@@ -42,18 +42,27 @@
             })
             ->values();
 
-        $accionesPagos = $accionesTimeline->where('tipo', 'Pago')->values();
+        $accionesPagos = $accionesTimeline
+            ->filter(fn ($accion) => str_starts_with(strtolower($accion['tipo'] ?? ''), 'pago'))
+            ->values();
+        $accionesPagosDeuda = $accionesPagos
+            ->filter(fn ($accion) => in_array(strtolower($accion['tipo'] ?? ''), ['pago', 'pago deuda'], true))
+            ->values();
         $accionesProductos = $accionesTimeline->where('tipo', 'Productos')->values();
         $accionesOtros = $accionesTimeline
             ->reject(function ($accion) {
-                return in_array($accion['tipo'], ['Pago', 'Productos'], true);
+                $tipo = strtolower($accion['tipo'] ?? '');
+
+                return $tipo === 'productos' || str_starts_with($tipo, 'pago');
             })
             ->values();
 
         $pagosAccionesTotal = $accionesPagos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
-        $productosTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+        $productosCantidadTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['cantidad'] ?? 0));
+        $productosMontoTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+        $pagosDeudaTotal = $accionesPagosDeuda->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
         $pagosTotal = $pagosAccionesTotal + $pagosBase;
-        $deudaActual = $deudaBase + ($productosTotal - $pagosAccionesTotal);
+        $deudaActual = $deudaBase + ($productosMontoTotal - $pagosDeudaTotal);
 
         $accionesPagosDisplay = $accionesPagos->values();
         if ($pagosBase > 0) {
@@ -116,7 +125,7 @@
                         </div>
                         <div>
                             <div class="text-xs uppercase text-slate-400">Productos entregados</div>
-                            <div class="mt-1 font-semibold text-slate-900">${{ number_format($productosTotal, 2, ',', '.') }}</div>
+                            <div class="mt-1 font-semibold text-slate-900">{{ $productosCantidadTotal }} unidades</div>
                         </div>
                         <div>
                             <div class="text-xs uppercase text-slate-400">
@@ -142,7 +151,7 @@
                         <div>
                             <label class="app-label">Tipo</label>
                             <select name="tipo" class="app-input">
-                                @foreach (['Pago', 'Productos', 'Visita', 'Nota', 'Otro'] as $tipo)
+                                @foreach (['Pago deuda', 'Pago productos', 'Productos', 'Visita', 'Nota', 'Otro'] as $tipo)
                                     <option value="{{ $tipo }}" @selected(old('tipo') === $tipo)>{{ $tipo }}</option>
                                 @endforeach
                             </select>
@@ -152,18 +161,43 @@
                             <input type="number" name="monto" value="{{ old('monto') }}" class="app-input" min="0" step="0.01" placeholder="0.00">
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
-                        <div class="md:col-span-2">
-                            <label class="app-label">Productos</label>
-                            <input name="productos" value="{{ old('productos') }}" class="app-input" placeholder="Ej: Papas, bebidas, golosinas">
+                    @php
+                        $productosDetalle = old('productos_detalle', [['nombre' => '', 'cantidad' => '']]);
+                    @endphp
+                    <div class="space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <label class="app-label">Productos y cantidades</label>
+                                <p class="text-xs text-slate-500">Sumá varios productos antes de registrar la acción.</p>
+                            </div>
+                            <button type="button" class="app-btn-secondary px-3 py-2 text-xs" data-add-producto>Agregar producto</button>
                         </div>
-                        <div>
-                            <label class="app-label">Cantidad</label>
-                            <input type="number" name="cantidad" value="{{ old('cantidad') }}" class="app-input" min="0" placeholder="0">
+                        <div class="space-y-3" data-productos-list>
+                            @foreach ($productosDetalle as $index => $detalle)
+                                <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200/70 bg-white p-3 md:grid-cols-[2fr,1fr,auto]" data-producto-row>
+                                    <div>
+                                        <label class="app-label">Producto</label>
+                                        <input name="productos_detalle[{{ $index }}][nombre]" value="{{ $detalle['nombre'] ?? '' }}" class="app-input" placeholder="Ej: Papas, bebidas">
+                                    </div>
+                                    <div>
+                                        <label class="app-label">Cantidad</label>
+                                        <input type="number" name="productos_detalle[{{ $index }}][cantidad]" value="{{ $detalle['cantidad'] ?? '' }}" class="app-input" min="0" placeholder="0">
+                                    </div>
+                                    <div class="flex items-end">
+                                        <button type="button" class="app-btn-secondary px-3 py-2 text-xs" data-remove-producto>Quitar</button>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                         <div>
                             <label class="app-label">Notas</label>
                             <input name="notas" value="{{ old('notas') }}" class="app-input" placeholder="Detalle de pago o entrega">
+                        </div>
+                        <div>
+                            <label class="app-label">Productos (nota rápida)</label>
+                            <input name="productos" value="{{ old('productos') }}" class="app-input" placeholder="Detalle adicional si aplica">
                         </div>
                     </div>
                     <div class="flex justify-end">
@@ -182,10 +216,11 @@
                                 $montoTexto = $accion['monto'] !== null
                                     ? '$' . number_format($accion['monto'], 2, ',', '.')
                                     : null;
+                                $tipoPago = $accion['tipo'] ?? 'Pago';
                             @endphp
                             <div class="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4">
                                 <div class="flex flex-wrap items-center justify-between gap-3">
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Pago</div>
+                                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ $tipoPago }}</div>
                                     <span class="text-xs font-semibold text-slate-500">{{ $fechaAccion }} · {{ $horaAccion }}</span>
                                 </div>
                                 <div class="mt-1 text-xs text-slate-500">
@@ -288,4 +323,66 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const list = document.querySelector('[data-productos-list]');
+            const addButton = document.querySelector('[data-add-producto]');
+
+            if (!list || !addButton) {
+                return;
+            }
+
+            const buildRow = (index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'grid grid-cols-1 gap-3 rounded-xl border border-slate-200/70 bg-white p-3 md:grid-cols-[2fr,1fr,auto]';
+                wrapper.setAttribute('data-producto-row', '');
+                wrapper.innerHTML = `
+                    <div>
+                        <label class="app-label">Producto</label>
+                        <input name="productos_detalle[${index}][nombre]" class="app-input" placeholder="Ej: Papas, bebidas">
+                    </div>
+                    <div>
+                        <label class="app-label">Cantidad</label>
+                        <input type="number" name="productos_detalle[${index}][cantidad]" class="app-input" min="0" placeholder="0">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" class="app-btn-secondary px-3 py-2 text-xs" data-remove-producto>Quitar</button>
+                    </div>
+                `;
+                return wrapper;
+            };
+
+            const refreshRemoveButtons = () => {
+                list.querySelectorAll('[data-remove-producto]').forEach((button) => {
+                    button.onclick = () => {
+                        if (list.children.length > 1) {
+                            button.closest('[data-producto-row]').remove();
+                        } else {
+                            const inputs = list.querySelectorAll('input');
+                            inputs.forEach((input) => {
+                                input.value = '';
+                            });
+                        }
+                    };
+                });
+            };
+
+            const getNextIndex = () => {
+                const indices = Array.from(list.querySelectorAll('input[name^="productos_detalle"]'))
+                    .map((input) => input.name.match(/productos_detalle\[(\d+)\]/))
+                    .filter(Boolean)
+                    .map((match) => Number.parseInt(match[1], 10));
+                return indices.length ? Math.max(...indices) + 1 : list.children.length;
+            };
+
+            addButton.addEventListener('click', () => {
+                const index = getNextIndex();
+                list.appendChild(buildRow(index));
+                refreshRemoveButtons();
+            });
+
+            refreshRemoveButtons();
+        });
+    </script>
 </x-app-layout>
