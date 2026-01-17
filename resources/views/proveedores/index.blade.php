@@ -33,7 +33,7 @@
                             <th>Condiciones</th>
                             <th>Productos</th>
                             <th>Pagos</th>
-                            <th>Fecha</th>
+                            <th>Próxima visita</th>
                             <th>Estado</th>
                             <th class="text-right">Acciones</th>
                         </tr>
@@ -42,7 +42,9 @@
                         @forelse($proveedores as $proveedor)
                             <tr>
                                 <td>
-                                    <div class="font-semibold text-slate-900">{{ $proveedor->nombre }}</div>
+                                    <a class="font-semibold text-slate-900 transition hover:text-blue-600" href="{{ route('proveedores.show', $proveedor) }}">
+                                        {{ $proveedor->nombre }}
+                                    </a>
                                     <div class="mt-1 text-xs text-slate-500">
                                         {{ $proveedor->email ?: 'Sin email' }}
                                     </div>
@@ -85,8 +87,11 @@
                                     </div>
                                 </td>
                                 <td>
+                                    @php
+                                        $fechaVisita = $proveedor->proxima_visita ?: $proveedor->created_at;
+                                    @endphp
                                     <div class="text-sm text-slate-700">
-                                        {{ $proveedor->created_at ? $proveedor->created_at->format('d/m/Y') : 'Sin fecha' }}
+                                        {{ $fechaVisita ? $fechaVisita->format('d/m/Y') : 'Sin fecha' }}
                                     </div>
                                     <div class="mt-1 text-xs text-slate-500">
                                         {{ $proveedor->hora ?: 'Sin hora' }}
@@ -99,6 +104,9 @@
                                 </td>
                                 <td>
                                     <div class="flex justify-end gap-2">
+                                        <a class="app-btn-secondary px-3 py-1.5 text-xs" href="{{ route('proveedores.show', $proveedor) }}">
+                                            Ver
+                                        </a>
                                         <a class="app-btn-secondary px-3 py-1.5 text-xs" href="{{ route('proveedores.edit', $proveedor) }}">
                                             Editar
                                         </a>

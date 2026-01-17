@@ -22,6 +22,7 @@ class Proveedor extends Model
         'productos_detalle',
         'cantidad',
         'hora',
+        'proxima_visita',
         'pago',
         'deuda',
         'notas',
@@ -31,5 +32,6 @@ class Proveedor extends Model
     protected $casts = [
         'activo' => 'boolean',
         'productos_detalle' => 'array',
+        'proxima_visita' => 'date',
     ];
 }
