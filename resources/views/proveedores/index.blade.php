@@ -75,7 +75,7 @@
 
                                 $deudaBase = (float) ($proveedor->deuda ?? 0);
                                 $deudasDisplay = $accionesTimeline
-                                    ->filter(fn ($accion) => $accion['deuda_pendiente'] !== null)
+                                    ->filter(fn ($accion) => ($accion['deuda_pendiente'] ?? null) !== null)
                                     ->map(fn ($accion) => [
                                         'timestamp' => $accion['timestamp'],
                                         'monto' => (float) ($accion['deuda_pendiente'] ?? 0),
