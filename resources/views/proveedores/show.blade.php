@@ -338,7 +338,7 @@
                     </div>
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                         <div class="rounded-xl border border-slate-200/70 bg-white p-3">
-                            <label class="app-label">Pago productos</label>
+                            <label class="app-label">Pago productos/deudas</label>
                             <input type="number" name="monto_productos" value="{{ old('monto_productos') }}" class="app-input" min="0" step="0.01" placeholder="0.00">
                         </div>
                         <div class="rounded-xl border border-slate-200/70 bg-white p-3">
