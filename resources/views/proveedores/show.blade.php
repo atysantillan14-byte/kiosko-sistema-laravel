@@ -7,7 +7,6 @@
             </div>
             <div class="flex flex-wrap gap-2">
                 <a href="{{ route('proveedores.index') }}" class="app-btn-secondary">Volver</a>
-                <a href="{{ route('proveedores.edit', $proveedor) }}" class="app-btn-primary">Editar proveedor</a>
             </div>
         </div>
     </x-slot>
@@ -116,6 +115,15 @@
         $pagosAccionesTotal = $accionesTimeline->sum(fn ($accion) => $resolvePago($accion));
         $productosCantidadTotal = $accionesProductos->sum(fn ($accion) => (float) ($accion['cantidad'] ?? 0)) + $productosBaseCantidad;
         $productosMontoTotal = $accionesProductosCalculo->sum(fn ($accion) => $resolveDeuda($accion));
+        $deudaAccionesTotal = $accionesCalculo
+            ->filter(function ($accion) {
+                $tipo = strtolower($accion['tipo'] ?? '');
+
+                return str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago');
+            })
+            ->sum(function ($accion) {
+                return (float) ($accion['deuda_pendiente'] ?? $accion['monto'] ?? 0);
+            });
         $pagosDeudaTotal = $accionesCalculo
             ->filter(function ($accion) {
                 $tipo = strtolower($accion['tipo'] ?? '');
@@ -123,16 +131,12 @@
                 return str_starts_with($tipo, 'pago') && ($tipo === 'pago' || str_contains($tipo, 'deuda'));
             })
             ->sum(fn ($accion) => $resolvePago($accion));
-        $pagosProductosTotal = $accionesCalculo
-            ->filter(function ($accion) {
-                $tipo = strtolower($accion['tipo'] ?? '');
-
-                return str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago');
-            })
-            ->sum(fn ($accion) => (float) ($accion['monto_productos'] ?? $accion['monto'] ?? 0));
         $pagosTotal = $pagosAccionesTotal + $pagosBase;
-        $deudaBaseAjustada = $deudaBase > 0 ? $deudaBase : $productosMontoTotal;
-        $deudaActual = $deudaBaseAjustada - $pagosDeudaTotal - $pagosProductosTotal;
+        $deudaRegistrada = $deudaAccionesTotal > 0
+            ? ($deudaBase >= $deudaAccionesTotal ? $deudaBase : $deudaBase + $deudaAccionesTotal)
+            : $deudaBase;
+        $deudaBaseAjustada = $deudaRegistrada > 0 ? $deudaRegistrada : $productosMontoTotal;
+        $deudaActual = $deudaBaseAjustada - $pagosDeudaTotal;
         $deudaActualDisplay = max($deudaActual, 0);
 
         $accionesPagosDisplay = $accionesPagos->values();
@@ -217,7 +221,6 @@
                         <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Acciones registradas</h3>
                         <p class="mt-2 text-sm text-slate-600">Registrá cada visita como una acción con productos y detalles.</p>
                     </div>
-                    <a href="{{ route('proveedores.edit', $proveedor) }}" class="app-btn-secondary px-3 py-2 text-xs">Editar proveedor</a>
                 </div>
                 <div class="mt-4 rounded-2xl border border-slate-200/70 bg-white p-4">
                     <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Resumen</div>
