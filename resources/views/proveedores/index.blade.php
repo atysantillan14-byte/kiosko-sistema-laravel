@@ -54,8 +54,36 @@
                                         return $accion['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1);
                                     })
                                     ->values();
+                                $resolvePago = function ($accion) {
+                                    $tipo = strtolower($accion['tipo'] ?? '');
+                                    $monto = $accion['monto'] ?? null;
+                                    $montoProductos = $accion['monto_productos'] ?? null;
+
+                                    if (str_starts_with($tipo, 'pago')) {
+                                        return (float) ($monto ?? $montoProductos ?? 0);
+                                    }
+
+                                    if (str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago')) {
+                                        return (float) ($montoProductos ?? 0);
+                                    }
+
+                                    return 0;
+                                };
+                                $resolveDeuda = function ($accion) {
+                                    $tipo = strtolower($accion['tipo'] ?? '');
+
+                                    if (str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago')) {
+                                        return (float) ($accion['monto'] ?? $accion['deuda_pendiente'] ?? 0);
+                                    }
+
+                                    return 0;
+                                };
                                 $pagosAcciones = $accionesTimeline
-                                    ->filter(fn ($accion) => str_starts_with(strtolower($accion['tipo'] ?? ''), 'pago'))
+                                    ->map(fn ($accion) => [
+                                        'timestamp' => $accion['timestamp'] ?? null,
+                                        'monto' => $resolvePago($accion),
+                                    ])
+                                    ->filter(fn ($pago) => $pago['monto'] > 0)
                                     ->values();
                                 $accionesProductos = $accionesTimeline
                                     ->filter(function ($accion) {
@@ -65,10 +93,7 @@
                                     })
                                     ->values();
                                 $pagosBase = (float) ($proveedor->pago ?? 0);
-                                $pagosDisplay = $pagosAcciones->map(fn ($accion) => [
-                                    'timestamp' => $accion['timestamp'],
-                                    'monto' => (float) ($accion['monto'] ?? 0),
-                                ]);
+                                $pagosDisplay = $pagosAcciones;
                                 if ($pagosBase > 0 && $proveedor->created_at) {
                                     $pagosDisplay = $pagosDisplay->push([
                                         'timestamp' => $proveedor->created_at,
@@ -82,14 +107,14 @@
 
                                 $deudaBase = (float) ($proveedor->deuda ?? 0);
                                 $productosMontoTotal = $accionesProductos
-                                    ->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+                                    ->sum(fn ($accion) => $resolveDeuda($accion));
                                 $pagosDeudaTotal = $accionesTimeline
                                     ->filter(function ($accion) {
                                         $tipo = strtolower($accion['tipo'] ?? '');
 
                                         return str_starts_with($tipo, 'pago') && ($tipo === 'pago' || str_contains($tipo, 'deuda'));
                                     })
-                                    ->sum(fn ($accion) => (float) ($accion['monto'] ?? 0));
+                                    ->sum(fn ($accion) => $resolvePago($accion));
                                 $pagosProductosTotal = $accionesTimeline
                                     ->filter(function ($accion) {
                                         $tipo = strtolower($accion['tipo'] ?? '');
@@ -97,7 +122,8 @@
                                         return str_contains($tipo, 'producto') && ! str_starts_with($tipo, 'pago');
                                     })
                                     ->sum(fn ($accion) => (float) ($accion['monto_productos'] ?? 0));
-                                $deudaActual = $deudaBase + ($productosMontoTotal - $pagosDeudaTotal - $pagosProductosTotal);
+                                $deudaBaseAjustada = $deudaBase > 0 ? $deudaBase : $productosMontoTotal;
+                                $deudaActual = $deudaBaseAjustada - $pagosDeudaTotal - $pagosProductosTotal;
                                 $deudaActualDisplay = max($deudaActual, 0);
                             @endphp
                             <tr>
