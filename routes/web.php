@@ -21,6 +21,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('ventas/cierres', [VentaController::class, 'cierresIndex'])->name('ventas.cierres.index');
     Route::get('ventas/cierres/{cierreCaja}', [VentaController::class, 'cierresShow'])->name('ventas.cierres.show');
     Route::resource('ventas', VentaController::class);
+    Route::post('proveedores/{proveedor}/acciones', [ProveedorController::class, 'storeAccion'])
+        ->name('proveedores.acciones.store');
     Route::resource('proveedores', ProveedorController::class)
         ->parameters(['proveedores' => 'proveedor']);
 });

@@ -46,8 +46,11 @@ class ProveedorController extends Controller
             'productos_detalle.*.cantidad' => ['nullable', 'integer', 'min:0'],
             'acciones' => ['nullable', 'array'],
             'acciones.*.fecha' => ['nullable', 'date'],
+            'acciones.*.hora' => ['nullable', 'date_format:H:i'],
+            'acciones.*.tipo' => ['nullable', 'string', 'max:100'],
             'acciones.*.productos' => ['nullable', 'string', 'max:1000'],
             'acciones.*.cantidad' => ['nullable', 'integer', 'min:0'],
+            'acciones.*.monto' => ['nullable', 'numeric', 'min:0'],
             'acciones.*.notas' => ['nullable', 'string', 'max:1000'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
             'hora' => ['nullable', 'date_format:H:i'],
@@ -83,6 +86,46 @@ class ProveedorController extends Controller
         return view('proveedores.show', compact('proveedor'));
     }
 
+    public function storeAccion(Request $request, Proveedor $proveedor): RedirectResponse
+    {
+        $data = $request->validate([
+            'tipo' => ['nullable', 'string', 'max:100'],
+            'fecha' => ['nullable', 'date'],
+            'hora' => ['nullable', 'date_format:H:i'],
+            'productos' => ['nullable', 'string', 'max:1000'],
+            'cantidad' => ['nullable', 'integer', 'min:0'],
+            'monto' => ['nullable', 'numeric', 'min:0'],
+            'notas' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $fecha = filled($data['fecha'] ?? null)
+            ? Carbon::parse($data['fecha'])->toDateString()
+            : Carbon::now()->toDateString();
+        $hora = filled($data['hora'] ?? null)
+            ? $data['hora']
+            : Carbon::now()->format('H:i');
+
+        $accion = [
+            'fecha' => $fecha,
+            'hora' => $hora,
+            'tipo' => filled($data['tipo'] ?? null) ? $data['tipo'] : 'Acción',
+            'productos' => isset($data['productos']) ? trim((string) $data['productos']) : null,
+            'cantidad' => $data['cantidad'] ?? null,
+            'monto' => $data['monto'] ?? null,
+            'notas' => isset($data['notas']) ? trim((string) $data['notas']) : null,
+        ];
+
+        $accionesActuales = $proveedor->acciones ?? [];
+        $accionesActuales[] = $accion;
+        $proveedor->update([
+            'acciones' => $this->sanitizeAcciones($accionesActuales),
+        ]);
+
+        return redirect()
+            ->route('proveedores.show', $proveedor)
+            ->with('success', 'Acción registrada para el proveedor.');
+    }
+
     public function update(Request $request, Proveedor $proveedor): RedirectResponse
     {
         $data = $request->validate([
@@ -98,8 +141,11 @@ class ProveedorController extends Controller
             'productos_detalle.*.cantidad' => ['nullable', 'integer', 'min:0'],
             'acciones' => ['nullable', 'array'],
             'acciones.*.fecha' => ['nullable', 'date'],
+            'acciones.*.hora' => ['nullable', 'date_format:H:i'],
+            'acciones.*.tipo' => ['nullable', 'string', 'max:100'],
             'acciones.*.productos' => ['nullable', 'string', 'max:1000'],
             'acciones.*.cantidad' => ['nullable', 'integer', 'min:0'],
+            'acciones.*.monto' => ['nullable', 'numeric', 'min:0'],
             'acciones.*.notas' => ['nullable', 'string', 'max:1000'],
             'cantidad' => ['nullable', 'integer', 'min:0'],
             'hora' => ['nullable', 'date_format:H:i'],
@@ -255,15 +301,28 @@ class ProveedorController extends Controller
                     ? Carbon::parse($item['fecha'])->toDateString()
                     : null;
 
+                $hora = isset($item['hora']) && filled($item['hora'])
+                    ? $item['hora']
+                    : null;
+
                 return [
                     'fecha' => $fecha,
+                    'hora' => $hora,
+                    'tipo' => isset($item['tipo']) ? trim((string) $item['tipo']) : null,
                     'productos' => isset($item['productos']) ? trim((string) $item['productos']) : null,
                     'cantidad' => isset($item['cantidad']) && $item['cantidad'] !== '' ? (int) $item['cantidad'] : null,
+                    'monto' => isset($item['monto']) && $item['monto'] !== '' ? (float) $item['monto'] : null,
                     'notas' => isset($item['notas']) ? trim((string) $item['notas']) : null,
                 ];
             })
             ->filter(function ($item) {
-                return filled($item['fecha']) || filled($item['productos']) || $item['cantidad'] !== null || filled($item['notas']);
+                return filled($item['fecha'])
+                    || filled($item['hora'])
+                    || filled($item['tipo'])
+                    || filled($item['productos'])
+                    || $item['cantidad'] !== null
+                    || $item['monto'] !== null
+                    || filled($item['notas']);
             })
             ->values()
             ->all();
