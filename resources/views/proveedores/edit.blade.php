@@ -68,7 +68,15 @@
                     </div>
 
                     @php
-                        $accionesDetalle = old('acciones', $proveedor->acciones ?? [['fecha' => '', 'productos' => '', 'cantidad' => '', 'notas' => '']]);
+                        $accionesDetalle = old('acciones', $proveedor->acciones ?? [[
+                            'fecha' => '',
+                            'hora' => '',
+                            'tipo' => '',
+                            'productos' => '',
+                            'cantidad' => '',
+                            'monto' => '',
+                            'notas' => '',
+                        ]]);
                     @endphp
                     <div class="space-y-4">
                         <div class="flex items-center justify-between gap-4">
@@ -80,24 +88,40 @@
                         </div>
                         <div class="space-y-3" data-acciones-list>
                             @foreach ($accionesDetalle as $index => $accion)
-                                <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200/70 bg-slate-50/60 p-3 md:grid-cols-[1fr,2fr,1fr,2fr,auto]" data-accion-row>
-                                    <div>
-                                        <label class="app-label">Fecha</label>
-                                        <input type="date" name="acciones[{{ $index }}][fecha]" value="{{ $accion['fecha'] ?? '' }}" class="app-input">
+                                <div class="rounded-xl border border-slate-200/70 bg-slate-50/60 p-3" data-accion-row>
+                                    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
+                                        <div>
+                                            <label class="app-label">Fecha</label>
+                                            <input type="date" name="acciones[{{ $index }}][fecha]" value="{{ $accion['fecha'] ?? '' }}" class="app-input">
+                                        </div>
+                                        <div>
+                                            <label class="app-label">Hora</label>
+                                            <input type="time" name="acciones[{{ $index }}][hora]" value="{{ $accion['hora'] ?? '' }}" class="app-input">
+                                        </div>
+                                        <div>
+                                            <label class="app-label">Tipo</label>
+                                            <input name="acciones[{{ $index }}][tipo]" value="{{ $accion['tipo'] ?? '' }}" class="app-input" placeholder="Pago, productos, visita...">
+                                        </div>
+                                        <div>
+                                            <label class="app-label">Monto</label>
+                                            <input type="number" name="acciones[{{ $index }}][monto]" value="{{ $accion['monto'] ?? '' }}" class="app-input" min="0" step="0.01" placeholder="0.00">
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="app-label">Productos</label>
-                                        <input name="acciones[{{ $index }}][productos]" value="{{ $accion['productos'] ?? '' }}" class="app-input" placeholder="Ej: Papas, bebidas, golosinas">
+                                    <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-4">
+                                        <div class="md:col-span-2">
+                                            <label class="app-label">Productos</label>
+                                            <input name="acciones[{{ $index }}][productos]" value="{{ $accion['productos'] ?? '' }}" class="app-input" placeholder="Ej: Papas, bebidas, golosinas">
+                                        </div>
+                                        <div>
+                                            <label class="app-label">Cantidad</label>
+                                            <input type="number" name="acciones[{{ $index }}][cantidad]" value="{{ $accion['cantidad'] ?? '' }}" class="app-input" min="0" placeholder="0">
+                                        </div>
+                                        <div>
+                                            <label class="app-label">Notas</label>
+                                            <input name="acciones[{{ $index }}][notas]" value="{{ $accion['notas'] ?? '' }}" class="app-input" placeholder="Entrega, pagos, pendientes">
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="app-label">Cantidad</label>
-                                        <input type="number" name="acciones[{{ $index }}][cantidad]" value="{{ $accion['cantidad'] ?? '' }}" class="app-input" min="0" placeholder="0">
-                                    </div>
-                                    <div>
-                                        <label class="app-label">Notas</label>
-                                        <input name="acciones[{{ $index }}][notas]" value="{{ $accion['notas'] ?? '' }}" class="app-input" placeholder="Entrega, pagos, pendientes">
-                                    </div>
-                                    <div class="flex items-end">
+                                    <div class="mt-3 flex justify-end">
                                         <button type="button" class="app-btn-secondary px-3 py-2 text-xs" data-remove-accion>Quitar</button>
                                     </div>
                                 </div>
@@ -248,26 +272,42 @@
             if (accionesList && addAccionButton) {
                 const buildAccionRow = (index) => {
                     const wrapper = document.createElement('div');
-                    wrapper.className = 'grid grid-cols-1 gap-3 rounded-xl border border-slate-200/70 bg-slate-50/60 p-3 md:grid-cols-[1fr,2fr,1fr,2fr,auto]';
+                    wrapper.className = 'rounded-xl border border-slate-200/70 bg-slate-50/60 p-3';
                     wrapper.setAttribute('data-accion-row', '');
                     wrapper.innerHTML = `
-                        <div>
-                            <label class="app-label">Fecha</label>
-                            <input type="date" name="acciones[${index}][fecha]" class="app-input">
+                        <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
+                            <div>
+                                <label class="app-label">Fecha</label>
+                                <input type="date" name="acciones[${index}][fecha]" class="app-input">
+                            </div>
+                            <div>
+                                <label class="app-label">Hora</label>
+                                <input type="time" name="acciones[${index}][hora]" class="app-input">
+                            </div>
+                            <div>
+                                <label class="app-label">Tipo</label>
+                                <input name="acciones[${index}][tipo]" class="app-input" placeholder="Pago, productos, visita...">
+                            </div>
+                            <div>
+                                <label class="app-label">Monto</label>
+                                <input type="number" name="acciones[${index}][monto]" class="app-input" min="0" step="0.01" placeholder="0.00">
+                            </div>
                         </div>
-                        <div>
-                            <label class="app-label">Productos</label>
-                            <input name="acciones[${index}][productos]" class="app-input" placeholder="Ej: Papas, bebidas, golosinas">
+                        <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-4">
+                            <div class="md:col-span-2">
+                                <label class="app-label">Productos</label>
+                                <input name="acciones[${index}][productos]" class="app-input" placeholder="Ej: Papas, bebidas, golosinas">
+                            </div>
+                            <div>
+                                <label class="app-label">Cantidad</label>
+                                <input type="number" name="acciones[${index}][cantidad]" class="app-input" min="0" placeholder="0">
+                            </div>
+                            <div>
+                                <label class="app-label">Notas</label>
+                                <input name="acciones[${index}][notas]" class="app-input" placeholder="Entrega, pagos, pendientes">
+                            </div>
                         </div>
-                        <div>
-                            <label class="app-label">Cantidad</label>
-                            <input type="number" name="acciones[${index}][cantidad]" class="app-input" min="0" placeholder="0">
-                        </div>
-                        <div>
-                            <label class="app-label">Notas</label>
-                            <input name="acciones[${index}][notas]" class="app-input" placeholder="Entrega, pagos, pendientes">
-                        </div>
-                        <div class="flex items-end">
+                        <div class="mt-3 flex justify-end">
                             <button type="button" class="app-btn-secondary px-3 py-2 text-xs" data-remove-accion>Quitar</button>
                         </div>
                     `;

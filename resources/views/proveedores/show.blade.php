@@ -18,10 +18,60 @@
         $horaTexto = $proveedor->hora ?: 'Sin hora';
         $pagoTexto = $proveedor->pago !== null ? '$' . number_format($proveedor->pago, 2, ',', '.') : 'Sin pago registrado';
         $deudaTexto = $proveedor->deuda !== null ? '$' . number_format($proveedor->deuda, 2, ',', '.') : 'Sin deuda pendiente';
-        $acciones = $proveedor->acciones ?? [];
+        $acciones = collect($proveedor->acciones ?? []);
+        $accionesTimeline = $acciones
+            ->map(function ($accion) {
+                $fecha = $accion['fecha'] ?? null;
+                $hora = $accion['hora'] ?? null;
+                $timestamp = $fecha
+                    ? \Illuminate\Support\Carbon::parse($fecha . ($hora ? ' ' . $hora : ' 00:00'))
+                    : null;
+
+                return [
+                    'fecha' => $fecha,
+                    'hora' => $hora,
+                    'tipo' => $accion['tipo'] ?? 'Acción',
+                    'productos' => $accion['productos'] ?? null,
+                    'cantidad' => $accion['cantidad'] ?? null,
+                    'monto' => $accion['monto'] ?? null,
+                    'notas' => $accion['notas'] ?? null,
+                    'timestamp' => $timestamp,
+                    'es_creacion' => false,
+                ];
+            })
+            ->push([
+                'fecha' => $proveedor->created_at?->toDateString(),
+                'hora' => $proveedor->created_at?->format('H:i'),
+                'tipo' => 'Alta de proveedor',
+                'productos' => null,
+                'cantidad' => null,
+                'monto' => null,
+                'notas' => 'Proveedor creado en el sistema.',
+                'timestamp' => $proveedor->created_at,
+                'es_creacion' => true,
+            ])
+            ->sortBy(function ($accion) {
+                return $accion['timestamp'] ?? \Illuminate\Support\Carbon::create(1970, 1, 1);
+            })
+            ->values();
     @endphp
 
     <div class="app-page space-y-6">
+        @if (session('success'))
+            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if ($errors->any())
+            <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+                <div class="font-semibold">Revisá los errores antes de continuar</div>
+                <ul class="mt-2 list-disc pl-5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
             <div class="app-card p-5">
                 <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Estado</div>
@@ -61,24 +111,77 @@
                     </div>
                     <a href="{{ route('proveedores.edit', $proveedor) }}" class="app-btn-secondary px-3 py-2 text-xs">Editar acciones</a>
                 </div>
+                <form class="mt-5 space-y-4 rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4" method="POST" action="{{ route('proveedores.acciones.store', $proveedor) }}">
+                    @csrf
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
+                        <div>
+                            <label class="app-label">Fecha</label>
+                            <input type="date" name="fecha" value="{{ old('fecha', now()->format('Y-m-d')) }}" class="app-input">
+                        </div>
+                        <div>
+                            <label class="app-label">Hora</label>
+                            <input type="time" name="hora" value="{{ old('hora', now()->format('H:i')) }}" class="app-input">
+                        </div>
+                        <div>
+                            <label class="app-label">Tipo</label>
+                            <select name="tipo" class="app-input">
+                                @foreach (['Pago', 'Productos', 'Visita', 'Nota', 'Otro'] as $tipo)
+                                    <option value="{{ $tipo }}" @selected(old('tipo') === $tipo)>{{ $tipo }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="app-label">Monto</label>
+                            <input type="number" name="monto" value="{{ old('monto') }}" class="app-input" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
+                        <div class="md:col-span-2">
+                            <label class="app-label">Productos</label>
+                            <input name="productos" value="{{ old('productos') }}" class="app-input" placeholder="Ej: Papas, bebidas, golosinas">
+                        </div>
+                        <div>
+                            <label class="app-label">Cantidad</label>
+                            <input type="number" name="cantidad" value="{{ old('cantidad') }}" class="app-input" min="0" placeholder="0">
+                        </div>
+                        <div>
+                            <label class="app-label">Notas</label>
+                            <input name="notas" value="{{ old('notas') }}" class="app-input" placeholder="Detalle de pago o entrega">
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button class="app-btn-primary px-4 py-2 text-xs" type="submit">Agregar acción</button>
+                    </div>
+                </form>
                 <div class="mt-5 space-y-3">
-                    @forelse ($acciones as $accion)
+                    @forelse ($accionesTimeline as $accion)
                         @php
                             $fechaAccion = isset($accion['fecha']) && $accion['fecha']
                                 ? \Illuminate\Support\Carbon::parse($accion['fecha'])->format('d/m/Y')
                                 : 'Sin fecha';
+                            $horaAccion = $accion['hora'] ?: 'Sin hora';
+                            $montoTexto = $accion['monto'] !== null
+                                ? '$' . number_format($accion['monto'], 2, ',', '.')
+                                : null;
                         @endphp
                         <div class="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4">
                             <div class="flex flex-wrap items-center justify-between gap-3">
-                                <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Acción</div>
-                                <span class="text-xs font-semibold text-slate-500">{{ $fechaAccion }}</span>
+                                <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                    {{ $accion['tipo'] ?? 'Acción' }}
+                                </div>
+                                <span class="text-xs font-semibold text-slate-500">{{ $fechaAccion }} · {{ $horaAccion }}</span>
                             </div>
-                            <div class="mt-2 text-sm text-slate-900">
-                                <span class="font-semibold">Productos:</span>
-                                {{ $accion['productos'] ?? 'Sin productos registrados' }}
-                            </div>
+                            @if (!empty($accion['productos']))
+                                <div class="mt-2 text-sm text-slate-900">
+                                    <span class="font-semibold">Productos:</span>
+                                    {{ $accion['productos'] }}
+                                </div>
+                            @endif
                             <div class="mt-1 text-xs text-slate-500">
                                 Cantidad: {{ $accion['cantidad'] ?? 'Sin cantidad' }}
+                                @if ($montoTexto)
+                                    · Monto: {{ $montoTexto }}
+                                @endif
                             </div>
                             @if (!empty($accion['notas']))
                                 <div class="mt-2 text-xs text-slate-500">{{ $accion['notas'] }}</div>
