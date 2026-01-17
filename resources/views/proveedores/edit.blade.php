@@ -215,6 +215,51 @@
             const addButton = document.querySelector('[data-add-producto]');
             const accionesList = document.querySelector('[data-acciones-list]');
             const addAccionButton = document.querySelector('[data-add-accion]');
+            const condicionesInput = document.querySelector('input[name="condiciones_pago"]');
+            const fechaVisitaInput = document.querySelector('input[name="fecha_visita"]');
+            const proximaVisitaInput = document.querySelector('input[name="proxima_visita"]');
+
+            const parseDaysFromText = (text) => {
+                const match = text.match(/(\d+)/);
+                if (!match) {
+                    return null;
+                }
+                const days = Number.parseInt(match[1], 10);
+                return Number.isFinite(days) && days > 0 ? days : null;
+            };
+
+            const addDays = (baseDate, days) => {
+                const date = new Date(`${baseDate}T00:00:00`);
+                if (Number.isNaN(date.getTime())) {
+                    return null;
+                }
+                date.setDate(date.getDate() + days);
+                return date.toISOString().slice(0, 10);
+            };
+
+            const updateProximaVisita = () => {
+                if (!condicionesInput || !proximaVisitaInput) {
+                    return;
+                }
+                const days = parseDaysFromText(condicionesInput.value || '');
+                if (!days) {
+                    return;
+                }
+                const baseValue = fechaVisitaInput?.value || new Date().toISOString().slice(0, 10);
+                const nextDate = addDays(baseValue, days);
+                if (nextDate) {
+                    proximaVisitaInput.value = nextDate;
+                }
+            };
+
+            if (condicionesInput) {
+                condicionesInput.addEventListener('input', updateProximaVisita);
+                condicionesInput.addEventListener('blur', updateProximaVisita);
+            }
+
+            if (fechaVisitaInput) {
+                fechaVisitaInput.addEventListener('change', updateProximaVisita);
+            }
 
             if (list && addButton) {
                 const buildRow = (index) => {
