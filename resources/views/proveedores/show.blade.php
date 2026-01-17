@@ -308,6 +308,7 @@
                                             $cantidadTexto = $accion['cantidad'] ?? null;
                                             $detalles = [];
                                             $tipoAccion = strtolower($accion['tipo'] ?? '');
+                                            $deudaPendienteAccion = $accion['deuda_pendiente'] ?? null;
                                             if (str_starts_with($tipoAccion, 'pago') && str_contains($tipoAccion, 'deuda')) {
                                                 $detalles[] = 'Deuda pendiente pagada';
                                             }
@@ -316,6 +317,9 @@
                                             }
                                             if ($cantidadTexto !== null && $cantidadTexto !== '') {
                                                 $detalles[] = 'Cantidad: ' . $cantidadTexto;
+                                            }
+                                            if ($deudaPendienteAccion !== null && $deudaPendienteAccion !== '') {
+                                                $detalles[] = 'Deuda pendiente: $' . number_format((float) $deudaPendienteAccion, 2, ',', '.');
                                             }
                                             if (!empty($accion['notas'])) {
                                                 $detalles[] = 'Notas: ' . $accion['notas'];
@@ -331,7 +335,6 @@
                                             }
                                             $montoAccion = $accion['monto'] ?? null;
                                             $montoProductosAccion = $accion['monto_productos'] ?? null;
-                                            $deudaPendienteAccion = $accion['deuda_pendiente'] ?? null;
                                         @endphp
                                         <tr>
                                             <td class="font-semibold text-slate-900">#{{ $loop->iteration }}</td>

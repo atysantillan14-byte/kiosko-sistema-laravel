@@ -155,6 +155,15 @@ class ProveedorController extends Controller
             ? $data['hora']
             : Carbon::now()->format('H:i');
 
+        $tipoAccion = strtolower((string) ($data['tipo'] ?? ''));
+        $monto = $data['monto'] ?? null;
+        $montoProductos = $data['monto_productos'] ?? null;
+
+        if (str_starts_with($tipoAccion, 'pago') && $monto === null && $montoProductos !== null) {
+            $monto = $montoProductos;
+            $montoProductos = null;
+        }
+
         $accion = [
             'fecha' => $fecha,
             'hora' => $hora,
@@ -162,8 +171,8 @@ class ProveedorController extends Controller
             'productos' => $productosDetalleResumen
                 ?? (isset($data['productos']) ? trim((string) $data['productos']) : null),
             'cantidad' => $productosDetalle ? ($cantidadDetalle ?: null) : ($data['cantidad'] ?? null),
-            'monto' => $data['monto'] ?? null,
-            'monto_productos' => $data['monto_productos'] ?? null,
+            'monto' => $monto,
+            'monto_productos' => $montoProductos,
             'deuda_pendiente' => $data['deuda_pendiente'] ?? null,
             'notas' => isset($data['notas']) ? trim((string) $data['notas']) : null,
         ];
