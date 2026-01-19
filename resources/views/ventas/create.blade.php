@@ -56,7 +56,7 @@
 
                         <div>
                             <label class="app-label">Cantidad</label>
-                            <input id="cantidadInput" type="number" min="1" value="1" class="app-input">
+                            <input id="cantidadInput" type="number" min="0.01" step="0.01" value="1" class="app-input">
                         </div>
                     </div>
 
@@ -209,8 +209,22 @@
             if (selected.dataset.stock === undefined || selected.dataset.stock === '') {
                 return null;
             }
-            const stock = parseInt(selected.dataset.stock, 10);
+            const stock = parseFloat(selected.dataset.stock);
             return Number.isNaN(stock) ? null : stock;
+        }
+
+        function parseCantidad(valor) {
+            const normalizado = (valor || '').toString().replace(',', '.');
+            const numero = parseFloat(normalizado);
+            if (Number.isNaN(numero) || numero <= 0) {
+                return null;
+            }
+            return Math.round(numero * 100) / 100;
+        }
+
+        function formatCantidad(valor) {
+            if (valor === null || valor === undefined) return '';
+            return valor.toFixed(2).replace('.', ',').replace(/,00$/, '');
         }
 
         function actualizarProductoSeleccionado() {
@@ -222,7 +236,7 @@
             }
 
             const stockDisponible = obtenerStockSeleccionado(selected);
-            const stockText = stockDisponible !== null ? `Stock: ${stockDisponible}` : '';
+            const stockText = stockDisponible !== null ? `Stock: ${formatCantidad(stockDisponible)}` : '';
             const categoria = selected.dataset.categoria || 'Sin categoría';
             const infoBase = `${selected.dataset.nombre} · ${categoria} ${stockText ? '· ' + stockText : ''}`;
             if (stockDisponible !== null && stockDisponible <= 0) {
@@ -323,7 +337,7 @@
         agregarBtn?.addEventListener('click', () => {
             const selected = productoSelect.options[productoSelect.selectedIndex];
             if (!selected || !selected.value) return;
-            const cantidad = parseInt(cantidadInput.value, 10) || 1;
+            const cantidad = parseCantidad(cantidadInput.value) ?? 1;
             const stockDisponible = obtenerStockSeleccionado(selected);
 
             const item = {
@@ -363,7 +377,7 @@
                     row.innerHTML = `
                         <td class="px-4 py-3 text-slate-700">${producto.nombre}</td>
                         <td class="px-4 py-3 text-slate-700">$ ${producto.precio.toFixed(2).replace('.', ',')}</td>
-                        <td class="px-4 py-3 text-slate-700">${producto.cantidad}</td>
+                        <td class="px-4 py-3 text-slate-700">${formatCantidad(producto.cantidad)}</td>
                         <td class="px-4 py-3 text-slate-700">$ ${(producto.precio * producto.cantidad).toFixed(2).replace('.', ',')}</td>
                         <td class="px-4 py-3 text-right">
                             <button type="button" class="app-btn-ghost px-3 py-1.5 text-xs text-rose-600 hover:text-rose-700" onclick="eliminarProducto(${index})">Quitar</button>

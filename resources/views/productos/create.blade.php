@@ -49,7 +49,7 @@
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
                             <label class="app-label">Stock</label>
-                            <input name="stock" value="{{ old('stock', 0) }}" type="number" class="app-input @error('stock') app-input-error @enderror" />
+                            <input name="stock" value="{{ old('stock', 0) }}" type="number" min="0" step="0.01" class="app-input @error('stock') app-input-error @enderror" />
                             @error('stock')<div class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</div>@enderror
                         </div>
                         <div>

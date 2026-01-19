@@ -17,6 +17,7 @@ class DetalleVenta extends Model
     ];
 
     protected $casts = [
+        'cantidad' => 'decimal:2',
         'precio_unitario' => 'decimal:2',
         'subtotal' => 'decimal:2',
     ];
@@ -31,4 +32,3 @@ class DetalleVenta extends Model
         return $this->belongsTo(Producto::class, 'producto_id');
     }
 }
-
