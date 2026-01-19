@@ -139,13 +139,13 @@ class VentaController extends Controller
 
         return DB::transaction(function () use ($data) {
             $pagoMixto = (bool) ($data['pago_mixto'] ?? false);
-            $metodoPrimario = $pagoMixto ? ($data['metodo_pago_primario'] ?? null) : ($data['metodo_pago'] ?? null);
-            $metodoSecundario = $pagoMixto ? ($data['metodo_pago_secundario'] ?? null) : null;
+            $metodoPrimario = $this->normalizeMetodoPago($pagoMixto ? ($data['metodo_pago_primario'] ?? null) : ($data['metodo_pago'] ?? null));
+            $metodoSecundario = $this->normalizeMetodoPago($pagoMixto ? ($data['metodo_pago_secundario'] ?? null) : null);
             $montoPrimario = $pagoMixto ? (float) ($data['monto_primario'] ?? 0) : null;
             $montoSecundario = $pagoMixto ? (float) ($data['monto_secundario'] ?? 0) : null;
             $efectivoRecibido = array_key_exists('efectivo_recibido', $data) ? (float) $data['efectivo_recibido'] : null;
 
-            if (!$metodoPrimario) {
+            if (! $metodoPrimario) {
                 abort(422, 'Seleccione un método de pago.');
             }
 
@@ -319,23 +319,26 @@ class VentaController extends Controller
 
         $metodosPago = $ventas->flatMap(function ($venta) {
             $metodos = [];
+            $metodoVenta = $this->normalizeMetodoPago($venta->metodo_pago);
 
-            if ($venta->metodo_pago === 'mixto') {
-                if ($venta->metodo_pago_primario) {
+            if ($metodoVenta === 'mixto') {
+                $metodoPrimario = $this->normalizeMetodoPago($venta->metodo_pago_primario);
+                if ($metodoPrimario) {
                     $metodos[] = [
-                        'metodo' => $venta->metodo_pago_primario,
+                        'metodo' => $metodoPrimario,
                         'monto' => (float) $venta->monto_primario,
                     ];
                 }
-                if ($venta->metodo_pago_secundario) {
+                $metodoSecundario = $this->normalizeMetodoPago($venta->metodo_pago_secundario);
+                if ($metodoSecundario) {
                     $metodos[] = [
-                        'metodo' => $venta->metodo_pago_secundario,
+                        'metodo' => $metodoSecundario,
                         'monto' => (float) $venta->monto_secundario,
                     ];
                 }
-            } else {
+            } elseif ($metodoVenta) {
                 $metodos[] = [
-                    'metodo' => $venta->metodo_pago,
+                    'metodo' => $metodoVenta,
                     'monto' => (float) $venta->total,
                 ];
             }
@@ -449,23 +452,26 @@ class VentaController extends Controller
 
         $metodosPago = $ventas->flatMap(function ($venta) {
             $metodos = [];
+            $metodoVenta = $this->normalizeMetodoPago($venta->metodo_pago);
 
-            if ($venta->metodo_pago === 'mixto') {
-                if ($venta->metodo_pago_primario) {
+            if ($metodoVenta === 'mixto') {
+                $metodoPrimario = $this->normalizeMetodoPago($venta->metodo_pago_primario);
+                if ($metodoPrimario) {
                     $metodos[] = [
-                        'metodo' => $venta->metodo_pago_primario,
+                        'metodo' => $metodoPrimario,
                         'monto' => (float) $venta->monto_primario,
                     ];
                 }
-                if ($venta->metodo_pago_secundario) {
+                $metodoSecundario = $this->normalizeMetodoPago($venta->metodo_pago_secundario);
+                if ($metodoSecundario) {
                     $metodos[] = [
-                        'metodo' => $venta->metodo_pago_secundario,
+                        'metodo' => $metodoSecundario,
                         'monto' => (float) $venta->monto_secundario,
                     ];
                 }
-            } else {
+            } elseif ($metodoVenta) {
                 $metodos[] = [
-                    'metodo' => $venta->metodo_pago,
+                    'metodo' => $metodoVenta,
                     'monto' => (float) $venta->total,
                 ];
             }
@@ -641,6 +647,11 @@ class VentaController extends Controller
         }
 
         $data = $request->validate($rules);
+        $data['metodo_pago'] = $this->normalizeMetodoPago($data['metodo_pago'] ?? null);
+
+        if (! $data['metodo_pago']) {
+            abort(422, 'Seleccione un método de pago válido.');
+        }
 
         if (! $esAdmin) {
             $data['user_id'] = $venta->user_id;
@@ -669,6 +680,17 @@ class VentaController extends Controller
         if ($venta->user_id !== Auth::id()) {
             abort(403);
         }
+    }
+
+    private function normalizeMetodoPago(?string $metodo): ?string
+    {
+        if (! is_string($metodo)) {
+            return null;
+        }
+
+        $metodoNormalizado = strtolower(trim($metodo));
+
+        return $metodoNormalizado !== '' ? $metodoNormalizado : null;
     }
 
     private function authorizeCierreAcceso(CierreCaja $cierreCaja): void
