@@ -235,7 +235,7 @@
 
         function formatCantidad(valor) {
             if (valor === null || valor === undefined) return '';
-            return valor.toFixed(2).replace('.', ',').replace(/,00$/, '');
+            return valor.toFixed(2).replace('.', ',');
         }
 
         function actualizarProductoSeleccionado() {
