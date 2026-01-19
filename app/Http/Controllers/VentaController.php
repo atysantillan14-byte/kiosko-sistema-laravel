@@ -177,8 +177,7 @@ class VentaController extends Controller
 
             foreach ($data['items'] as $item) {
                 $producto = Producto::lockForUpdate()->find($item['producto_id']);
-                $cantidadTexto = str_replace(',', '.', (string) $item['cantidad']);
-                $cantidad = round((float) $cantidadTexto, 2);
+                $cantidad = round($this->normalizarNumero($item['cantidad']), 2);
                 $cantidadNormalizada = number_format($cantidad, 2, '.', '');
 
                 $precio = round((float) $producto->precio, 2);
@@ -687,6 +686,23 @@ class VentaController extends Controller
         if ($venta->user_id !== Auth::id()) {
             abort(403);
         }
+    }
+
+    private function normalizarNumero(mixed $valor): float
+    {
+        $texto = trim((string) $valor);
+        $texto = preg_replace('/[^0-9,.\-]/', '', $texto);
+        $tieneComa = str_contains($texto, ',');
+        $tienePunto = str_contains($texto, '.');
+
+        if ($tieneComa && $tienePunto) {
+            $texto = str_replace('.', '', $texto);
+            $texto = str_replace(',', '.', $texto);
+        } elseif ($tieneComa) {
+            $texto = str_replace(',', '.', $texto);
+        }
+
+        return (float) $texto;
     }
 
     private function normalizeMetodoPago(?string $metodo): ?string
