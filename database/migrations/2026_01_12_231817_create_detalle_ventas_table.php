@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('detalle_ventas', function ($table) {
-    $table->id();
-    $table->foreignId('venta_id')->constrained('ventas')->cascadeOnDelete();
-    $table->foreignId('producto_id')->constrained('productos')->cascadeOnDelete();
-    $table->integer('cantidad');
-    $table->decimal('precio_unitario', 12, 2);
-    $table->decimal('subtotal', 12, 2);
-    $table->timestamps();
-});
+            $table->id();
+            $table->foreignId('venta_id')->constrained('ventas')->cascadeOnDelete();
+            $table->foreignId('producto_id')->constrained('productos')->cascadeOnDelete();
+            $table->decimal('cantidad', 10, 2);
+            $table->decimal('precio_unitario', 12, 2);
+            $table->decimal('subtotal', 12, 2);
+            $table->timestamps();
+        });
 
     }
 
@@ -29,6 +29,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('detalle_ventas');
-
     }
 };

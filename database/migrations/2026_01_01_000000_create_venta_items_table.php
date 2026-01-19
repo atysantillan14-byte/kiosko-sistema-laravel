@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('venta_id')->constrained('ventas')->cascadeOnDelete();
             $table->foreignId('producto_id')->constrained('productos');
-            $table->integer('cantidad');
+            $table->decimal('cantidad', 10, 2);
             $table->decimal('precio_unitario', 12, 2);
             $table->decimal('subtotal', 12, 2);
             $table->timestamps();
