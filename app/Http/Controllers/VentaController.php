@@ -183,13 +183,13 @@ class VentaController extends Controller
                     abort(422, 'Ingrese una cantidad válida.');
                 }
                 $cantidad = $cantidadScaled / 100;
-                $cantidadNormalizada = number_format($cantidad, 2, '.', '');
+                $cantidadNormalizada = round($cantidad, 2);
 
                 $precio = round((float) $producto->precio, 2);
                 $precioScaled = (int) round($precio * 100);
                 $subtotalScaled = (int) round(($precioScaled * $cantidadScaled) / 100);
                 $subtotal = $subtotalScaled / 100;
-                $subtotalNormalizado = number_format($subtotal, 2, '.', '');
+                $subtotalNormalizado = round($subtotal, 2);
 
                 // Descontar stock (opcional: si querés permitir stock negativo, avisame)
                 $stockActualScaled = $this->normalizarNumeroAEntero($producto->stock);
@@ -198,7 +198,7 @@ class VentaController extends Controller
                     abort(422, "Stock insuficiente para: {$producto->nombre}");
                 }
                 $producto->update([
-                    'stock' => number_format($stockFinalScaled / 100, 2, '.', ''),
+                    'stock' => round($stockFinalScaled / 100, 2),
                 ]);
 
                 // Necesitás la tabla detalles_venta para esto
