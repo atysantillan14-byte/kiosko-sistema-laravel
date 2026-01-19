@@ -78,7 +78,7 @@ class ProductoController extends Controller
             'descripcion' => ['nullable', 'string'],
             'precio' => ['required', 'numeric', 'min:0'],
             'precio_descuento' => ['nullable', 'numeric', 'min:0'],
-            'stock' => ['required', 'integer', 'min:0'],
+            'stock' => ['required', 'numeric', 'min:0'],
             'sku' => ['nullable', 'string', 'max:80'],
             'imagen' => ['nullable', 'string', 'max:255'],
             'disponible' => ['nullable'],
@@ -112,7 +112,7 @@ class ProductoController extends Controller
             'descripcion' => ['nullable', 'string'],
             'precio' => ['required', 'numeric', 'min:0'],
             'precio_descuento' => ['nullable', 'numeric', 'min:0'],
-            'stock' => ['required', 'integer', 'min:0'],
+            'stock' => ['required', 'numeric', 'min:0'],
             'sku' => ['nullable', 'string', 'max:80'],
             'imagen' => ['nullable', 'string', 'max:255'],
             'disponible' => ['nullable'],
@@ -135,6 +135,5 @@ class ProductoController extends Controller
     }
 }
     
-
 
 

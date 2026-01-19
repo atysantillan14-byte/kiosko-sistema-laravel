@@ -106,7 +106,7 @@ class VentaController extends Controller
                 'id' => $p->id,
                 'nombre' => $p->nombre,
                 'precio' => (float) $p->precio,
-                'stock' => (int) $p->stock,
+                'stock' => (float) $p->stock,
                 'categoria' => $p->categoria?->nombre,
             ];
         })->values();
@@ -130,7 +130,7 @@ class VentaController extends Controller
             'estado' => ['required', 'string', 'max:40'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.producto_id' => ['required', 'exists:productos,id'],
-            'items.*.cantidad' => ['required', 'integer', 'min:1'],
+            'items.*.cantidad' => ['required', 'numeric', 'min:0.01'],
         ]);
 
         if (! $esAdmin) {
@@ -177,10 +177,10 @@ class VentaController extends Controller
 
             foreach ($data['items'] as $item) {
                 $producto = Producto::lockForUpdate()->find($item['producto_id']);
-                $cantidad = (int) $item['cantidad'];
+                $cantidad = round((float) $item['cantidad'], 2);
 
                 $precio = (float) $producto->precio;
-                $subtotal = $precio * $cantidad;
+                $subtotal = round($precio * $cantidad, 2);
 
                 // Descontar stock (opcional: si querés permitir stock negativo, avisame)
                 if ($producto->stock < $cantidad) {
@@ -196,7 +196,7 @@ class VentaController extends Controller
                     'subtotal' => $subtotal,
                 ]);
 
-                $total += $subtotal;
+                $total = round($total + $subtotal, 2);
             }
 
             $tolerancia = 0.01;

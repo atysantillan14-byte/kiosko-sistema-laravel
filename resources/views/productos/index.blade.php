@@ -123,7 +123,7 @@
                                 </td>
                                 <td>
                                     <span class="app-chip bg-emerald-50 text-emerald-700">
-                                        {{ (int)$p->stock }}
+                                        {{ number_format((float) $p->stock, 2, ',', '.') }}
                                     </span>
                                 </td>
                                 <td>

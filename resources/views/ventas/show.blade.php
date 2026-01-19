@@ -84,7 +84,7 @@
                         @foreach($venta->detalles as $d)
                             <tr>
                                 <td class="font-semibold text-slate-900">{{ $d->producto?->nombre ?? 'Producto eliminado' }}</td>
-                                <td>{{ (int)$d->cantidad }}</td>
+                                <td>{{ number_format((float) $d->cantidad, 2, ',', '.') }}</td>
                                 <td>$ {{ number_format((float)$d->precio_unitario, 2, ',', '.') }}</td>
                                 <td class="font-semibold text-slate-900">$ {{ number_format((float)$d->subtotal, 2, ',', '.') }}</td>
                             </tr>

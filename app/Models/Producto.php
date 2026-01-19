@@ -35,7 +35,7 @@ class Producto extends Model
         'precio_descuento' => 'decimal:2',
         'disponible' => 'boolean',
         'destacado' => 'boolean',
-        'stock' => 'integer',
+        'stock' => 'decimal:2',
     ];
 
     protected static function booted(): void
@@ -59,4 +59,3 @@ public function detallesVentas(): HasMany
 }
 
 }
-
