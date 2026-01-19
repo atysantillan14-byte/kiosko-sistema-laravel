@@ -243,6 +243,7 @@ class VentaController extends Controller
 
     public function cierre(Request $request)
     {
+        $esAdmin = (Auth::user()->role ?? null) === 'admin';
         $userId = Auth::id();
         $turno = $request->query('turno');
         $desde = $request->query('desde');
@@ -258,8 +259,11 @@ class VentaController extends Controller
 
         $ventasQuery = Venta::query()
             ->with('detalles.producto')
-            ->where('estado', '!=', 'anulada')
-            ->where('user_id', $userId);
+            ->where('estado', '!=', 'anulada');
+
+        if (! $esAdmin) {
+            $ventasQuery->where('user_id', $userId);
+        }
 
         if ($desde) {
             $ventasQuery->whereDate('created_at', '>=', $desde);
@@ -275,8 +279,11 @@ class VentaController extends Controller
         $ventas = (clone $ventasQuery)->get();
 
         $anuladasQuery = Venta::query()
-            ->where('estado', 'anulada')
-            ->where('user_id', $userId);
+            ->where('estado', 'anulada');
+
+        if (! $esAdmin) {
+            $anuladasQuery->where('user_id', $userId);
+        }
 
         if ($desde) {
             $anuladasQuery->whereDate('created_at', '>=', $desde);
@@ -390,6 +397,7 @@ class VentaController extends Controller
 
     public function guardarCierre(Request $request)
     {
+        $esAdmin = (Auth::user()->role ?? null) === 'admin';
         $userId = Auth::id();
         $turno = $request->input('turno');
         $desde = $request->input('desde');
@@ -415,8 +423,11 @@ class VentaController extends Controller
 
         $ventasQuery = Venta::query()
             ->with('detalles.producto')
-            ->where('estado', '!=', 'anulada')
-            ->where('user_id', $userId);
+            ->where('estado', '!=', 'anulada');
+
+        if (! $esAdmin) {
+            $ventasQuery->where('user_id', $userId);
+        }
 
         if ($desde) {
             $ventasQuery->whereDate('created_at', '>=', $desde);
