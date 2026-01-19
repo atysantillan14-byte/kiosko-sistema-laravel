@@ -174,24 +174,31 @@ class VentaController extends Controller
             ]);
 
             $total = 0;
+            $totalScaled = 0;
 
             foreach ($data['items'] as $item) {
                 $producto = Producto::lockForUpdate()->find($item['producto_id']);
-                $cantidad = round($this->normalizarNumero($item['cantidad']), 2);
+                $cantidadScaled = $this->normalizarNumeroAEntero($item['cantidad']);
+                if ($cantidadScaled <= 0) {
+                    abort(422, 'Ingrese una cantidad válida.');
+                }
+                $cantidad = $cantidadScaled / 100;
                 $cantidadNormalizada = number_format($cantidad, 2, '.', '');
 
                 $precio = round((float) $producto->precio, 2);
-                $subtotal = round($precio * $cantidad, 2);
+                $precioScaled = (int) round($precio * 100);
+                $subtotalScaled = (int) round(($precioScaled * $cantidadScaled) / 100);
+                $subtotal = $subtotalScaled / 100;
                 $subtotalNormalizado = number_format($subtotal, 2, '.', '');
 
                 // Descontar stock (opcional: si querés permitir stock negativo, avisame)
-                $stockActual = (float) $producto->stock;
-                $stockFinal = round($stockActual - $cantidad, 2);
-                if ($stockFinal < 0) {
+                $stockActualScaled = $this->normalizarNumeroAEntero($producto->stock);
+                $stockFinalScaled = $stockActualScaled - $cantidadScaled;
+                if ($stockFinalScaled < 0) {
                     abort(422, "Stock insuficiente para: {$producto->nombre}");
                 }
                 $producto->update([
-                    'stock' => number_format($stockFinal, 2, '.', ''),
+                    'stock' => number_format($stockFinalScaled / 100, 2, '.', ''),
                 ]);
 
                 // Necesitás la tabla detalles_venta para esto
@@ -202,9 +209,10 @@ class VentaController extends Controller
                     'subtotal' => $subtotalNormalizado,
                 ]);
 
-                $total = round($total + $subtotal, 2);
+                $totalScaled += $subtotalScaled;
             }
 
+            $total = $totalScaled / 100;
             $tolerancia = 0.01;
             if ($pagoMixto) {
                 $suma = $montoPrimario + $montoSecundario;
@@ -703,6 +711,14 @@ class VentaController extends Controller
         }
 
         return (float) $texto;
+    }
+
+    private function normalizarNumeroAEntero(mixed $valor, int $precision = 2): int
+    {
+        $numero = $this->normalizarNumero($valor);
+        $factor = 10 ** $precision;
+
+        return (int) round($numero * $factor);
     }
 
     private function normalizeMetodoPago(?string $metodo): ?string
