@@ -179,22 +179,28 @@ class VentaController extends Controller
                 $producto = Producto::lockForUpdate()->find($item['producto_id']);
                 $cantidadTexto = str_replace(',', '.', (string) $item['cantidad']);
                 $cantidad = round((float) $cantidadTexto, 2);
+                $cantidadNormalizada = number_format($cantidad, 2, '.', '');
 
-                $precio = (float) $producto->precio;
+                $precio = round((float) $producto->precio, 2);
                 $subtotal = round($precio * $cantidad, 2);
+                $subtotalNormalizado = number_format($subtotal, 2, '.', '');
 
                 // Descontar stock (opcional: si querés permitir stock negativo, avisame)
-                if ($producto->stock < $cantidad) {
+                $stockActual = (float) $producto->stock;
+                $stockFinal = round($stockActual - $cantidad, 2);
+                if ($stockFinal < 0) {
                     abort(422, "Stock insuficiente para: {$producto->nombre}");
                 }
-                $producto->decrement('stock', $cantidad);
+                $producto->update([
+                    'stock' => number_format($stockFinal, 2, '.', ''),
+                ]);
 
                 // Necesitás la tabla detalles_venta para esto
                 $venta->detalles()->create([
                     'producto_id' => $producto->id,
-                    'cantidad' => $cantidad,
+                    'cantidad' => $cantidadNormalizada,
                     'precio_unitario' => $precio,
-                    'subtotal' => $subtotal,
+                    'subtotal' => $subtotalNormalizado,
                 ]);
 
                 $total = round($total + $subtotal, 2);
