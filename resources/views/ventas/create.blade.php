@@ -56,7 +56,7 @@
 
                         <div>
                             <label class="app-label">Cantidad</label>
-                            <input id="cantidadInput" type="number" min="0.01" step="0.01" value="1" class="app-input">
+                            <input id="cantidadInput" type="text" inputmode="decimal" pattern="[0-9]+([,\\.][0-9]{1,2})?" value="1" class="app-input" placeholder="0,00">
                         </div>
                     </div>
 
@@ -341,6 +341,13 @@
             }
         });
 
+        cantidadInput.addEventListener('blur', () => {
+            const parsed = parseCantidad(cantidadInput.value);
+            if (parsed !== null) {
+                cantidadInput.value = formatCantidad(parsed);
+            }
+        });
+
         productoSelect.addEventListener('change', function() {
             actualizarProductoSeleccionado();
         });
@@ -348,7 +355,12 @@
         agregarBtn?.addEventListener('click', () => {
             const selected = productoSelect.options[productoSelect.selectedIndex];
             if (!selected || !selected.value) return;
-            const cantidad = parseCantidad(cantidadInput.value) ?? 1;
+            const cantidad = parseCantidad(cantidadInput.value);
+            if (cantidad === null) {
+                setProductoInfo('Ingresá una cantidad válida (ej: 1,5).', true);
+                cantidadInput.focus();
+                return;
+            }
             const stockDisponible = obtenerStockSeleccionado(selected);
 
             const item = {
