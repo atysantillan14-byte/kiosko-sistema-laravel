@@ -214,12 +214,23 @@
         }
 
         function parseCantidad(valor) {
-            const normalizado = (valor || '').toString().replace(',', '.');
+            const texto = (valor || '').toString().trim();
+            if (!texto) return null;
+            const tieneComa = texto.includes(',');
+            const tienePunto = texto.includes('.');
+            let normalizado = texto;
+
+            if (tieneComa && tienePunto) {
+                normalizado = normalizado.replace(/\./g, '').replace(',', '.');
+            } else if (tieneComa) {
+                normalizado = normalizado.replace(',', '.');
+            }
+
             const numero = parseFloat(normalizado);
             if (Number.isNaN(numero) || numero <= 0) {
                 return null;
             }
-            return Math.round(numero * 100) / 100;
+            return Math.round((numero + Number.EPSILON) * 100) / 100;
         }
 
         function formatCantidad(valor) {
@@ -500,7 +511,7 @@
                 const cantidadInputHidden = document.createElement('input');
                 cantidadInputHidden.type = 'hidden';
                 cantidadInputHidden.name = `items[${index}][cantidad]`;
-                cantidadInputHidden.value = producto.cantidad;
+                cantidadInputHidden.value = producto.cantidad.toFixed(2);
                 inputsHidden.appendChild(cantidadInputHidden);
             });
         });
