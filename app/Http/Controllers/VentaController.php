@@ -644,6 +644,7 @@ class VentaController extends Controller
         $this->authorizeVentaEdicion($venta);
         $esAdmin = (Auth::user()->role ?? null) === 'admin';
         $usuarios = User::query()->orderBy('name')->get(['id', 'name']);
+        $venta->load('detalles.producto');
         return view('ventas.edit', compact('venta', 'usuarios', 'esAdmin'));
     }
 
@@ -654,6 +655,9 @@ class VentaController extends Controller
         $rules = [
             'metodo_pago' => ['required', 'string', 'max:50'],
             'estado' => ['required', 'string', 'max:40'],
+            'items' => ['nullable', 'array'],
+            'items.*.detalle_id' => ['required_with:items', 'exists:detalle_ventas,id'],
+            'items.*.cantidad' => ['required_with:items', 'numeric', 'min:0.01'],
         ];
 
         if ($esAdmin) {
@@ -671,9 +675,67 @@ class VentaController extends Controller
             $data['user_id'] = $venta->user_id;
         }
 
-        $venta->update($data);
+        $items = $data['items'] ?? null;
+        unset($data['items']);
 
-        return redirect()->route('ventas.index')->with('success', 'Venta actualizada.');
+        return DB::transaction(function () use ($venta, $data, $items) {
+            $venta->update($data);
+
+            if ($items) {
+                $detalles = $venta->detalles()->with('producto')->get()->keyBy('id');
+                $totalScaled = 0;
+
+                foreach ($items as $item) {
+                    $detalle = $detalles->get((int) $item['detalle_id']);
+                    if (! $detalle) {
+                        abort(422, 'Detalle de venta inválido.');
+                    }
+
+                    $cantidadScaled = $this->normalizarNumeroAEntero($item['cantidad']);
+                    if ($cantidadScaled <= 0) {
+                        abort(422, 'Ingrese una cantidad válida.');
+                    }
+
+                    $cantidadAnteriorScaled = $this->normalizarNumeroAEntero($detalle->cantidad);
+                    $diferenciaScaled = $cantidadScaled - $cantidadAnteriorScaled;
+
+                    if ($diferenciaScaled !== 0) {
+                        $producto = Producto::lockForUpdate()->find($detalle->producto_id);
+                        if (! $producto) {
+                            abort(422, 'Producto no disponible para la venta.');
+                        }
+
+                        $stockActualScaled = $this->normalizarNumeroAEntero($producto->stock);
+                        $stockFinalScaled = $stockActualScaled - $diferenciaScaled;
+                        if ($stockFinalScaled < 0) {
+                            abort(422, "Stock insuficiente para: {$producto->nombre}");
+                        }
+
+                        $producto->update([
+                            'stock' => round($stockFinalScaled / 100, 2),
+                        ]);
+                    }
+
+                    $cantidadNormalizada = round($cantidadScaled / 100, 2);
+                    $precio = round((float) $detalle->precio_unitario, 2);
+                    $precioScaled = (int) round($precio * 100);
+                    $subtotalScaled = (int) round(($precioScaled * $cantidadScaled) / 100);
+
+                    $detalle->update([
+                        'cantidad' => $cantidadNormalizada,
+                        'subtotal' => round($subtotalScaled / 100, 2),
+                    ]);
+
+                    $totalScaled += $subtotalScaled;
+                }
+
+                $venta->update([
+                    'total' => $totalScaled / 100,
+                ]);
+            }
+
+            return redirect()->route('ventas.index')->with('success', 'Venta actualizada.');
+        });
     }
 
     public function destroy(Venta $venta)
