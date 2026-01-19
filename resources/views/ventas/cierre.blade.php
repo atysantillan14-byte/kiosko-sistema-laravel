@@ -307,16 +307,16 @@
                     <thead>
                         <tr>
                             <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Total</th>
+                            <th class="text-right">Cantidad</th>
+                            <th class="text-right">Total</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200/70">
                         @forelse($productosVendidos as $producto)
                             <tr>
                                 <td class="font-semibold text-slate-900">{{ $producto['producto'] }}</td>
-                                <td>{{ (int) $producto['cantidad'] }}</td>
-                                <td>$ {{ number_format((float) $producto['total'], 2, ',', '.') }}</td>
+                                <td class="text-right">{{ number_format((float) $producto['cantidad'], 2, ',', '.') }}</td>
+                                <td class="text-right">$ {{ number_format((float) $producto['total'], 2, ',', '.') }}</td>
                             </tr>
                         @empty
                             <tr>
