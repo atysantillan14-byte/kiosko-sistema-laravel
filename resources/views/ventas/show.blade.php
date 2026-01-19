@@ -75,18 +75,18 @@
                     <thead>
                         <tr>
                             <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Precio</th>
-                            <th>Subtotal</th>
+                            <th class="text-right">Cantidad</th>
+                            <th class="text-right">Precio</th>
+                            <th class="text-right">Subtotal</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200/70">
                         @foreach($venta->detalles as $d)
                             <tr>
                                 <td class="font-semibold text-slate-900">{{ $d->producto?->nombre ?? 'Producto eliminado' }}</td>
-                                <td>{{ number_format((float) $d->cantidad, 2, ',', '.') }}</td>
-                                <td>$ {{ number_format((float)$d->precio_unitario, 2, ',', '.') }}</td>
-                                <td class="font-semibold text-slate-900">$ {{ number_format((float)$d->subtotal, 2, ',', '.') }}</td>
+                                <td class="text-right">{{ number_format((float) $d->cantidad, 2, ',', '.') }}</td>
+                                <td class="text-right">$ {{ number_format((float)$d->precio_unitario, 2, ',', '.') }}</td>
+                                <td class="text-right font-semibold text-slate-900">$ {{ number_format((float)$d->subtotal, 2, ',', '.') }}</td>
                             </tr>
                         @endforeach
                     </tbody>

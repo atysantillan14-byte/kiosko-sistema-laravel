@@ -177,7 +177,8 @@ class VentaController extends Controller
 
             foreach ($data['items'] as $item) {
                 $producto = Producto::lockForUpdate()->find($item['producto_id']);
-                $cantidad = round((float) $item['cantidad'], 2);
+                $cantidadTexto = str_replace(',', '.', (string) $item['cantidad']);
+                $cantidad = round((float) $cantidadTexto, 2);
 
                 $precio = (float) $producto->precio;
                 $subtotal = round($precio * $cantidad, 2);
