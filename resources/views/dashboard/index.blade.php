@@ -211,7 +211,7 @@
                                 <tr>
                                     <td class="font-semibold text-slate-900">{{ $producto->nombre }}</td>
                                     <td class="text-sm text-slate-500">{{ $producto->categoria?->nombre ?? 'Sin categoría' }}</td>
-                                    <td class="text-right font-semibold text-rose-600">{{ $producto->stock }}</td>
+                                    <td class="text-right font-semibold text-rose-600">{{ number_format((float) $producto->stock, 2, ',', '.') }}</td>
                                 </tr>
                             @empty
                                 <tr>
