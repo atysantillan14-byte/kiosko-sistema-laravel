@@ -118,6 +118,14 @@ class VentaController extends Controller
     public function store(Request $request)
     {
         $esAdmin = (Auth::user()->role ?? null) === 'admin';
+        $items = $request->input('items', []);
+        foreach ($items as $index => $item) {
+            if (array_key_exists('cantidad', $item)) {
+                $items[$index]['cantidad'] = $this->normalizarDecimalString($item['cantidad']);
+            }
+        }
+        $request->merge(['items' => $items]);
+
         $data = $request->validate([
             'user_id' => $esAdmin ? ['required', 'exists:users,id'] : ['nullable'],
             'metodo_pago' => ['nullable', 'string', 'max:50'],
@@ -130,7 +138,7 @@ class VentaController extends Controller
             'estado' => ['required', 'string', 'max:40'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.producto_id' => ['required', 'exists:productos,id'],
-            'items.*.cantidad' => ['required', 'numeric', 'min:0.01'],
+            'items.*.cantidad' => ['required', 'numeric', 'min:0.01', 'regex:/^\\d+(\\.\\d{1,2})?$/'],
         ]);
 
         if (! $esAdmin) {
@@ -173,46 +181,40 @@ class VentaController extends Controller
                 'total' => 0,
             ]);
 
-            $total = 0;
-            $totalScaled = 0;
+            $total = 0.0;
 
             foreach ($data['items'] as $item) {
-                $producto = Producto::lockForUpdate()->find($item['producto_id']);
-                $cantidadScaled = $this->normalizarNumeroAEntero($item['cantidad']);
-                if ($cantidadScaled <= 0) {
+                $producto = Producto::lockForUpdate()->findOrFail($item['producto_id']);
+                $cantidadTexto = $this->normalizarDecimalString($item['cantidad']);
+                $cantidad = (float) $cantidadTexto;
+                if ($cantidad <= 0) {
                     abort(422, 'Ingrese una cantidad válida.');
                 }
-                $cantidad = $cantidadScaled / 100;
-                $cantidadNormalizada = round($cantidad, 2);
 
-                $precio = round((float) $producto->precio, 2);
-                $precioScaled = (int) round($precio * 100);
-                $subtotalScaled = (int) round(($precioScaled * $cantidadScaled) / 100);
-                $subtotal = $subtotalScaled / 100;
+                $precio = (float) $producto->precio;
+                $subtotal = $precio * $cantidad;
                 $subtotalNormalizado = round($subtotal, 2);
 
                 // Descontar stock (opcional: si querés permitir stock negativo, avisame)
-                $stockActualScaled = $this->normalizarNumeroAEntero($producto->stock);
-                $stockFinalScaled = $stockActualScaled - $cantidadScaled;
-                if ($stockFinalScaled < 0) {
+                $afectadas = DB::update(
+                    'UPDATE productos SET stock = stock - ? WHERE id = ? AND stock >= ?',
+                    [$cantidadTexto, $producto->id, $cantidadTexto]
+                );
+                if ($afectadas === 0) {
                     abort(422, "Stock insuficiente para: {$producto->nombre}");
                 }
-                $producto->update([
-                    'stock' => round($stockFinalScaled / 100, 2),
-                ]);
 
                 // Necesitás la tabla detalles_venta para esto
                 $venta->detalles()->create([
                     'producto_id' => $producto->id,
-                    'cantidad' => $cantidadNormalizada,
+                    'cantidad' => $cantidadTexto,
                     'precio_unitario' => $precio,
                     'subtotal' => $subtotalNormalizado,
                 ]);
 
-                $totalScaled += $subtotalScaled;
+                $total += $subtotalNormalizado;
             }
 
-            $total = $totalScaled / 100;
             $tolerancia = 0.01;
             if ($pagoMixto) {
                 $suma = $montoPrimario + $montoSecundario;
@@ -652,12 +654,20 @@ class VentaController extends Controller
     {
         $this->authorizeVentaEdicion($venta);
         $esAdmin = (Auth::user()->role ?? null) === 'admin';
+        $items = $request->input('items', []);
+        foreach ($items as $index => $item) {
+            if (array_key_exists('cantidad', $item)) {
+                $items[$index]['cantidad'] = $this->normalizarDecimalString($item['cantidad']);
+            }
+        }
+        $request->merge(['items' => $items]);
+
         $rules = [
             'metodo_pago' => ['required', 'string', 'max:50'],
             'estado' => ['required', 'string', 'max:40'],
             'items' => ['nullable', 'array'],
             'items.*.detalle_id' => ['required_with:items', 'exists:detalle_ventas,id'],
-            'items.*.cantidad' => ['required_with:items', 'numeric', 'min:0.01'],
+            'items.*.cantidad' => ['required_with:items', 'numeric', 'min:0.01', 'regex:/^\\d+(\\.\\d{1,2})?$/'],
         ];
 
         if ($esAdmin) {
@@ -683,7 +693,7 @@ class VentaController extends Controller
 
             if ($items) {
                 $detalles = $venta->detalles()->with('producto')->get()->keyBy('id');
-                $totalScaled = 0;
+                $total = 0.0;
 
                 foreach ($items as $item) {
                     $detalle = $detalles->get((int) $item['detalle_id']);
@@ -691,46 +701,50 @@ class VentaController extends Controller
                         abort(422, 'Detalle de venta inválido.');
                     }
 
-                    $cantidadScaled = $this->normalizarNumeroAEntero($item['cantidad']);
-                    if ($cantidadScaled <= 0) {
+                    $cantidadTexto = $this->normalizarDecimalString($item['cantidad']);
+                    $cantidad = (float) $cantidadTexto;
+                    if ($cantidad <= 0) {
                         abort(422, 'Ingrese una cantidad válida.');
                     }
 
-                    $cantidadAnteriorScaled = $this->normalizarNumeroAEntero($detalle->cantidad);
-                    $diferenciaScaled = $cantidadScaled - $cantidadAnteriorScaled;
+                    $cantidadAnterior = (float) $detalle->cantidad;
+                    $diferencia = $cantidad - $cantidadAnterior;
 
-                    if ($diferenciaScaled !== 0) {
+                    if (abs($diferencia) > 0.00001) {
                         $producto = Producto::lockForUpdate()->find($detalle->producto_id);
                         if (! $producto) {
                             abort(422, 'Producto no disponible para la venta.');
                         }
 
-                        $stockActualScaled = $this->normalizarNumeroAEntero($producto->stock);
-                        $stockFinalScaled = $stockActualScaled - $diferenciaScaled;
-                        if ($stockFinalScaled < 0) {
-                            abort(422, "Stock insuficiente para: {$producto->nombre}");
+                        if ($diferencia > 0) {
+                            $afectadas = DB::update(
+                                'UPDATE productos SET stock = stock - ? WHERE id = ? AND stock >= ?',
+                                [$diferencia, $producto->id, $diferencia]
+                            );
+                            if ($afectadas === 0) {
+                                abort(422, "Stock insuficiente para: {$producto->nombre}");
+                            }
+                        } else {
+                            DB::update(
+                                'UPDATE productos SET stock = stock + ? WHERE id = ?',
+                                [abs($diferencia), $producto->id]
+                            );
                         }
-
-                        $producto->update([
-                            'stock' => round($stockFinalScaled / 100, 2),
-                        ]);
                     }
 
-                    $cantidadNormalizada = round($cantidadScaled / 100, 2);
-                    $precio = round((float) $detalle->precio_unitario, 2);
-                    $precioScaled = (int) round($precio * 100);
-                    $subtotalScaled = (int) round(($precioScaled * $cantidadScaled) / 100);
+                    $precio = (float) $detalle->precio_unitario;
+                    $subtotal = $precio * $cantidad;
 
                     $detalle->update([
-                        'cantidad' => $cantidadNormalizada,
-                        'subtotal' => round($subtotalScaled / 100, 2),
+                        'cantidad' => $cantidadTexto,
+                        'subtotal' => round($subtotal, 2),
                     ]);
 
-                    $totalScaled += $subtotalScaled;
+                    $total += round($subtotal, 2);
                 }
 
                 $venta->update([
-                    'total' => $totalScaled / 100,
+                    'total' => $total,
                 ]);
             }
 
@@ -758,7 +772,7 @@ class VentaController extends Controller
         }
     }
 
-    private function normalizarNumero(mixed $valor): float
+    private function normalizarDecimalString(mixed $valor): string
     {
         $texto = trim((string) $valor);
         $texto = preg_replace('/[^0-9,.\-]/', '', $texto);
@@ -772,15 +786,7 @@ class VentaController extends Controller
             $texto = str_replace(',', '.', $texto);
         }
 
-        return (float) $texto;
-    }
-
-    private function normalizarNumeroAEntero(mixed $valor, int $precision = 2): int
-    {
-        $numero = $this->normalizarNumero($valor);
-        $factor = 10 ** $precision;
-
-        return (int) round($numero * $factor);
+        return $texto;
     }
 
     private function normalizeMetodoPago(?string $metodo): ?string
