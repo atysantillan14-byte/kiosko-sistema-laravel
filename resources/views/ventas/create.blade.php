@@ -130,7 +130,10 @@
                                 <div id="efectivoBox" class="hidden">
                                     <label class="app-label">Efectivo recibido</label>
                                     <input type="number" step="0.01" min="0" name="efectivo_recibido" id="efectivoRecibido" class="app-input" placeholder="0,00">
-                                    <p class="app-helper mt-1">Vuelto: <span id="vueltoTxt" class="font-semibold text-emerald-600">$ 0,00</span></p>
+                                    <p class="app-helper mt-2 flex flex-wrap items-center gap-2">
+                                        <span>Vuelto:</span>
+                                        <span id="vueltoTxt" class="inline-flex items-center rounded-md bg-emerald-50 px-3 py-1 text-2xl font-bold text-emerald-700 shadow-sm">$ 0,00</span>
+                                    </p>
                                 </div>
                             </div>
 
