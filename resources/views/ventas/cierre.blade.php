@@ -26,14 +26,39 @@
         devoluciones: 0,
         efectivoContado: 0,
         observaciones: '',
+        denominaciones: [50000, 20000, 10000, 5000, 2000, 1000, 500, 100, 50, 20, 10],
+        conteo: {
+            50000: 0,
+            20000: 0,
+            10000: 0,
+            5000: 0,
+            2000: 0,
+            1000: 0,
+            500: 0,
+            100: 0,
+            50: 0,
+            20: 0,
+            10: 0,
+        },
         get efectivoEsperado() {
             return this.efectivoVentas + this.fondoInicial + this.ingresos - this.retiros - this.devoluciones;
+        },
+        get totalConteo() {
+            return this.denominaciones.reduce((total, denominacion) => {
+                return total + (Number(this.conteo[denominacion]) || 0) * denominacion;
+            }, 0);
         },
         get diferencia() {
             return this.efectivoContado - this.efectivoEsperado;
         },
         get diferenciaClase() {
             return this.diferencia >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700';
+        },
+        formatCurrency(valor) {
+            return new Intl.NumberFormat('es-CL', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }).format(valor ?? 0);
         }
     }">
         <form id="cierre-guardar-form" method="POST" action="{{ route('ventas.cierre.guardar') }}">
@@ -277,6 +302,30 @@
                         <input x-model.number="efectivoContado" type="number" step="0.01" min="0" class="app-input mt-2 print-hidden" placeholder="0,00">
                         <span class="print-only mt-2 block font-semibold text-slate-900">$ <span x-text="efectivoContado.toFixed(2)"></span></span>
                     </label>
+                    <div class="rounded-xl border border-slate-200/70 p-4 text-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-700">Conteo de billetes y monedas</p>
+                                <p class="text-xs text-slate-500">Ingresá la cantidad por denominación.</p>
+                            </div>
+                            <div class="text-xs font-semibold text-slate-900">
+                                Total: $ <span x-text="formatCurrency(totalConteo)"></span>
+                            </div>
+                        </div>
+                        <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                            <template x-for="denominacion in denominaciones" :key="denominacion">
+                                <label class="flex items-center justify-between gap-2 text-xs font-semibold text-slate-500">
+                                    <span>$ <span x-text="denominacion"></span></span>
+                                    <input x-model.number="conteo[denominacion]" type="number" min="0" class="app-input w-20 text-right print-hidden" placeholder="0">
+                                    <span class="print-only font-semibold text-slate-900" x-text="conteo[denominacion]"></span>
+                                </label>
+                            </template>
+                        </div>
+                        <button type="button" class="app-btn-secondary mt-4 w-full print-hidden" @click="efectivoContado = totalConteo">
+                            <i class="fas fa-arrow-down"></i>
+                            Usar total en efectivo contado
+                        </button>
+                    </div>
                     <div class="rounded-xl border border-slate-200/70 p-4 text-sm">
                         <div class="flex items-center justify-between">
                             <span class="text-slate-600">Diferencia</span>
