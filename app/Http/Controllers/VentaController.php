@@ -384,10 +384,12 @@ class VentaController extends Controller
             ->flatMap(fn ($venta) => $venta->detalles)
             ->groupBy('producto_id')
             ->map(function ($items) {
-                $producto = $items->first()->producto;
+                $detalle = $items->first();
+                $producto = $detalle->producto;
 
                 return [
                     'producto' => $producto?->nombre ?? 'Producto sin nombre',
+                    'precio' => $detalle->precio_unitario ?? $producto?->precio,
                     'cantidad' => $items->sum('cantidad'),
                     'total' => $items->sum('subtotal'),
                 ];
@@ -522,10 +524,12 @@ class VentaController extends Controller
             ->flatMap(fn ($venta) => $venta->detalles)
             ->groupBy('producto_id')
             ->map(function ($items) {
-                $producto = $items->first()->producto;
+                $detalle = $items->first();
+                $producto = $detalle->producto;
 
                 return [
                     'producto' => $producto?->nombre ?? 'Producto sin nombre',
+                    'precio' => $detalle->precio_unitario ?? $producto?->precio,
                     'cantidad' => $items->sum('cantidad'),
                     'total' => $items->sum('subtotal'),
                 ];
