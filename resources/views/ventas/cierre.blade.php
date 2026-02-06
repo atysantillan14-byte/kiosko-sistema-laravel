@@ -26,12 +26,10 @@
         devoluciones: 0,
         efectivoContado: 0,
         observaciones: '',
-        denominaciones: [50000, 20000, 10000, 5000, 2000, 1000, 500, 100, 50, 20, 10],
+        denominaciones: [20000, 10000, 2000, 1000, 500, 100, 50, 20, 10],
         conteo: {
-            50000: 0,
             20000: 0,
             10000: 0,
-            5000: 0,
             2000: 0,
             1000: 0,
             500: 0,
@@ -286,8 +284,8 @@
                         <input x-model.number="devoluciones" type="number" step="0.01" min="0" class="app-input w-32 text-right print-hidden" placeholder="0,00">
                         <span class="print-only font-semibold text-slate-900">$ <span x-text="devoluciones.toFixed(2)"></span></span>
                     </label>
-                    <div class="mt-4 flex items-center justify-between border-t border-slate-200/70 pt-3 text-sm font-semibold text-slate-900">
-                        <span>Efectivo esperado</span>
+                    <div class="mt-4 flex items-center justify-between border-t border-slate-200/70 pt-3 text-2xl font-semibold text-slate-900">
+                        <span class="text-sm">Efectivo esperado</span>
                         <span>$ <span x-text="efectivoEsperado.toFixed(2)"></span></span>
                     </div>
                 </div>
