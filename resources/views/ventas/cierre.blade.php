@@ -138,12 +138,12 @@
                     <input class="app-input mt-1" type="time" name="hora_hasta" value="{{ $rangos['hora_hasta'] }}">
                 </label>
 
-                <div class="flex items-end gap-2 md:col-span-2 xl:col-span-2">
-                    <button class="app-btn-primary w-full" type="submit">
+                <div class="flex items-end gap-2 md:col-span-2 xl:col-span-2 xl:justify-end">
+                    <button class="app-btn-primary" type="submit">
                         <i class="fas fa-chart-line"></i>
                         Generar cierre
                     </button>
-                    <a href="{{ route('ventas.cierre') }}" class="app-btn-secondary w-full">
+                    <a href="{{ route('ventas.cierre') }}" class="app-btn-secondary">
                         <i class="fas fa-rotate-left"></i>
                         Limpiar
                     </a>
