@@ -173,6 +173,7 @@
                     <thead>
                         <tr>
                             <th>Producto</th>
+                            <th class="text-right">Precio</th>
                             <th class="text-right">Cantidad</th>
                             <th class="text-right">Total</th>
                         </tr>
@@ -181,12 +182,13 @@
                         @forelse($productos as $producto)
                             <tr>
                                 <td class="font-semibold text-slate-900">{{ $producto['producto'] ?? 'Producto sin nombre' }}</td>
+                                <td class="text-right">$ {{ number_format((float) ($producto['precio'] ?? 0), 2, ',', '.') }}</td>
                                 <td class="text-right">{{ number_format((float) ($producto['cantidad'] ?? 0), 2, ',', '.') }}</td>
                                 <td class="text-right">$ {{ number_format((float) ($producto['total'] ?? 0), 2, ',', '.') }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td class="px-6 py-6 text-center text-sm text-slate-500" colspan="3">
+                                <td class="px-6 py-6 text-center text-sm text-slate-500" colspan="4">
                                     Sin productos registrados en el cierre.
                                 </td>
                             </tr>
