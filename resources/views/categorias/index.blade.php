@@ -16,13 +16,13 @@
     <div class="app-page">
         <div class="app-card overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="app-table">
+                <table class="app-table table-fixed">
                     <thead>
                         <tr>
-                            <th>Nombre</th>
-                            <th>Slug</th>
-                            <th>Estado</th>
-                            <th class="text-right">Acciones</th>
+                            <th class="w-6/12">Nombre</th>
+                            <th class="w-3/12">Slug</th>
+                            <th class="w-2/12 text-center">Estado</th>
+                            <th class="w-1/12 text-right">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200/70">
@@ -38,7 +38,7 @@
                                     </div>
                                 </td>
                                 <td>{{ $cat->slug }}</td>
-                                <td>
+                                <td class="text-center">
                                     <span class="app-chip {{ ($cat->estado ?? 'activa') === 'activa' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600' }}">
                                         {{ $cat->estado ?? 'activa' }}
                                     </span>
