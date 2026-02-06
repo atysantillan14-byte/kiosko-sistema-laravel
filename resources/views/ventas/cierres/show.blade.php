@@ -18,6 +18,15 @@
         </div>
     </x-slot>
 
+    @php
+        $turnoLabel = $cierre->turno
+            ? ([
+                'manana' => 'Mañana',
+                'tarde' => 'Tarde',
+                'noche' => 'Noche',
+            ][$cierre->turno] ?? ucfirst($cierre->turno))
+            : 'Todos';
+    @endphp
     <div class="app-page space-y-6">
         @php
             $denominaciones = [20000, 10000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5];
@@ -35,7 +44,7 @@
             <div class="app-card p-5">
                 <div class="text-xs font-semibold text-slate-500">Turno</div>
                 <div class="text-sm font-semibold text-slate-900">
-                    {{ $cierre->turno ? ucfirst($cierre->turno) : 'Todos' }}
+                    {{ $turnoLabel }}
                 </div>
             </div>
             <div class="app-card p-5">

@@ -36,6 +36,15 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200/70">
                         @forelse($cierres as $cierre)
+                            @php
+                                $turnoLabel = $cierre->turno
+                                    ? ([
+                                        'manana' => 'Mañana',
+                                        'tarde' => 'Tarde',
+                                        'noche' => 'Noche',
+                                    ][$cierre->turno] ?? ucfirst($cierre->turno))
+                                    : 'Todos';
+                            @endphp
                             <tr>
                                 <td class="font-semibold text-slate-900">#{{ $cierre->id }}</td>
                                 <td>{{ $cierre->created_at?->format('d/m/Y H:i') ?? '—' }}</td>
@@ -47,7 +56,7 @@
                                         {{ $cierre->hora_desde ?? '00:00' }} - {{ $cierre->hora_hasta ?? '23:59' }}
                                     </div>
                                 </td>
-                                <td>{{ $cierre->turno ? ucfirst($cierre->turno) : 'Todos' }}</td>
+                                <td>{{ $turnoLabel }}</td>
                                 <td class="font-semibold text-slate-900">
                                     $ {{ number_format((float) $cierre->total_neto, 2, ',', '.') }}
                                 </td>

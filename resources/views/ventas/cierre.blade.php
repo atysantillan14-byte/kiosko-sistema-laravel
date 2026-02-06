@@ -18,6 +18,15 @@
         </div>
     </x-slot>
 
+    @php
+        $turnoLabel = $rangos['turno']
+            ? ([
+                'manana' => 'Mañana',
+                'tarde' => 'Tarde',
+                'noche' => 'Noche',
+            ][$rangos['turno']] ?? ucfirst($rangos['turno']))
+            : 'Todos';
+    @endphp
     <div class="app-page space-y-6" x-data="{
         efectivoVentas: {{ (float) $efectivoVentas }},
         fondoInicial: 0,
@@ -82,7 +91,7 @@
             <div class="mt-3 grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-3">
                 <div>
                     <p class="text-xs font-semibold text-slate-500">Turno</p>
-                    <p class="font-semibold text-slate-900">{{ $rangos['turno'] ? ucfirst($rangos['turno']) : 'Todos' }}</p>
+                    <p class="font-semibold text-slate-900">{{ $turnoLabel }}</p>
                 </div>
                 <div>
                     <p class="text-xs font-semibold text-slate-500">Rango</p>
@@ -166,7 +175,7 @@
                     {{ $rangoFin ? $rangoFin->format('d/m/Y H:i') : 'Sin datos' }}
                 </div>
                 <p class="mt-2 text-xs text-slate-400">
-                    Turno: {{ $rangos['turno'] ? ucfirst($rangos['turno']) : 'Todos' }} ·
+                    Turno: {{ $turnoLabel }} ·
                     Horas: {{ $rangos['hora_desde'] ?: '00:00' }} - {{ $rangos['hora_hasta'] ?: '23:59' }}.
                 </p>
             </div>
@@ -316,7 +325,7 @@
                             <template x-for="denominacion in denominaciones" :key="denominacion">
                                 <label class="flex items-center justify-between gap-2 text-xs font-semibold text-slate-500">
                                     <span>$ <span x-text="denominacion"></span></span>
-                                    <input x-model.number="conteo[denominacion]" type="number" min="0" :name="'conteo[' + denominacion + ']'" class="app-input w-20 text-right print-hidden" placeholder="0">
+                                    <input x-model.number="conteo[denominacion]" type="number" min="0" :name="'conteo[' + denominacion + ']'" form="cierre-guardar-form" class="app-input w-20 text-right print-hidden" placeholder="0">
                                     <span class="print-only font-semibold text-slate-900" x-text="conteo[denominacion]"></span>
                                 </label>
                             </template>
