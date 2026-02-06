@@ -107,7 +107,7 @@
                 </div>
             </div>
 
-            <form class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6" method="GET" action="{{ route('ventas.cierre') }}">
+            <form class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-7" method="GET" action="{{ route('ventas.cierre') }}">
                 <label class="text-xs font-semibold text-slate-500">
                     Desde
                     <input class="app-input mt-1" type="date" name="desde" value="{{ $rangos['desde'] }}">
@@ -138,7 +138,7 @@
                     <input class="app-input mt-1" type="time" name="hora_hasta" value="{{ $rangos['hora_hasta'] }}">
                 </label>
 
-                <div class="flex items-end gap-2 md:col-span-2 xl:col-span-1">
+                <div class="flex items-end gap-2 md:col-span-2 xl:col-span-2">
                     <button class="app-btn-primary w-full" type="submit">
                         <i class="fas fa-chart-line"></i>
                         Generar cierre
