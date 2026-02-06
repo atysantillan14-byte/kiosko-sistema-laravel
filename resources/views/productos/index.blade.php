@@ -107,8 +107,8 @@
                             <th>Nombre</th>
                             <th>Categoría</th>
                             <th>SKU</th>
-                            <th>Precio</th>
-                            <th>Stock</th>
+                            <th class="text-right">Precio</th>
+                            <th class="text-right">Stock</th>
                             <th class="text-right">Acciones</th>
                         </tr>
                     </thead>
@@ -118,10 +118,10 @@
                                 <td class="font-semibold text-slate-900">{{ $p->nombre }}</td>
                                 <td>{{ $p->categoria?->nombre ?? 'Sin categoría' }}</td>
                                 <td>{{ $p->sku ?? '-' }}</td>
-                                <td class="font-semibold text-slate-900">
+                                <td class="text-right font-semibold text-slate-900">
                                     $ {{ number_format((float)$p->precio, 2, ',', '.') }}
                                 </td>
-                                <td>
+                                <td class="text-right">
                                     <span class="app-chip bg-emerald-50 text-emerald-700">
                                         {{ number_format((float) $p->stock, 2, ',', '.') }}
                                     </span>
