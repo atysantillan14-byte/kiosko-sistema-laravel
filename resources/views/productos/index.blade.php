@@ -83,11 +83,11 @@
                 </label>
 
                 <div class="flex items-end gap-2">
-                    <button class="app-btn-primary w-full" type="submit">
+                    <button class="app-btn-primary" type="submit">
                         <i class="fas fa-magnifying-glass"></i>
                         Aplicar
                     </button>
-                    <a href="{{ route('productos.index') }}" class="app-btn-secondary w-full">
+                    <a href="{{ route('productos.index') }}" class="app-btn-secondary">
                         <i class="fas fa-rotate-left"></i>
                         Limpiar
                     </a>
