@@ -617,6 +617,12 @@ class VentaController extends Controller
     private function ensureCierresCajaTableExists(): void
     {
         if (Schema::hasTable('cierres_caja')) {
+            if (! Schema::hasColumn('cierres_caja', 'conteo')) {
+                Schema::table('cierres_caja', function (Blueprint $table) {
+                    $table->json('conteo')->nullable()->after('productos');
+                });
+            }
+
             return;
         }
 
