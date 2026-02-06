@@ -35,6 +35,7 @@ class CierreCaja extends Model
         'observaciones',
         'desglose_pagos',
         'productos',
+        'conteo',
     ];
 
     protected $casts = [
@@ -54,6 +55,7 @@ class CierreCaja extends Model
         'devoluciones' => 'decimal:2',
         'desglose_pagos' => 'array',
         'productos' => 'array',
+        'conteo' => 'array',
     ];
 
     public function usuario(): BelongsTo

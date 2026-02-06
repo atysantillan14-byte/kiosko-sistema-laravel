@@ -36,6 +36,7 @@ return new class extends Migration
             $table->text('observaciones')->nullable();
             $table->json('desglose_pagos')->nullable();
             $table->json('productos')->nullable();
+            $table->json('conteo')->nullable();
             $table->timestamps();
         });
     }
