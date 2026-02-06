@@ -43,16 +43,9 @@
                         <textarea name="descripcion" class="app-input" rows="3">{{ old('descripcion') }}</textarea>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div>
-                            <label class="app-label">Imagen (URL o path)</label>
-                            <input name="imagen" value="{{ old('imagen') }}" class="app-input">
-                        </div>
-
-                        <div>
-                            <label class="app-label">Orden</label>
-                            <input type="number" name="orden" value="{{ old('orden', 0) }}" class="app-input" min="0">
-                        </div>
+                    <div>
+                        <label class="app-label">Imagen (URL o path)</label>
+                        <input name="imagen" value="{{ old('imagen') }}" class="app-input">
                     </div>
 
                     <div class="flex items-center gap-2 rounded-xl border border-slate-200/70 bg-slate-50/80 px-4 py-3 text-sm font-semibold text-slate-700">

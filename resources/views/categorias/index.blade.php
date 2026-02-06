@@ -22,7 +22,6 @@
                             <th>Nombre</th>
                             <th>Slug</th>
                             <th>Estado</th>
-                            <th class="text-right">Orden</th>
                             <th class="text-right">Acciones</th>
                         </tr>
                     </thead>
@@ -44,7 +43,6 @@
                                         {{ $cat->estado ?? 'activa' }}
                                     </span>
                                 </td>
-                                <td class="text-right">{{ $cat->orden ?? 0 }}</td>
                                 <td>
                                     <div class="flex justify-end gap-2">
                                         <a href="{{ route('categorias.edit', $cat) }}" class="app-btn-secondary px-3 py-1.5 text-xs">
@@ -62,7 +60,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td class="px-6 py-10 text-center text-sm text-slate-500" colspan="5">
+                                <td class="px-6 py-10 text-center text-sm text-slate-500" colspan="4">
                                     <div class="flex flex-col items-center gap-2">
                                         <i class="fas fa-tags text-2xl text-slate-300"></i>
                                         No hay categorías registradas.
