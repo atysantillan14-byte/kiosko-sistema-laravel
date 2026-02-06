@@ -207,16 +207,16 @@
                         <thead>
                             <tr>
                                 <th>Medio de pago</th>
-                                <th>Monto</th>
-                                <th># Transacciones</th>
+                                <th class="text-right">Monto</th>
+                                <th class="text-right"># Transacciones</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200/70">
                             @forelse($desglosePagos as $pago)
                                 <tr>
                                     <td class="font-semibold text-slate-900">{{ ucfirst($pago['metodo']) }}</td>
-                                    <td>$ {{ number_format((float) $pago['monto'], 2, ',', '.') }}</td>
-                                    <td>{{ $pago['transacciones'] }}</td>
+                                    <td class="text-right">$ {{ number_format((float) $pago['monto'], 2, ',', '.') }}</td>
+                                    <td class="text-right">{{ $pago['transacciones'] }}</td>
                                 </tr>
                             @empty
                                 <tr>

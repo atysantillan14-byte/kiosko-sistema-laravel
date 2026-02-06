@@ -22,7 +22,7 @@
                             <th>Nombre</th>
                             <th>Slug</th>
                             <th>Estado</th>
-                            <th>Orden</th>
+                            <th class="text-right">Orden</th>
                             <th class="text-right">Acciones</th>
                         </tr>
                     </thead>
@@ -44,7 +44,7 @@
                                         {{ $cat->estado ?? 'activa' }}
                                     </span>
                                 </td>
-                                <td>{{ $cat->orden ?? 0 }}</td>
+                                <td class="text-right">{{ $cat->orden ?? 0 }}</td>
                                 <td>
                                     <div class="flex justify-end gap-2">
                                         <a href="{{ route('categorias.edit', $cat) }}" class="app-btn-secondary px-3 py-1.5 text-xs">
