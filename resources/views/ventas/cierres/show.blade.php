@@ -19,6 +19,12 @@
     </x-slot>
 
     <div class="app-page space-y-6">
+        @php
+            $denominaciones = [20000, 10000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5];
+            $conteo = $cierre->conteo ?? [];
+            $totalConteo = collect($denominaciones)
+                ->sum(fn ($denominacion) => (float) ($conteo[$denominacion] ?? 0) * $denominacion);
+        @endphp
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
             <div class="app-card p-5">
                 <div class="text-xs font-semibold text-slate-500">Fecha</div>
@@ -160,6 +166,22 @@
                         <p class="mt-1">{{ $cierre->observaciones }}</p>
                     </div>
                 @endif
+            </div>
+
+            <div class="app-card p-6">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-slate-900">Conteo de billetes y monedas</h3>
+                    <span class="text-xs font-semibold text-slate-900">Total: $ {{ number_format((float) $totalConteo, 2, ',', '.') }}</span>
+                </div>
+                <p class="mt-1 text-xs text-slate-500">Detalle de denominaciones registradas.</p>
+                <div class="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-600">
+                    @foreach($denominaciones as $denominacion)
+                        <div class="flex items-center justify-between rounded-lg border border-slate-200/70 px-3 py-2">
+                            <span class="font-semibold text-slate-700">$ {{ number_format((float) $denominacion, 0, ',', '.') }}</span>
+                            <span class="font-semibold text-slate-900">{{ (int) ($conteo[$denominacion] ?? 0) }}</span>
+                        </div>
+                    @endforeach
+                </div>
             </div>
         </div>
 

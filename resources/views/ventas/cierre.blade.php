@@ -26,17 +26,19 @@
         devoluciones: 0,
         efectivoContado: 0,
         observaciones: '',
-        denominaciones: [20000, 10000, 2000, 1000, 500, 100, 50, 20, 10],
+        denominaciones: [20000, 10000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5],
         conteo: {
             20000: 0,
             10000: 0,
             2000: 0,
             1000: 0,
             500: 0,
+            200: 0,
             100: 0,
             50: 0,
             20: 0,
             10: 0,
+            5: 0,
         },
         get efectivoEsperado() {
             return this.efectivoVentas + this.fondoInicial + this.ingresos - this.retiros - this.devoluciones;
@@ -314,7 +316,7 @@
                             <template x-for="denominacion in denominaciones" :key="denominacion">
                                 <label class="flex items-center justify-between gap-2 text-xs font-semibold text-slate-500">
                                     <span>$ <span x-text="denominacion"></span></span>
-                                    <input x-model.number="conteo[denominacion]" type="number" min="0" class="app-input w-20 text-right print-hidden" placeholder="0">
+                                    <input x-model.number="conteo[denominacion]" type="number" min="0" :name="'conteo[' + denominacion + ']'" class="app-input w-20 text-right print-hidden" placeholder="0">
                                     <span class="print-only font-semibold text-slate-900" x-text="conteo[denominacion]"></span>
                                 </label>
                             </template>

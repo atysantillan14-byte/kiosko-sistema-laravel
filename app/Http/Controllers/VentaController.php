@@ -434,6 +434,8 @@ class VentaController extends Controller
             'efectivo_contado' => ['nullable', 'numeric'],
             'diferencia' => ['nullable', 'numeric'],
             'observaciones' => ['nullable', 'string', 'max:1000'],
+            'conteo' => ['nullable', 'array'],
+            'conteo.*' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         if ($turno) {
@@ -563,6 +565,7 @@ class VentaController extends Controller
             'observaciones' => $data['observaciones'] ?? null,
             'desglose_pagos' => $desglosePagos,
             'productos' => $productosVendidos,
+            'conteo' => $data['conteo'] ?? [],
         ]);
 
         $redirectParams = array_filter([
@@ -641,6 +644,7 @@ class VentaController extends Controller
             $table->text('observaciones')->nullable();
             $table->json('desglose_pagos')->nullable();
             $table->json('productos')->nullable();
+            $table->json('conteo')->nullable();
             $table->timestamps();
         });
     }
